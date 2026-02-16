@@ -74,13 +74,13 @@ export default function Home() {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="flex-1 flex flex-col justify-center px-8 lg:px-24 py-10 relative">
+      <div className="flex-1 flex flex-col justify-center items-center px-8 lg:px-24 py-10 relative">
         {/* Theme Toggle */}
         <button className="absolute top-8 right-8 text-gray-400 hover:text-gray-600">
             <Moon className="w-5 h-5" />
         </button>
 
-        <div className="max-w-[480px] w-full mx-auto lg:mx-0">
+        <div className="max-w-[480px] w-full">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-12">
             <div className="p-2 rounded-lg transition-colors duration-500" style={{ backgroundColor: themeColor }}>
