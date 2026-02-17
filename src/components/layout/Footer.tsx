@@ -6,7 +6,7 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-bold text-blue-600 mb-4">EduConnect</h3>
+            <h3 className="text-lg font-bold text-blue-600 mb-4">ClassMate</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Connecting students to learn together, share knowledge, and succeed.
             </p>
@@ -36,7 +36,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t dark:border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          © {new Date().getFullYear()} EduConnect. All rights reserved.
+          © {new Date().getFullYear()} ClassMate. All rights reserved.
         </div>
       </div>
     </footer>
