@@ -11,8 +11,16 @@ import ColorThief from 'colorthief';
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [themeColor, setThemeColor] = useState('#5A3DFF'); // Default purple
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check local storage for login status
+    const storedLogin = localStorage.getItem('isLoggedIn');
+    if (storedLogin === 'true') {
+      setIsLoggedIn(true);
+    }
+    setIsLoading(false);
+
     const img = new Image();
     img.src = '/011620_Features_KS_004_2500.webp';
     img.crossOrigin = 'Anonymous';
@@ -30,9 +38,18 @@ export default function Home() {
     };
   }, []);
 
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    localStorage.setItem('isLoggedIn', 'true');
+  };
+
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
+
   if (isLoggedIn) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#0F172A] transition-colors duration-300">
         <Header />
         <main className="flex-1">
           <Dashboard />
@@ -96,7 +113,7 @@ export default function Home() {
             <Button 
               variant="outline" 
               className="w-full rounded-full bg-white text-gray-700 hover:bg-gray-50 border-gray-200 h-12 font-medium text-base flex items-center justify-center gap-3 transition-all"
-              onClick={() => setIsLoggedIn(true)}
+              onClick={handleLogin}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -110,7 +127,7 @@ export default function Home() {
             <Button 
               variant="outline" 
               className="w-full rounded-full bg-white text-gray-700 hover:bg-gray-50 border-gray-200 h-12 font-medium text-base flex items-center justify-center gap-3 transition-all"
-              onClick={() => setIsLoggedIn(true)}
+              onClick={handleLogin}
             >
                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.64 3.4 1.63-3.12 1.88-2.6 5.79.43 7.1-.7 1.75-1.6 3.44-2.48 4.28zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
@@ -125,9 +142,9 @@ export default function Home() {
             </div>
 
             <Button 
-               className="w-full rounded-full text-white border-none h-12 font-bold text-base shadow-sm hover:shadow transition-all duration-500 hover:brightness-110"
+               className="w-full rounded-full text-white border-none h-12 font-bold text-base shadow-sm hover:shadow transition-all duration-500 hover:brightness-110 flex items-center justify-center"
                style={{ backgroundColor: themeColor }}
-               onClick={() => setIsLoggedIn(true)}
+               onClick={handleLogin}
             >
                Create account
             </Button>
@@ -140,9 +157,9 @@ export default function Home() {
                <h3 className="text-base font-bold text-gray-900 mb-4">Already have an account?</h3>
                <Button 
                   variant="outline" 
-                  className="w-full rounded-full bg-white border-gray-200 hover:bg-gray-50 h-12 font-bold text-base transition-colors duration-500"
+                  className="w-full rounded-full bg-white border-gray-200 hover:bg-gray-50 h-12 font-bold text-base transition-colors duration-500 flex items-center justify-center"
                   style={{ color: themeColor }}
-                  onClick={() => setIsLoggedIn(true)}
+                  onClick={handleLogin}
                >
                   Sign in
                </Button>
