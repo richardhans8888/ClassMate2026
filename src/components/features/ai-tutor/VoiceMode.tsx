@@ -24,50 +24,65 @@ export function VoiceMode() {
       <div className="flex-1 flex flex-col items-center justify-center relative">
         {/* Glowing Orb */}
         <div className="relative flex items-center justify-center">
-          {/* Outer Glow */}
+          {/* Outer Ripple 1 */}
           <motion.div 
             animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3]
+              scale: [1, 1.4, 1],
+              opacity: [0.1, 0.4, 0.1]
+            }}
+            transition={{ 
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0
+            }}
+            className="absolute w-80 h-80 rounded-full bg-indigo-500/10 border border-indigo-500/20"
+          />
+          
+          {/* Outer Ripple 2 */}
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.3, 1],
+              opacity: [0.2, 0.5, 0.2]
             }}
             transition={{ 
               duration: 3,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
+              delay: 0.5
             }}
-            className="absolute w-64 h-64 rounded-full bg-indigo-600/20 blur-3xl"
+            className="absolute w-72 h-72 rounded-full bg-indigo-500/10 border border-indigo-500/30"
           />
-          
-          {/* Middle Ring */}
+
+          {/* Core Glow */}
           <motion.div 
             animate={{ 
               scale: [1, 1.1, 1],
-              borderWidth: ["1px", "2px", "1px"]
+              boxShadow: [
+                "0 0 60px rgba(99,102,241,0.4)",
+                "0 0 100px rgba(99,102,241,0.6)",
+                "0 0 60px rgba(99,102,241,0.4)"
+              ]
             }}
             transition={{ 
               duration: 2,
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="absolute w-48 h-48 rounded-full border border-indigo-500/30"
+            className="w-56 h-56 rounded-full bg-gradient-to-br from-indigo-500 via-purple-600 to-blue-600 blur-xl opacity-80 z-0"
           />
-
-          {/* Core Orb */}
+          
+          {/* Solid Core */}
           <motion.div 
             animate={{ 
-              scale: [1, 1.05, 1],
-              background: [
-                "radial-gradient(circle, rgba(99,102,241,1) 0%, rgba(79,70,229,0.8) 100%)",
-                "radial-gradient(circle, rgba(129,140,248,1) 0%, rgba(67,56,202,0.8) 100%)",
-                "radial-gradient(circle, rgba(99,102,241,1) 0%, rgba(79,70,229,0.8) 100%)"
-              ]
+              scale: [0.95, 1, 0.95],
             }}
             transition={{ 
-              duration: 4,
+              duration: 2,
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="w-40 h-40 rounded-full shadow-[0_0_60px_rgba(99,102,241,0.6)] z-10"
+            className="absolute w-48 h-48 rounded-full bg-gradient-to-br from-indigo-400 via-purple-500 to-blue-500 shadow-inner z-10 opacity-90 mix-blend-screen"
           />
         </div>
 

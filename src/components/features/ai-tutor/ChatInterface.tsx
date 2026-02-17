@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Send, Image as ImageIcon, Plus, History, Bot } from 'lucide-react';
+import { Send, Image as ImageIcon, Plus, History, Bot, X, MessageSquare, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function ChatInterface() {
+  const [showHistory, setShowHistory] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -35,6 +37,14 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
     }
   ]);
 
+  const historySessions = [
+    { id: 1, title: "Quantum Mechanics Intro", date: "Today, 10:23 AM", active: true },
+    { id: 2, title: "Calculus: Integration", date: "Yesterday, 2:45 PM", active: false },
+    { id: 3, title: "React Hooks Explanation", date: "Mon, 11:30 AM", active: false },
+    { id: 4, title: "French Revolution Summary", date: "Last Week", active: false },
+    { id: 5, title: "Python Data Structures", date: "2 weeks ago", active: false }
+  ];
+
   return (
     <div className="flex flex-col h-full bg-[#0F1117] rounded-3xl overflow-hidden border border-gray-800 relative">
       {/* Header */}
@@ -43,11 +53,57 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
           <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
           <span className="text-gray-200 font-medium">AI Tutor Online</span>
         </div>
-        <button className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
+        <button 
+          onClick={() => setShowHistory(!showHistory)}
+          className={`flex items-center gap-2 transition-colors text-sm ${showHistory ? 'text-indigo-400' : 'text-gray-400 hover:text-white'}`}
+        >
           <History className="w-4 h-4" />
           <span>Session History</span>
         </button>
       </div>
+
+      {/* History Panel Overlay */}
+      <AnimatePresence>
+        {showHistory && (
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="absolute top-[70px] right-6 w-80 bg-[#1E2028] border border-gray-800 rounded-2xl shadow-2xl z-20 overflow-hidden backdrop-blur-xl"
+          >
+            <div className="p-4 border-b border-gray-800 flex justify-between items-center">
+              <h3 className="text-sm font-semibold text-gray-200">Recent Sessions</h3>
+              <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+              {historySessions.map((session) => (
+                <button 
+                  key={session.id}
+                  className={`w-full text-left p-4 hover:bg-[#2A2D3A] transition-colors flex items-center gap-3 border-b border-gray-800/50 last:border-0 ${session.active ? 'bg-[#2A2D3A/50]' : ''}`}
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${session.active ? 'bg-indigo-500/20 text-indigo-400' : 'bg-gray-800 text-gray-400'}`}>
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className={`text-sm font-medium truncate ${session.active ? 'text-indigo-400' : 'text-gray-200'}`}>
+                      {session.title}
+                    </h4>
+                    <p className="text-xs text-gray-500 mt-0.5">{session.date}</p>
+                  </div>
+                  {session.active && <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>}
+                </button>
+              ))}
+            </div>
+            <div className="p-3 border-t border-gray-800 bg-[#1A1C24]">
+              <button className="w-full py-2 text-xs text-center text-gray-400 hover:text-white transition-colors">
+                View All History
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-8">
