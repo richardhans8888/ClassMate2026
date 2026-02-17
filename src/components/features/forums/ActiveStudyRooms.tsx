@@ -238,6 +238,7 @@ export function ActiveStudyRooms() {
                    {room.category === 'DEV' && '<>'}
                    {room.category === 'ART' && '🎨'}
                    {room.category === 'BIO' && '🧬'}
+                   {room.category === 'PHY' && '⚛'}
                    {room.category}
                 </span>
               </div>
