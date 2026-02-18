@@ -18,7 +18,7 @@ import { usePathname } from "next/navigation";
 const navigation = [
   { name: "Dashboard", href: "/tutor-studio", icon: LayoutDashboard },
   { name: "Student Requests", href: "/tutor-studio/requests", icon: Users, count: 3 },
-  { name: "Active Courses", href: "#", icon: BookOpen },
+  { name: "Active Courses", href: "/tutor-studio/courses", icon: BookOpen },
   { name: "Earnings", href: "#", icon: DollarSign },
   { name: "Schedule", href: "/tutor-studio/schedule", icon: Calendar },
   { name: "AI Insights", href: "#", icon: Sparkles },
