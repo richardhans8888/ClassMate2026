@@ -1,12 +1,17 @@
+"use client";
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { Star, Play, Award, Filter } from 'lucide-react';
+import { Star, Play, Award, Filter, ChevronDown, Check } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
+// Mock Data
 const tutors = [
   {
     id: 1,
     name: "Dr. Alan Grant",
-    subject: "Paleontology",
+    subject: "Science",
     specialties: ["Dinosaurs", "Fossils", "Evolutionary Biology"],
     rating: 4.9,
     reviews: 120,
@@ -18,7 +23,7 @@ const tutors = [
   {
     id: 2,
     name: "Ellie Sattler",
-    subject: "Botany",
+    subject: "Science",
     specialties: ["Paleobotany", "Plant Biology", "Ecology"],
     rating: 5.0,
     reviews: 95,
@@ -65,7 +70,87 @@ const subjects = [
   "Art"
 ];
 
+// Reusable Dropdown Component
+interface FilterDropdownProps {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}
+
+function FilterDropdown({ label, value, options, onChange }: FilterDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 text-xs md:text-sm rounded-full border px-3 py-1.5 text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-white/10 transition-colors"
+      >
+        <span>{label}: <span className="font-semibold text-gray-900 dark:text-white">{value}</span></span>
+        <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.95 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-[#1F293B] border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden"
+          >
+            <div className="py-1 max-h-[300px] overflow-y-auto custom-scrollbar">
+              {options.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => {
+                    onChange(option);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between transition-colors ${
+                    value === option 
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium' 
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  {option}
+                  {value === option && <Check className="w-3 h-3" />}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function TutorsPage() {
+  const [activeSubject, setActiveSubject] = useState("All Subjects");
+  const [activeSort, setActiveSort] = useState("Recommended");
+
+  const filteredTutors = tutors.filter((tutor) => {
+    if (activeSubject === "All Subjects") return true;
+    return tutor.subject === activeSubject;
+  }).sort((a, b) => {
+    if (activeSort === "Price: Low to High") return a.hourlyRate - b.hourlyRate;
+    if (activeSort === "Price: High to Low") return b.hourlyRate - a.hourlyRate;
+    if (activeSort === "Top Rated") return b.rating - a.rating;
+    return 0;
+  });
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -156,14 +241,94 @@ export default function TutorsPage() {
             <Filter className="h-4 w-4 mr-2" />
             Filters
           </Button>
-          {['All Subjects','Mathematics','Languages','Computer Science','Science','Arts'].map((c) => (
-            <button
-              key={c}
-              className="text-xs md:text-sm rounded-full border px-3 py-1.5 text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-white/10"
+          
+          <FilterDropdown 
+            label="Subject" 
+            value={activeSubject} 
+            options={subjects} 
+            onChange={setActiveSubject} 
+          />
+
+          <FilterDropdown 
+            label="Sort By" 
+            value={activeSort} 
+            options={["Recommended", "Top Rated", "Price: Low to High", "Price: High to Low"]} 
+            onChange={setActiveSort} 
+          />
+        </div>
+
+        {/* Available Tutors Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+          {filteredTutors.length > 0 ? (
+            filteredTutors.map((tutor) => (
+            <motion.div
+              key={tutor.id}
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white dark:bg-[#1e293b] rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full"
             >
-              {c}
-            </button>
-          ))}
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-lg">
+                    {tutor.avatar}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 dark:text-white">{tutor.name}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{tutor.subject}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
+                  <Star className="h-3 w-3 fill-amber-500" />
+                  {tutor.rating}
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4 h-10">
+                {tutor.bio}
+              </p>
+
+              <div className="flex flex-wrap gap-1 mb-4">
+                {tutor.specialties.slice(0, 2).map(s => (
+                  <span key={s} className="text-[10px] px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                    {s}
+                  </span>
+                ))}
+                {tutor.specialties.length > 2 && (
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                    +{tutor.specialties.length - 2}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-700/50">
+                <span className="font-bold text-gray-900 dark:text-white">
+                  ${tutor.hourlyRate}<span className="text-xs font-normal text-gray-500">/hr</span>
+                </span>
+                <Link href={`/tutors/${tutor.id}`}>
+                  <Button size="sm" variant="ghost" className="h-8 px-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                    Profile
+                    <ChevronDown className="h-3 w-3 ml-1 -rotate-90" />
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          ))
+          ) : (
+            <div className="col-span-full py-12 text-center text-gray-500 dark:text-gray-400">
+              <p>No tutors found matching your filters.</p>
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setActiveSubject("All Subjects");
+                  setActiveSort("Recommended");
+                }}
+                className="mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 

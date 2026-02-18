@@ -46,16 +46,16 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
   ];
 
   return (
-    <div className="flex flex-col h-full bg-[#0F1117] rounded-3xl overflow-hidden border border-gray-800 relative">
+    <div className="flex flex-col h-full bg-white dark:bg-[#0F1117] rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-800 relative shadow-sm transition-colors duration-300">
       {/* Header */}
-      <div className="flex justify-between items-center p-6 border-b border-gray-800/50">
+      <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-800/50">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
-          <span className="text-gray-200 font-medium">AI Tutor Online</span>
+          <span className="text-gray-900 dark:text-gray-200 font-medium">AI Tutor Online</span>
         </div>
         <button 
           onClick={() => setShowHistory(!showHistory)}
-          className={`flex items-center gap-2 transition-colors text-sm ${showHistory ? 'text-indigo-400' : 'text-gray-400 hover:text-white'}`}
+          className={`flex items-center gap-2 transition-colors text-sm ${showHistory ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
         >
           <History className="w-4 h-4" />
           <span>Session History</span>
@@ -69,11 +69,11 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="absolute top-[70px] right-6 w-80 bg-[#1E2028] border border-gray-800 rounded-2xl shadow-2xl z-20 overflow-hidden backdrop-blur-xl"
+            className="absolute top-[70px] right-6 w-80 bg-white/90 dark:bg-[#1E2028]/90 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl z-20 overflow-hidden backdrop-blur-xl"
           >
-            <div className="p-4 border-b border-gray-800 flex justify-between items-center">
-              <h3 className="text-sm font-semibold text-gray-200">Recent Sessions</h3>
-              <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-white">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200">Recent Sessions</h3>
+              <button onClick={() => setShowHistory(false)} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -81,23 +81,23 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
               {historySessions.map((session) => (
                 <button 
                   key={session.id}
-                  className={`w-full text-left p-4 hover:bg-[#2A2D3A] transition-colors flex items-center gap-3 border-b border-gray-800/50 last:border-0 ${session.active ? 'bg-[#2A2D3A/50]' : ''}`}
+                  className={`w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-[#2A2D3A] transition-colors flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50 last:border-0 ${session.active ? 'bg-indigo-50 dark:bg-[#2A2D3A/50]' : ''}`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${session.active ? 'bg-indigo-500/20 text-indigo-400' : 'bg-gray-800 text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${session.active ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'}`}>
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className={`text-sm font-medium truncate ${session.active ? 'text-indigo-400' : 'text-gray-200'}`}>
+                    <h4 className={`text-sm font-medium truncate ${session.active ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-gray-200'}`}>
                       {session.title}
                     </h4>
                     <p className="text-xs text-gray-500 mt-0.5">{session.date}</p>
                   </div>
-                  {session.active && <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>}
+                  {session.active && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-500"></div>}
                 </button>
               ))}
             </div>
-            <div className="p-3 border-t border-gray-800 bg-[#1A1C24]">
-              <button className="w-full py-2 text-xs text-center text-gray-400 hover:text-white transition-colors">
+            <div className="p-3 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1A1C24]">
+              <button className="w-full py-2 text-xs text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                 View All History
               </button>
             </div>
@@ -108,7 +108,7 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-8">
         <div className="flex justify-center">
-          <span className="bg-[#1E2028] text-gray-400 text-xs px-3 py-1 rounded-full border border-gray-800">
+          <span className="bg-gray-100 dark:bg-[#1E2028] text-gray-500 dark:text-gray-400 text-xs px-3 py-1 rounded-full border border-gray-200 dark:border-gray-800">
             TODAY, 10:23 AM
           </span>
         </div>
@@ -122,10 +122,10 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
             )}
             
             <div className={`max-w-[85%] space-y-4 ${msg.role === 'user' ? 'order-first' : ''}`}>
-              <div className={`p-4 rounded-2xl ${
+              <div className={`p-4 rounded-2xl shadow-sm ${
                 msg.role === 'user' 
-                  ? 'bg-[#2A2D3A] text-gray-100 rounded-tr-none' 
-                  : 'bg-[#1E2028] text-gray-300 rounded-tl-none border border-gray-800'
+                  ? 'bg-blue-600 dark:bg-[#2A2D3A] text-white dark:text-gray-100 rounded-tr-none' 
+                  : 'bg-gray-100 dark:bg-[#1E2028] text-gray-800 dark:text-gray-300 rounded-tl-none border border-gray-200 dark:border-gray-800'
               }`}>
                 <div className="whitespace-pre-wrap leading-relaxed">
                   {msg.content.split('\n\n').map((block, i) => (
@@ -135,8 +135,8 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
               </div>
 
               {msg.code && (
-                <div className="bg-[#0D0F14] rounded-xl border border-gray-800 overflow-hidden mt-3">
-                  <div className="flex justify-between items-center px-4 py-2 bg-[#1A1C24] border-b border-gray-800">
+                <div className="bg-[#1e293b] dark:bg-[#0D0F14] rounded-xl border border-gray-700 dark:border-gray-800 overflow-hidden mt-3 shadow-md">
+                  <div className="flex justify-between items-center px-4 py-2 bg-[#0f172a] dark:bg-[#1A1C24] border-b border-gray-700 dark:border-gray-800">
                     <span className="text-xs text-gray-400 font-mono">{msg.code.filename}</span>
                     <div className="flex gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-full bg-red-500/20"></div>
@@ -164,19 +164,19 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
 
       {/* Input Area */}
       <div className="p-6 pt-0">
-        <div className="bg-[#1E2028] p-2 pr-2 rounded-2xl border border-gray-800 flex items-center gap-3 shadow-xl">
-          <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors">
+        <div className="bg-gray-50 dark:bg-[#1E2028] p-2 pr-2 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+          <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors">
             <Plus className="w-5 h-5" />
           </button>
           
           <input 
             type="text" 
             placeholder="Ask a follow-up question..." 
-            className="flex-1 bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none text-sm"
+            className="flex-1 bg-transparent text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none text-sm"
           />
 
           <div className="flex items-center gap-2">
-            <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors">
+            <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors">
               <ImageIcon className="w-5 h-5" />
             </button>
             <button className="p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors shadow-lg shadow-indigo-600/20">
@@ -184,7 +184,7 @@ psi = np.exp(-0.5 * x**2) * np.cos(5 * x)`
             </button>
           </div>
         </div>
-        <p className="text-center text-xs text-gray-600 mt-3">
+        <p className="text-center text-xs text-gray-500 dark:text-gray-600 mt-3">
           AI can make mistakes. Consider checking important information.
         </p>
       </div>
