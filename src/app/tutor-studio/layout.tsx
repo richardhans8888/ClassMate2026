@@ -19,9 +19,8 @@ const navigation = [
   { name: "Dashboard", href: "/tutor-studio", icon: LayoutDashboard },
   { name: "Student Requests", href: "/tutor-studio/requests", icon: Users, count: 3 },
   { name: "Active Courses", href: "/tutor-studio/courses", icon: BookOpen },
-  { name: "Earnings", href: "#", icon: DollarSign },
+  { name: "Earnings", href: "/tutor-studio/earnings", icon: DollarSign },
   { name: "Schedule", href: "/tutor-studio/schedule", icon: Calendar },
-  { name: "AI Insights", href: "#", icon: Sparkles },
 ];
 
 export default function TutorStudioLayout({
