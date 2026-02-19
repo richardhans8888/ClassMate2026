@@ -1,20 +1,30 @@
 "use client";
 
+import { useEffect, useRef } from 'react';
 import { ChatInterface } from '@/components/features/ai-tutor/ChatInterface';
 import { VoiceMode } from '@/components/features/ai-tutor/VoiceMode';
 import { useChat } from '../../../hooks/useChat';
 import { useVoice } from '../../../hooks/useVoice';
 
 export default function AITutorPage() {
-  // Shared state — both ChatInterface and VoiceMode use the same instance
   const { messages, isLoading, error, sendMessage } = useChat();
+  const lastSpokenIdRef = useRef<string | null>(null);
 
   const { isListening, isSpeaking, isSupported, startListening, stopListening, speak, stopSpeaking } = useVoice({
     onTranscript: (text) => {
-      // When voice finishes, auto-send to chat
       sendMessage(text);
     },
   });
+
+  // Auto-speak every new AI response when done streaming
+  useEffect(() => {
+    if (isLoading) return;
+    const lastAiMessage = [...messages].reverse().find((m) => m.role === 'assistant');
+    if (!lastAiMessage) return;
+    if (lastAiMessage.id === lastSpokenIdRef.current) return;
+    lastSpokenIdRef.current = lastAiMessage.id;
+    speak(lastAiMessage.content);
+  }, [messages, isLoading]);
 
   return (
     <div className="h-[calc(100vh-64px)] w-full bg-gray-50 dark:bg-[#05050A] p-4 lg:p-6 overflow-hidden transition-colors duration-300">
