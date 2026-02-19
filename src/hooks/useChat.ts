@@ -1,5 +1,4 @@
-// src/hooks/useChat.ts
-// Custom hook to handle chat with streaming responses from the Gemini backend
+"use client";
 
 import { useState, useCallback } from 'react';
 
@@ -35,8 +34,8 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
       setIsLoading(true);
       setError(null);
 
-      // Add a placeholder assistant message that will be streamed into
       const assistantMessageId = crypto.randomUUID();
+
       setMessages((prev) => [
         ...prev,
         {
@@ -61,46 +60,60 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
           }),
         });
 
-        if (!response.ok) throw new Error('Failed to get response');
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || 'Failed to get response');
+        }
+
         if (!response.body) throw new Error('No response body');
 
-        // Stream the response
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        let buffer = '';
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
+          buffer += decoder.decode(value, { stream: true });
+          console.log('RAW CHUNK:', buffer);
+          const lines = buffer.split('\n');
+
+          // Keep the last incomplete line in the buffer
+          buffer = lines.pop() || '';
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') break;
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith('data: ')) continue;
 
-              try {
-                const parsed = JSON.parse(data);
-                if (parsed.text) {
-                  // Append streamed text to the assistant message
-                  setMessages((prev) =>
-                    prev.map((msg) =>
-                      msg.id === assistantMessageId
-                        ? { ...msg, content: msg.content + parsed.text }
-                        : msg
-                    )
-                  );
-                }
-              } catch {
-                // Skip malformed chunks
+            const data = trimmed.slice(6);
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+
+              // OpenRouter / OpenAI format: choices[0].delta.content
+              const text =
+                parsed.choices?.[0]?.delta?.content ||
+                parsed.text ||
+                '';
+
+              if (text) {
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMessageId
+                      ? { ...msg, content: msg.content + text }
+                      : msg
+                  )
+                );
               }
+            } catch {
+              // Skip malformed chunks
             }
           }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
-        // Remove the failed assistant placeholder
         setMessages((prev) => prev.filter((m) => m.id !== assistantMessageId));
       } finally {
         setIsLoading(false);
@@ -114,39 +127,11 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
     setError(null);
   }, []);
 
-  const loadSessionMessages = useCallback(
-    async (loadSessionId: string) => {
-      if (!userId) return;
-
-      try {
-        const res = await fetch(
-          `/api/sessions/${loadSessionId}/messages?userId=${userId}`
-        );
-        const data = await res.json();
-
-        if (data.messages) {
-          setMessages(
-            data.messages.map((m: { id: string; role: 'user' | 'assistant'; content: string; created_at: string }) => ({
-              id: m.id,
-              role: m.role,
-              content: m.content,
-              timestamp: new Date(m.created_at),
-            }))
-          );
-        }
-      } catch (err) {
-        setError('Failed to load session history');
-      }
-    },
-    [userId]
-  );
-
   return {
     messages,
     isLoading,
     error,
     sendMessage,
     clearMessages,
-    loadSessionMessages,
   };
 }
