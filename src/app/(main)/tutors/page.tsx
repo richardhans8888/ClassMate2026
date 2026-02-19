@@ -5,6 +5,12 @@ import { Button } from '@/components/ui/Button';
 import { Star, Play, Award, Filter, ChevronDown, Check } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Mock Data
 const tutors = [
@@ -55,6 +61,78 @@ const tutors = [
     bio: "I spare no expense in providing top-tier business tutoring. Learn how to build an empire.",
     avatar: "JH",
     available: true
+  },
+  {
+    id: 5,
+    name: "Maria Garcia",
+    subject: "Languages",
+    specialties: ["Spanish", "Linguistics", "Translation"],
+    rating: 4.8,
+    reviews: 150,
+    hourlyRate: 40,
+    bio: "Native Spanish speaker with a Master's in Linguistics. I help students master conversation and grammar.",
+    avatar: "MG",
+    available: true
+  },
+  {
+    id: 6,
+    name: "David Kim",
+    subject: "Computer Science",
+    specialties: ["React", "Node.js", "Python"],
+    rating: 4.9,
+    reviews: 110,
+    hourlyRate: 70,
+    bio: "Senior Software Engineer passionate about teaching modern web development and algorithms.",
+    avatar: "DK",
+    available: true
+  },
+  {
+    id: 7,
+    name: "Emily Chen",
+    subject: "Art",
+    specialties: ["Digital Painting", "Sketching", "Art History"],
+    rating: 4.6,
+    reviews: 65,
+    hourlyRate: 35,
+    bio: "Professional illustrator teaching digital art techniques and traditional sketching fundamentals.",
+    avatar: "EC",
+    available: false
+  },
+  {
+    id: 8,
+    name: "James Wilson",
+    subject: "History",
+    specialties: ["World War II", "European History", "Ancient Rome"],
+    rating: 4.7,
+    reviews: 90,
+    hourlyRate: 45,
+    bio: "History buff making the past come alive. Specialized in modern European history and military conflicts.",
+    avatar: "JW",
+    available: true
+  },
+  {
+    id: 9,
+    name: "Linda Taylor",
+    subject: "Literature",
+    specialties: ["Shakespeare", "Creative Writing", "Poetry"],
+    rating: 4.8,
+    reviews: 130,
+    hourlyRate: 55,
+    bio: "Published author and literature professor. I help with essay writing, analysis, and creative expression.",
+    avatar: "LT",
+    available: true
+  },
+  {
+    id: 10,
+    name: "Robert Brown",
+    subject: "Mathematics",
+    specialties: ["Algebra", "Geometry", "SAT Math"],
+    rating: 4.5,
+    reviews: 75,
+    hourlyRate: 40,
+    bio: "Patient math tutor specializing in helping high school students improve their grades and test scores.",
+    avatar: "RB",
+    available: true
   }
 ];
 
@@ -70,6 +148,23 @@ const subjects = [
   "Art"
 ];
 
+const courses = [
+  { code: 'CS-301', title: 'Data Structures & Algorithms', desc: 'Master trees, graphs, and sorting algorithms with expert guidance.', online: 5, tag: 'AI Ready', color: 'bg-blue-500/10 text-blue-500', category: 'Computer Science' },
+  { code: 'MATH-202', title: 'Linear Algebra II', desc: 'Vector spaces, eigenvalues, and complex matrices explained simply.', online: 12, tag: 'AI Ready', color: 'bg-orange-500/10 text-orange-500', category: 'Mathematics' },
+  { code: 'LIT-240', title: 'Modernist Poetry', desc: 'Exploring Eliot, Pound, and Woolf. Essay help available.', online: 1, tag: '1 Tutor Available', color: 'bg-pink-500/10 text-pink-500', category: 'Humanities' },
+  { code: 'PHYS-400', title: 'Quantum Mechanics I', desc: 'Wave functions and the Schrödinger equation.', online: 0, tag: 'Use AI Bot', color: 'bg-indigo-500/10 text-indigo-500', category: 'Science' },
+  { code: 'ECON-101', title: 'Microeconomics', desc: 'Supply, demand, and market equilibrium principles.', online: 3, tag: 'AI Ready', color: 'bg-emerald-500/10 text-emerald-500', category: 'Business' },
+  { code: 'PSY-200', title: 'Cognitive Psychology', desc: 'Memory, perception, and problem‑solving processes.', online: 7, tag: 'AI Ready', color: 'bg-rose-500/10 text-rose-500', category: 'Humanities' },
+  { code: 'CS-101', title: 'Intro to Programming', desc: 'Learn the basics of Python and computational thinking.', online: 8, tag: 'AI Ready', color: 'bg-blue-500/10 text-blue-500', category: 'Computer Science' },
+  { code: 'ENG-202', title: 'Fluid Dynamics', desc: 'Understanding fluid flow, viscosity, and pressure.', online: 2, tag: '2 Tutors Available', color: 'bg-cyan-500/10 text-cyan-500', category: 'Engineering' },
+  { code: 'HIST-101', title: 'World History', desc: 'A comprehensive overview of major global events.', online: 4, tag: 'AI Ready', color: 'bg-amber-500/10 text-amber-500', category: 'Humanities' },
+  { code: 'BUS-301', title: 'Marketing 101', desc: 'Fundamentals of marketing strategies and consumer behavior.', online: 6, tag: 'AI Ready', color: 'bg-emerald-500/10 text-emerald-500', category: 'Business' },
+  { code: 'ART-105', title: 'Art History', desc: 'From Renaissance to Modern Art: A visual journey.', online: 2, tag: 'AI Ready', color: 'bg-purple-500/10 text-purple-500', category: 'Humanities' },
+  { code: 'LANG-101', title: 'French for Beginners', desc: 'Start speaking French from day one with immersive lessons.', online: 5, tag: 'AI Ready', color: 'bg-red-500/10 text-red-500', category: 'Humanities' }
+];
+
+const moduleCategories = ['All Modules', 'Computer Science', 'Mathematics', 'Engineering', 'Humanities', 'Business', 'Science'];
+
 // Reusable Dropdown Component
 interface FilterDropdownProps {
   label: string;
@@ -79,67 +174,40 @@ interface FilterDropdownProps {
 }
 
 function FilterDropdown({ label, value, options, onChange }: FilterDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 text-xs md:text-sm rounded-full border px-3 py-1.5 text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-white/10 transition-colors"
-      >
-        <span>{label}: <span className="font-semibold text-gray-900 dark:text-white">{value}</span></span>
-        <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.95 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-[#1F293B] border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="flex items-center gap-2 text-xs md:text-sm rounded-full border px-3 py-1.5 text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-white/10 transition-colors outline-none">
+          <span>{label}: <span className="font-semibold text-gray-900 dark:text-white">{value}</span></span>
+          <ChevronDown className="w-3 h-3" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-48 max-h-[300px] overflow-y-auto">
+        {options.map((option) => (
+          <DropdownMenuItem
+            key={option}
+            onClick={() => onChange(option)}
+            className="justify-between cursor-pointer"
           >
-            <div className="py-1 max-h-[300px] overflow-y-auto custom-scrollbar">
-              {options.map((option) => (
-                <button
-                  key={option}
-                  onClick={() => {
-                    onChange(option);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between transition-colors ${
-                    value === option 
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium' 
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  {option}
-                  {value === option && <Check className="w-3 h-3" />}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            {option}
+            {value === option && <Check className="w-3 h-3" />}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
 export default function TutorsPage() {
   const [activeSubject, setActiveSubject] = useState("All Subjects");
   const [activeSort, setActiveSort] = useState("Recommended");
+  const [activeModuleCategory, setActiveModuleCategory] = useState("All Modules");
+  const [visibleCount, setVisibleCount] = useState(4);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(4);
+  }, [activeSubject, activeSort]);
 
   const filteredTutors = tutors.filter((tutor) => {
     if (activeSubject === "All Subjects") return true;
@@ -149,6 +217,13 @@ export default function TutorsPage() {
     if (activeSort === "Price: High to Low") return b.hourlyRate - a.hourlyRate;
     if (activeSort === "Top Rated") return b.rating - a.rating;
     return 0;
+  });
+
+  const displayedTutors = filteredTutors.slice(0, visibleCount);
+
+  const filteredCourses = courses.filter((course) => {
+    if (activeModuleCategory === "All Modules") return true;
+    return course.category === activeModuleCategory;
   });
 
   return (
@@ -259,8 +334,9 @@ export default function TutorsPage() {
 
         {/* Available Tutors Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-          {filteredTutors.length > 0 ? (
-            filteredTutors.map((tutor) => (
+          {displayedTutors.length > 0 ? (
+            <>
+              {displayedTutors.map((tutor) => (
             <motion.div
               key={tutor.id}
               layout
@@ -313,7 +389,20 @@ export default function TutorsPage() {
                 </Link>
               </div>
             </motion.div>
-          ))
+          ))}
+          
+          {filteredTutors.length > visibleCount && (
+            <div className="col-span-full flex justify-center mt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setVisibleCount(filteredTutors.length)}
+                className="min-w-[200px]"
+              >
+                View More Tutors
+              </Button>
+            </div>
+          )}
+          </>
           ) : (
             <div className="col-span-full py-12 text-center text-gray-500 dark:text-gray-400">
               <p>No tutors found matching your filters.</p>
@@ -335,11 +424,12 @@ export default function TutorsPage() {
       {/* Modules Section (under hero) */}
       <section className="mb-12">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4">
-          {['All Modules','Computer Science','Mathematics','Engineering','Humanities','Business'].map((c, idx) => (
+          {moduleCategories.map((c) => (
             <button
               key={c}
-              className={`text-xs md:text-sm rounded-full border px-3 py-1.5 ${
-                idx === 0
+              onClick={() => setActiveModuleCategory(c)}
+              className={`text-xs md:text-sm rounded-full border px-3 py-1.5 transition-colors ${
+                activeModuleCategory === c
                   ? 'bg-blue-600 text-white border-blue-600'
                   : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-white/10'
               }`}
@@ -365,14 +455,8 @@ export default function TutorsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            { code: 'CS-301', title: 'Data Structures & Algorithms', desc: 'Master trees, graphs, and sorting algorithms with expert guidance.', online: 5, tag: 'AI Ready', color: 'bg-blue-500/10 text-blue-500' },
-            { code: 'MATH-202', title: 'Linear Algebra II', desc: 'Vector spaces, eigenvalues, and complex matrices explained simply.', online: 12, tag: 'AI Ready', color: 'bg-orange-500/10 text-orange-500' },
-            { code: 'LIT-240', title: 'Modernist Poetry', desc: 'Exploring Eliot, Pound, and Woolf. Essay help available.', online: 1, tag: '1 Tutor Available', color: 'bg-pink-500/10 text-pink-500' },
-            { code: 'PHYS-400', title: 'Quantum Mechanics I', desc: 'Wave functions and the Schrödinger equation.', online: 0, tag: 'Use AI Bot', color: 'bg-indigo-500/10 text-indigo-500' },
-            { code: 'ECON-101', title: 'Microeconomics', desc: 'Supply, demand, and market equilibrium principles.', online: 3, tag: 'AI Ready', color: 'bg-emerald-500/10 text-emerald-500' },
-            { code: 'PSY-200', title: 'Cognitive Psychology', desc: 'Memory, perception, and problem‑solving processes.', online: 7, tag: 'AI Ready', color: 'bg-rose-500/10 text-rose-500' },
-          ].map((m, i) => (
+          {filteredCourses.length > 0 ? (
+            filteredCourses.map((m) => (
             <div key={m.code} className="bg-white dark:bg-[#1e293b] rounded-2xl p-6 flex flex-col justify-between h-full hover:bg-gray-50 dark:hover:bg-[#253045] transition-colors shadow-sm">
               <div>
                 <div className="flex justify-between items-start mb-4">
@@ -399,15 +483,23 @@ export default function TutorsPage() {
                   <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   {m.online} Tutors Online
                 </div>
-                {m.tag.includes('AI') && (
-                  <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
-                     <Award className="h-3 w-3" />
-                     AI Ready
-                  </div>
-                )}
+                <span className="text-gray-400">•</span>
+                <span className="text-gray-500">{m.tag}</span>
               </div>
             </div>
-          ))}
+          ))
+          ) : (
+            <div className="col-span-full py-12 text-center text-gray-500 dark:text-gray-400">
+              <p>No modules found for this category.</p>
+              <Button 
+                variant="ghost" 
+                onClick={() => setActiveModuleCategory("All Modules")}
+                className="mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
         </div>
       </section>
     </div>

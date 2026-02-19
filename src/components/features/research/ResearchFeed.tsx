@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, Search, Clock, ArrowRight, BookOpen, GraduationCap, Building2, User, ChevronDown, Check } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 
 // Types for our articles
@@ -31,6 +32,26 @@ interface Article {
 }
 
 const articles: Article[] = [
+  {
+    id: 0,
+    title: "Neural Pathways in Collaborative Learning: Longitudinal Study",
+    description: "This longitudinal study investigates the neurobiological correlates of collaborative learning among university students using high-resolution fMRI monitoring over a 24-month period.",
+    image: "from-blue-900 to-indigo-900",
+    category: "Neuroscience",
+    readTime: "15 min read",
+    timestamp: "Just now",
+    source: {
+      name: "Oxford Neuroscience Lab",
+      type: "University",
+      verified: true
+    },
+    author: {
+      name: "Dr. Elias Thorne",
+      role: "Lead Researcher",
+      avatar: "ET"
+    },
+    tags: ["Neuroscience", "Learning", "fMRI"]
+  },
   {
     id: 1,
     title: "The Future of Generative Models in Undergraduate Education",
@@ -346,7 +367,7 @@ export function ResearchFeed() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeSource, setActiveSource] = useState("Any");
 
-  const categories = ["All", "Computer Science", "Biology", "Physics", "Humanities", "Mathematics", "Business", "Psychology"];
+  const categories = ["All", "Neuroscience", "Computer Science", "Biology", "Physics", "Humanities", "Mathematics", "Business", "Psychology"];
   const sources = ["Any", "University", "Professional", "Tutor"];
 
   const filteredArticles = articles.filter(article => {
@@ -488,9 +509,9 @@ export function ResearchFeed() {
                     </div>
                   </div>
                   
-                  <button className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center gap-1 hover:underline">
+                  <Link href={`/research/${article.id}`} className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center gap-1 hover:underline">
                     Read Paper <ArrowRight className="w-4 h-4" />
-                  </button>
+                  </Link>
                 </div>
               </div>
             </motion.div>
