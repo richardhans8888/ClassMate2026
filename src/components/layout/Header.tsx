@@ -93,9 +93,25 @@ export function Header() {
             <Link href="/" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white transition-colors">
               Home
             </Link>
-            <Link href="/tutors" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white transition-colors">
-              Tutors
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white transition-colors px-2 py-1 rounded">
+                  Learn
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem asChild>
+                  <Link href="/tutors" className="cursor-pointer">
+                    Find your tutor
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/learn/modules" className="cursor-pointer">
+                    Your modules
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link href="/forums" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white transition-colors">
               Study Rooms
             </Link>

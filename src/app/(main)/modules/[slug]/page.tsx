@@ -1,3 +1,5 @@
+ "use client";
+ 
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { ArrowLeft, Calendar, Users, BookOpen, Star, Play } from "lucide-react";
@@ -62,7 +64,20 @@ export default function ModuleDetailsPage({ params }: { params: { slug: string }
               Master the fundamental concepts and algorithms in this comprehensive 8‑week module designed for future engineers.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <Button className="bg-indigo-600 hover:bg-indigo-500">
+              <Button
+                className="bg-indigo-600 hover:bg-indigo-500"
+                onClick={() => {
+                  try {
+                    if (typeof window !== "undefined") {
+                      const enrolled = JSON.parse(localStorage.getItem("enrolledModules") || "[]");
+                      const next = Array.isArray(enrolled) ? enrolled : [];
+                      if (!next.includes(raw)) next.push(raw);
+                      localStorage.setItem("enrolledModules", JSON.stringify(next));
+                    }
+                  } catch {}
+                  window.location.href = "/tutors";
+                }}
+              >
                 Enroll Now
               </Button>
               <Button variant="outline" className="border-gray-200 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10">
