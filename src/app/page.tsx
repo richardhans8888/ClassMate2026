@@ -23,7 +23,7 @@ export default function Home() {
 
   useEffect(() => {
     const img = new Image();
-    img.src = "/011620_Features_KS_004_2500.webp";
+    img.src = "/hero-classmate.webp";
     img.crossOrigin = "Anonymous";
 
     img.onload = () => {
@@ -64,7 +64,7 @@ export default function Home() {
         <div
           className="absolute inset-0 z-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('/011620_Features_KS_004_2500.webp')`,
+            backgroundImage: `url('/hero-classmate.webp')`,
             filter: "brightness(0.7)",
           }}
         />
