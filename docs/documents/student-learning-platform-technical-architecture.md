@@ -9,11 +9,11 @@ graph TD
     C --> F[Supabase Realtime]
     B --> G[WebRTC Service]
     B --> H[AI Tutor API]
-    
+
     subgraph "Frontend Layer"
         B
     end
-    
+
     subgraph "Backend Services"
         D
         E
@@ -21,17 +21,18 @@ graph TD
         G
         H
     end
-    
+
     subgraph "External APIs"
         I[Payment Gateway]
         J[Video Call Service]
     end
-    
+
     C --> I
     B --> J
 ```
 
 ## 2. Technology Description
+
 - **Frontend**: React@18 + tailwindcss@3 + vite
 - **Initialization Tool**: vite-init
 - **Backend**: Supabase (Authentication, PostgreSQL, Realtime, Storage)
@@ -40,30 +41,33 @@ graph TD
 - **Payment Processing**: Stripe for premium subscriptions and tutor payments
 
 ## 3. Route definitions
-| Route | Purpose |
-|-------|---------|
-| / | Homepage with trending content and user dashboard |
-| /forums | Browse and search educational forums by category |
-| /forums/:id | View specific forum discussion and replies |
-| /forums/create | Create new forum post with rich text editor |
-| /chat | Main chat interface with user list and voice/text options |
-| /chat/:userId | Private chat with specific user, maintains streak tracking |
-| /materials | Browse and search shared educational materials |
-| /materials/upload | Upload new study materials with metadata |
-| /tutors | Browse available tutors with filtering and search |
-| /tutors/:id | View tutor profile, ratings, and booking options |
-| /ai-tutor | Interactive AI tutoring interface with subject selection |
-| /profile | User profile with statistics, achievements, and settings |
-| /premium | Premium subscription management and features |
-| /auth/login | User authentication with email/social login |
-| /auth/register | New user registration with profile setup |
+
+| Route             | Purpose                                                    |
+| ----------------- | ---------------------------------------------------------- |
+| /                 | Homepage with trending content and user dashboard          |
+| /forums           | Browse and search educational forums by category           |
+| /forums/:id       | View specific forum discussion and replies                 |
+| /forums/create    | Create new forum post with rich text editor                |
+| /chat             | Main chat interface with user list and voice/text options  |
+| /chat/:userId     | Private chat with specific user, maintains streak tracking |
+| /materials        | Browse and search shared educational materials             |
+| /materials/upload | Upload new study materials with metadata                   |
+| /tutors           | Browse available tutors with filtering and search          |
+| /tutors/:id       | View tutor profile, ratings, and booking options           |
+| /ai-tutor         | Interactive AI tutoring interface with subject selection   |
+| /profile          | User profile with statistics, achievements, and settings   |
+| /premium          | Premium subscription management and features               |
+| /auth/login       | User authentication with email/social login                |
+| /auth/register    | New user registration with profile setup                   |
 
 ## 4. API definitions
 
 ### 4.1 Authentication APIs
+
 ```
 POST /api/auth/register
 ```
+
 Request:
 | Param Name | Param Type | isRequired | Description |
 |------------|------------|------------|-------------|
@@ -79,9 +83,11 @@ Response:
 | session | object | Authentication session token |
 
 ### 4.2 Forum APIs
+
 ```
 GET /api/forums
 ```
+
 Query Parameters:
 | Param Name | Param Type | isRequired | Description |
 |------------|------------|------------|-------------|
@@ -93,6 +99,7 @@ Query Parameters:
 ```
 POST /api/forums
 ```
+
 Request:
 | Param Name | Param Type | isRequired | Description |
 |------------|------------|-------------|
@@ -102,9 +109,11 @@ Request:
 | tags | array | false | Array of topic tags |
 
 ### 4.3 Chat APIs
+
 ```
 POST /api/chat/message
 ```
+
 Request:
 | Param Name | Param Type | isRequired | Description |
 |------------|------------|-------------|
@@ -113,9 +122,11 @@ Request:
 | type | string | false | 'text' or 'voice' (default: text) |
 
 ### 4.4 Points/Streaks APIs
+
 ```
 POST /api/points/earn
 ```
+
 Request:
 | Param Name | Param Type | isRequired | Description |
 |------------|------------|-------------|
@@ -123,9 +134,11 @@ Request:
 | targetId | string | true | ID of related content |
 
 ### 4.5 Tutor APIs
+
 ```
 GET /api/tutors/available
 ```
+
 Query Parameters:
 | Param Name | Param Type | isRequired | Description |
 |------------|------------|-------------|
@@ -137,6 +150,7 @@ Query Parameters:
 ```
 POST /api/tutors/book
 ```
+
 Request:
 | Param Name | Param Type | isRequired | Description |
 |------------|------------|-------------|
@@ -146,9 +160,11 @@ Request:
 | subject | string | true | Subject for tutoring |
 
 ### 4.6 AI Tutor APIs
+
 ```
 POST /api/ai-tutor/chat
 ```
+
 Request:
 | Param Name | Param Type | isRequired | Description |
 |------------|------------|-------------|
@@ -165,15 +181,15 @@ graph TD
     C --> D[Business Logic Layer]
     D --> E[Data Access Layer]
     E --> F[(Supabase Database)]
-    
+
     D --> G[Real-time Service]
     D --> H[AI Service]
     D --> I[Payment Service]
-    
+
     G --> J[WebRTC Manager]
     H --> K[OpenAI API]
     I --> L[Stripe API]
-    
+
     subgraph "Backend Services"
         B
         C
@@ -183,7 +199,7 @@ graph TD
         H
         I
     end
-    
+
     subgraph "External Services"
         F
         J
@@ -195,6 +211,7 @@ graph TD
 ## 6. Data model
 
 ### 6.1 Data model definition
+
 ```mermaid
 erDiagram
     USER ||--o{ FORUM_POST : creates
@@ -204,13 +221,13 @@ erDiagram
     USER ||--o{ TUTOR_SESSION : books
     USER ||--o{ POINT_TRANSACTION : earns
     USER ||--o{ STREAK_RECORD : maintains
-    
+
     FORUM_POST ||--o{ FORUM_REPLY : has
     FORUM_POST }o--o{ TAG : tagged
-    
+
     TUTOR ||--o{ TUTOR_SESSION : provides
     TUTOR_SESSION ||--|| PAYMENT : includes
-    
+
     USER {
         uuid id PK
         string email UK
@@ -221,7 +238,7 @@ erDiagram
         integer current_streak
         timestamp created_at
     }
-    
+
     FORUM_POST {
         uuid id PK
         uuid user_id FK
@@ -232,7 +249,7 @@ erDiagram
         boolean is_answered
         timestamp created_at
     }
-    
+
     FORUM_REPLY {
         uuid id PK
         uuid post_id FK
@@ -242,7 +259,7 @@ erDiagram
         boolean is_accepted
         timestamp created_at
     }
-    
+
     CHAT_MESSAGE {
         uuid id PK
         uuid sender_id FK
@@ -252,7 +269,7 @@ erDiagram
         boolean is_read
         timestamp created_at
     }
-    
+
     STUDY_MATERIAL {
         uuid id PK
         uuid user_id FK
@@ -263,7 +280,7 @@ erDiagram
         float rating
         timestamp uploaded_at
     }
-    
+
     TUTOR_SESSION {
         uuid id PK
         uuid tutor_id FK
@@ -275,7 +292,7 @@ erDiagram
         string status
         timestamp created_at
     }
-    
+
     POINT_TRANSACTION {
         uuid id PK
         uuid user_id FK
@@ -284,7 +301,7 @@ erDiagram
         uuid reference_id
         timestamp created_at
     }
-    
+
     STREAK_RECORD {
         uuid id PK
         uuid user_id FK
@@ -297,6 +314,7 @@ erDiagram
 ### 6.2 Data Definition Language
 
 User Table (users)
+
 ```sql
 -- create table
 CREATE TABLE users (
@@ -319,6 +337,7 @@ CREATE INDEX idx_users_points ON users(total_points DESC);
 ```
 
 Forum Posts Table (forum_posts)
+
 ```sql
 -- create table
 CREATE TABLE forum_posts (
@@ -340,6 +359,7 @@ CREATE INDEX idx_forum_posts_created_at ON forum_posts(created_at DESC);
 ```
 
 Chat Messages Table (chat_messages)
+
 ```sql
 -- create table
 CREATE TABLE chat_messages (
@@ -359,6 +379,7 @@ CREATE INDEX idx_chat_messages_created_at ON chat_messages(created_at DESC);
 ```
 
 Points System Table (point_transactions)
+
 ```sql
 -- create table
 CREATE TABLE point_transactions (

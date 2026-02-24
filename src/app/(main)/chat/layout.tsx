@@ -1,5 +1,5 @@
-import { Search } from 'lucide-react';
-import Link from 'next/link';
+import { Search } from "lucide-react";
+import Link from "next/link";
 
 const contacts = [
   {
@@ -9,7 +9,7 @@ const contacts = [
     time: "2m ago",
     unread: 2,
     online: true,
-    avatar: "S"
+    avatar: "S",
   },
   {
     id: 2,
@@ -18,7 +18,7 @@ const contacts = [
     time: "1h ago",
     unread: 0,
     online: false,
-    avatar: "M"
+    avatar: "M",
   },
   {
     id: 3,
@@ -27,7 +27,7 @@ const contacts = [
     time: "3h ago",
     unread: 0,
     online: true,
-    avatar: "J"
+    avatar: "J",
   },
   {
     id: 4,
@@ -36,8 +36,8 @@ const contacts = [
     time: "1d ago",
     unread: 0,
     online: false,
-    avatar: "H"
-  }
+    avatar: "H",
+  },
 ];
 
 export default function ChatLayout({
@@ -61,12 +61,12 @@ export default function ChatLayout({
               />
             </div>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto">
             {contacts.map((contact) => (
               <Link href={`/chat/${contact.id}`} key={contact.id}>
-                <div 
-                  className={`p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-50 transition-colors ${contact.unread > 0 ? 'bg-blue-50/50' : ''}`}
+                <div
+                  className={`p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-50 transition-colors ${contact.unread > 0 ? "bg-blue-50/50" : ""}`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="relative">
@@ -79,10 +79,16 @@ export default function ChatLayout({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-baseline mb-1">
-                        <h3 className="font-semibold text-gray-900 truncate">{contact.name}</h3>
-                        <span className="text-xs text-gray-500 whitespace-nowrap">{contact.time}</span>
+                        <h3 className="font-semibold text-gray-900 truncate">
+                          {contact.name}
+                        </h3>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                          {contact.time}
+                        </span>
                       </div>
-                      <p className={`text-sm truncate ${contact.unread > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+                      <p
+                        className={`text-sm truncate ${contact.unread > 0 ? "text-gray-900 font-medium" : "text-gray-500"}`}
+                      >
                         {contact.lastMessage}
                       </p>
                     </div>
@@ -99,9 +105,7 @@ export default function ChatLayout({
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col h-full">
-          {children}
-        </div>
+        <div className="flex-1 flex flex-col h-full">{children}</div>
       </div>
     </div>
   );

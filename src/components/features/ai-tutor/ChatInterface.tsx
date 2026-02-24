@@ -1,9 +1,17 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { Send, Image as ImageIcon, Plus, History, Bot, X, MessageSquare } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Message } from '../../../hooks/useChat';
+import { useState, useRef, useEffect } from "react";
+import {
+  Send,
+  Image as ImageIcon,
+  Plus,
+  History,
+  Bot,
+  X,
+  MessageSquare,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Message } from "../../../hooks/useChat";
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -12,17 +20,47 @@ interface ChatInterfaceProps {
   sendMessage: (content: string) => void;
 }
 
-export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatInterfaceProps) {
+export function ChatInterface({
+  messages,
+  isLoading,
+  error,
+  sendMessage,
+}: ChatInterfaceProps) {
   const [showHistory, setShowHistory] = useState(false);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
   const historySessions = [
-    { id: 1, title: "Quantum Mechanics Intro", date: "Today, 10:23 AM", active: true },
-    { id: 2, title: "Calculus: Integration", date: "Yesterday, 2:45 PM", active: false },
-    { id: 3, title: "React Hooks Explanation", date: "Mon, 11:30 AM", active: false },
-    { id: 4, title: "French Revolution Summary", date: "Last Week", active: false },
-    { id: 5, title: "Python Data Structures", date: "2 weeks ago", active: false },
+    {
+      id: 1,
+      title: "Quantum Mechanics Intro",
+      date: "Today, 10:23 AM",
+      active: true,
+    },
+    {
+      id: 2,
+      title: "Calculus: Integration",
+      date: "Yesterday, 2:45 PM",
+      active: false,
+    },
+    {
+      id: 3,
+      title: "React Hooks Explanation",
+      date: "Mon, 11:30 AM",
+      active: false,
+    },
+    {
+      id: 4,
+      title: "French Revolution Summary",
+      date: "Last Week",
+      active: false,
+    },
+    {
+      id: 5,
+      title: "Python Data Structures",
+      date: "2 weeks ago",
+      active: false,
+    },
   ];
 
   // Auto-scroll only the chat box
@@ -35,12 +73,12 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
     const text = input;
-    setInput('');
+    setInput("");
     sendMessage(text);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -48,20 +86,31 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
 
   const parseContent = (content: string) => {
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-    const parts: { type: 'text' | 'code'; content: string; language?: string }[] = [];
+    const parts: {
+      type: "text" | "code";
+      content: string;
+      language?: string;
+    }[] = [];
     let lastIndex = 0;
     let match;
 
     while ((match = codeBlockRegex.exec(content)) !== null) {
       if (match.index > lastIndex) {
-        parts.push({ type: 'text', content: content.slice(lastIndex, match.index) });
+        parts.push({
+          type: "text",
+          content: content.slice(lastIndex, match.index),
+        });
       }
-      parts.push({ type: 'code', language: match[1] || 'code', content: match[2] });
+      parts.push({
+        type: "code",
+        language: match[1] || "code",
+        content: match[2],
+      });
       lastIndex = match.index + match[0].length;
     }
 
     if (lastIndex < content.length) {
-      parts.push({ type: 'text', content: content.slice(lastIndex) });
+      parts.push({ type: "text", content: content.slice(lastIndex) });
     }
 
     return parts;
@@ -73,11 +122,13 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
       <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-800/50">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
-          <span className="text-gray-900 dark:text-gray-200 font-medium">AI Tutor Online</span>
+          <span className="text-gray-900 dark:text-gray-200 font-medium">
+            AI Tutor Online
+          </span>
         </div>
         <button
           onClick={() => setShowHistory(!showHistory)}
-          className={`flex items-center gap-2 transition-colors text-sm ${showHistory ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+          className={`flex items-center gap-2 transition-colors text-sm ${showHistory ? "text-indigo-600 dark:text-indigo-400" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"}`}
         >
           <History className="w-4 h-4" />
           <span>Session History</span>
@@ -94,8 +145,13 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
             className="absolute top-[70px] right-6 w-80 bg-white/90 dark:bg-[#1E2028]/90 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl z-20 overflow-hidden backdrop-blur-xl"
           >
             <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200">Recent Sessions</h3>
-              <button onClick={() => setShowHistory(false)} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                Recent Sessions
+              </h3>
+              <button
+                onClick={() => setShowHistory(false)}
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -103,18 +159,26 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
               {historySessions.map((session) => (
                 <button
                   key={session.id}
-                  className={`w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-[#2A2D3A] transition-colors flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50 last:border-0 ${session.active ? 'bg-indigo-50 dark:bg-[#2A2D3A]' : ''}`}
+                  className={`w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-[#2A2D3A] transition-colors flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50 last:border-0 ${session.active ? "bg-indigo-50 dark:bg-[#2A2D3A]" : ""}`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${session.active ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'}`}>
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${session.active ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400" : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"}`}
+                  >
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className={`text-sm font-medium truncate ${session.active ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-gray-200'}`}>
+                    <h4
+                      className={`text-sm font-medium truncate ${session.active ? "text-indigo-600 dark:text-indigo-400" : "text-gray-900 dark:text-gray-200"}`}
+                    >
                       {session.title}
                     </h4>
-                    <p className="text-xs text-gray-500 mt-0.5">{session.date}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {session.date}
+                    </p>
                   </div>
-                  {session.active && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-500"></div>}
+                  {session.active && (
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-500"></div>
+                  )}
                 </button>
               ))}
             </div>
@@ -138,38 +202,54 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
         {messages.length === 0 && !isLoading && (
           <div className="flex flex-col items-center justify-center h-full text-center gap-3 opacity-50">
             <Bot className="w-10 h-10 text-indigo-400" />
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Ask me anything — I'm here to help you learn.</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Ask me anything — I'm here to help you learn.
+            </p>
           </div>
         )}
 
         {messages.map((msg) => {
           const parts = parseContent(msg.content);
           return (
-            <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-              {msg.role === 'assistant' && (
+            <div
+              key={msg.id}
+              className={`flex gap-4 ${msg.role === "user" ? "justify-end" : ""}`}
+            >
+              {msg.role === "assistant" && (
                 <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20">
                   <Bot className="w-5 h-5 text-white" />
                 </div>
               )}
 
-              <div className={`max-w-[85%] space-y-4 ${msg.role === 'user' ? 'order-first' : ''}`}>
-                <div className={`p-4 rounded-2xl shadow-sm ${
-                  msg.role === 'user'
-                    ? 'bg-blue-600 dark:bg-[#2A2D3A] text-white dark:text-gray-100 rounded-tr-none'
-                    : 'bg-gray-100 dark:bg-[#1E2028] text-gray-800 dark:text-gray-300 rounded-tl-none border border-gray-200 dark:border-gray-800'
-                }`}>
+              <div
+                className={`max-w-[85%] space-y-4 ${msg.role === "user" ? "order-first" : ""}`}
+              >
+                <div
+                  className={`p-4 rounded-2xl shadow-sm ${
+                    msg.role === "user"
+                      ? "bg-blue-600 dark:bg-[#2A2D3A] text-white dark:text-gray-100 rounded-tr-none"
+                      : "bg-gray-100 dark:bg-[#1E2028] text-gray-800 dark:text-gray-300 rounded-tl-none border border-gray-200 dark:border-gray-800"
+                  }`}
+                >
                   <div className="whitespace-pre-wrap leading-relaxed space-y-3">
                     {parts.map((part, i) =>
-                      part.type === 'text' ? (
+                      part.type === "text" ? (
                         <div key={i}>
-                          {part.content.split('\n\n').map((block, j) => (
-                            <p key={j} className="mb-2 last:mb-0">{block}</p>
+                          {part.content.split("\n\n").map((block, j) => (
+                            <p key={j} className="mb-2 last:mb-0">
+                              {block}
+                            </p>
                           ))}
                         </div>
                       ) : (
-                        <div key={i} className="bg-[#1e293b] dark:bg-[#0D0F14] rounded-xl border border-gray-700 overflow-hidden shadow-md">
+                        <div
+                          key={i}
+                          className="bg-[#1e293b] dark:bg-[#0D0F14] rounded-xl border border-gray-700 overflow-hidden shadow-md"
+                        >
                           <div className="flex justify-between items-center px-4 py-2 bg-[#0f172a] dark:bg-[#1A1C24] border-b border-gray-700">
-                            <span className="text-xs text-gray-400 font-mono">{part.language}</span>
+                            <span className="text-xs text-gray-400 font-mono">
+                              {part.language}
+                            </span>
                             <div className="flex gap-1.5">
                               <div className="w-2.5 h-2.5 rounded-full bg-red-500/40"></div>
                               <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40"></div>
@@ -177,18 +257,24 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
                             </div>
                           </div>
                           <div className="p-4 overflow-x-auto">
-                            <pre className="font-mono text-sm text-gray-300"><code>{part.content}</code></pre>
+                            <pre className="font-mono text-sm text-gray-300">
+                              <code>{part.content}</code>
+                            </pre>
                           </div>
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
               </div>
 
-              {msg.role === 'user' && (
+              {msg.role === "user" && (
                 <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border-2 border-emerald-500 p-0.5">
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Richard" alt="User" className="w-full h-full rounded-full" />
+                  <img
+                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Richard"
+                    alt="User"
+                    className="w-full h-full rounded-full"
+                  />
                 </div>
               )}
             </div>
@@ -206,7 +292,11 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
                   <motion.div
                     key={i}
                     animate={{ y: [0, -4, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                    transition={{
+                      duration: 0.6,
+                      repeat: Infinity,
+                      delay: i * 0.15,
+                    }}
                     className="w-2 h-2 bg-indigo-400 rounded-full"
                   />
                 ))}

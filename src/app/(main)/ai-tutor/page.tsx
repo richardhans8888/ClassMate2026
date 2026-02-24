@@ -1,16 +1,24 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import { ChatInterface } from '@/components/features/ai-tutor/ChatInterface';
-import { VoiceMode } from '@/components/features/ai-tutor/VoiceMode';
-import { useChat } from '../../../hooks/useChat';
-import { useVoice } from '../../../hooks/useVoice';
+import { useEffect, useRef } from "react";
+import { ChatInterface } from "@/components/features/ai-tutor/ChatInterface";
+import { VoiceMode } from "@/components/features/ai-tutor/VoiceMode";
+import { useChat } from "../../../hooks/useChat";
+import { useVoice } from "../../../hooks/useVoice";
 
 export default function AITutorPage() {
   const { messages, isLoading, error, sendMessage } = useChat();
   const lastSpokenIdRef = useRef<string | null>(null);
 
-  const { isListening, isSpeaking, isSupported, startListening, stopListening, speak, stopSpeaking } = useVoice({
+  const {
+    isListening,
+    isSpeaking,
+    isSupported,
+    startListening,
+    stopListening,
+    speak,
+    stopSpeaking,
+  } = useVoice({
     onTranscript: (text) => {
       sendMessage(text);
     },
@@ -19,7 +27,9 @@ export default function AITutorPage() {
   // Auto-speak every new AI response when done streaming
   useEffect(() => {
     if (isLoading) return;
-    const lastAiMessage = [...messages].reverse().find((m) => m.role === 'assistant');
+    const lastAiMessage = [...messages]
+      .reverse()
+      .find((m) => m.role === "assistant");
     if (!lastAiMessage) return;
     if (lastAiMessage.id === lastSpokenIdRef.current) return;
     lastSpokenIdRef.current = lastAiMessage.id;

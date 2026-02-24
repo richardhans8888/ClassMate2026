@@ -2,22 +2,32 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { 
-  LayoutDashboard, 
-  Users, 
-  BookOpen, 
-  DollarSign, 
-  Calendar, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  DollarSign,
+  Calendar,
   LogOut,
-  Home
+  Home,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { usePathname } from "next/navigation";
 
 const navigation = [
   { name: "Dashboard", href: "/tutor-studio", icon: LayoutDashboard },
-  { name: "Student Requests", href: "/tutor-studio/requests", icon: Users, count: 3 },
+  {
+    name: "Student Requests",
+    href: "/tutor-studio/requests",
+    icon: Users,
+    count: 3,
+  },
   { name: "Active Courses", href: "/tutor-studio/courses", icon: BookOpen },
   { name: "Earnings", href: "/tutor-studio/earnings", icon: DollarSign },
   { name: "Schedule", href: "/tutor-studio/schedule", icon: Calendar },
@@ -35,8 +45,12 @@ export default function TutorStudioLayout({
 
   useEffect(() => {
     try {
-      const e = typeof window !== "undefined" ? localStorage.getItem("userEmail") : null;
-      const role = typeof window !== "undefined" ? localStorage.getItem("userRole") : null;
+      const e =
+        typeof window !== "undefined"
+          ? localStorage.getItem("userEmail")
+          : null;
+      const role =
+        typeof window !== "undefined" ? localStorage.getItem("userRole") : null;
       setEmail(e);
       let tutor = role === "tutor";
       if (!role && e) {
@@ -70,13 +84,15 @@ export default function TutorStudioLayout({
                 key={item.name}
                 href={item.href}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isActive 
-                    ? "bg-gray-100 text-teal-600 border border-teal-200 dark:bg-[#1A1F26] dark:text-teal-400 dark:border-teal-900/30" 
+                  isActive
+                    ? "bg-gray-100 text-teal-600 border border-teal-200 dark:bg-[#1A1F26] dark:text-teal-400 dark:border-teal-900/30"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#1A1F26] dark:hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <item.icon className={`w-5 h-5 ${isActive ? "text-teal-600 dark:text-teal-400" : "text-gray-500"}`} />
+                  <item.icon
+                    className={`w-5 h-5 ${isActive ? "text-teal-600 dark:text-teal-400" : "text-gray-500"}`}
+                  />
                   {item.name}
                 </div>
                 <div className="flex items-center gap-2">
@@ -99,12 +115,18 @@ export default function TutorStudioLayout({
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
           <Link href="/">
-            <Button variant="ghost" className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-[#1A1F26] pl-3">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-[#1A1F26] pl-3"
+            >
               <Home className="w-5 h-5 mr-3" />
               Back to Home
             </Button>
           </Link>
-          <Button variant="ghost" className="w-full justify-start text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/10 pl-3">
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/10 pl-3"
+          >
             <LogOut className="w-5 h-5 mr-3" />
             Logout
           </Button>
@@ -113,9 +135,7 @@ export default function TutorStudioLayout({
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto bg-gray-50 dark:bg-[#0F1115]">
-        <div className="h-full p-8">
-          {children}
-        </div>
+        <div className="h-full p-8">{children}</div>
       </main>
 
       <Dialog
@@ -130,7 +150,8 @@ export default function TutorStudioLayout({
           </DialogHeader>
           <div className="space-y-3">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Please register to access Tutor Studio{email ? ` (${email})` : ""}.
+              Please register to access Tutor Studio{email ? ` (${email})` : ""}
+              .
             </div>
             <div className="flex justify-end gap-2">
               <Link href="/">

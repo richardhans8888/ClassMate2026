@@ -35,7 +35,10 @@ export function Header({ onLogout }: HeaderProps) {
 
   type NotificationItem = { id: string; title: string; desc?: string; time: string; read?: boolean; href?: string };
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.read).length,
+    [notifications],
+  );
 
   // Load real user from Supabase session
   useEffect(() => {
@@ -107,8 +110,11 @@ export function Header({ onLogout }: HeaderProps) {
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-blue-600 p-1.5 rounded-lg">
               <BookOpen className="h-5 w-5 text-white" />
+              <BookOpen className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">ClassMate</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+              ClassMate
+            </span>
           </Link>
         </div>
 
@@ -136,6 +142,7 @@ export function Header({ onLogout }: HeaderProps) {
         {/* Right */}
         <div className="flex items-center gap-4">
           <ModeToggle />
+
 
           <div className="hidden md:flex items-center gap-2 bg-gray-100 dark:bg-[#1E293B] px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700">
             <Trophy className="h-4 w-4 text-yellow-500" />
@@ -195,7 +202,9 @@ export function Header({ onLogout }: HeaderProps) {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{email}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {email}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -244,7 +253,9 @@ export function Header({ onLogout }: HeaderProps) {
             {/* Switch Account Dialog */}
             <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#0F1117] border-gray-200 dark:border-gray-800">
               <DialogHeader>
-                <DialogTitle className="text-gray-900 dark:text-white">Switch Account</DialogTitle>
+                <DialogTitle className="text-gray-900 dark:text-white">
+                  Switch Account
+                </DialogTitle>
                 <DialogDescription className="text-gray-500 dark:text-gray-400">
                   Sign out and sign in with a different account.
                 </DialogDescription>

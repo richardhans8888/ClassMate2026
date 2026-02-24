@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -25,7 +25,7 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
 
       const userMessage: Message = {
         id: crypto.randomUUID(),
-        role: 'user',
+        role: "user",
         content,
         timestamp: new Date(),
       };
@@ -40,16 +40,16 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
         ...prev,
         {
           id: assistantMessageId,
-          role: 'assistant',
-          content: '',
+          role: "assistant",
+          content: "",
           timestamp: new Date(),
         },
       ]);
 
       try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: [...messages, userMessage].map((m) => ({
               role: m.role,
@@ -62,49 +62,47 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error || 'Failed to get response');
+          throw new Error(errData.error || "Failed to get response");
         }
 
-        if (!response.body) throw new Error('No response body');
+        if (!response.body) throw new Error("No response body");
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let buffer = '';
+        let buffer = "";
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          console.log('RAW CHUNK:', buffer);
-          const lines = buffer.split('\n');
+          console.log("RAW CHUNK:", buffer);
+          const lines = buffer.split("\n");
 
           // Keep the last incomplete line in the buffer
-          buffer = lines.pop() || '';
+          buffer = lines.pop() || "";
 
           for (const line of lines) {
             const trimmed = line.trim();
-            if (!trimmed || !trimmed.startsWith('data: ')) continue;
+            if (!trimmed || !trimmed.startsWith("data: ")) continue;
 
             const data = trimmed.slice(6);
-            if (data === '[DONE]') continue;
+            if (data === "[DONE]") continue;
 
             try {
               const parsed = JSON.parse(data);
 
               // OpenRouter / OpenAI format: choices[0].delta.content
               const text =
-                parsed.choices?.[0]?.delta?.content ||
-                parsed.text ||
-                '';
+                parsed.choices?.[0]?.delta?.content || parsed.text || "";
 
               if (text) {
                 setMessages((prev) =>
                   prev.map((msg) =>
                     msg.id === assistantMessageId
                       ? { ...msg, content: msg.content + text }
-                      : msg
-                  )
+                      : msg,
+                  ),
                 );
               }
             } catch {
@@ -113,13 +111,13 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong');
+        setError(err instanceof Error ? err.message : "Something went wrong");
         setMessages((prev) => prev.filter((m) => m.id !== assistantMessageId));
       } finally {
         setIsLoading(false);
       }
     },
-    [messages, sessionId, userId, isLoading]
+    [messages, sessionId, userId, isLoading],
   );
 
   const clearMessages = useCallback(() => {

@@ -1,8 +1,8 @@
-import { ActiveStudyRooms } from '@/components/features/forums/ActiveStudyRooms';
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
-import { ForumCard } from '@/components/features/forums/ForumCard';
-import { Plus, Search, Filter } from 'lucide-react';
+import { ActiveStudyRooms } from "@/components/features/forums/ActiveStudyRooms";
+import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { ForumCard } from "@/components/features/forums/ForumCard";
+import { Plus, Search, Filter } from "lucide-react";
 
 const forumPosts = [
   {
@@ -14,7 +14,7 @@ const forumPosts = [
     views: 1205,
     upvotes: 128,
     tags: ["React", "JavaScript", "Web Dev"],
-    createdAt: "2 hours ago"
+    createdAt: "2 hours ago",
   },
   {
     id: 2,
@@ -25,7 +25,7 @@ const forumPosts = [
     views: 890,
     upvotes: 56,
     tags: ["Calculus", "Math", "Homework"],
-    createdAt: "5 hours ago"
+    createdAt: "5 hours ago",
   },
   {
     id: 3,
@@ -36,7 +36,7 @@ const forumPosts = [
     views: 1500,
     upvotes: 95,
     tags: ["Python", "Resources", "Beginner"],
-    createdAt: "1 day ago"
+    createdAt: "1 day ago",
   },
   {
     id: 4,
@@ -47,7 +47,7 @@ const forumPosts = [
     views: 450,
     upvotes: 24,
     tags: ["History", "Study Tips", "Exam Prep"],
-    createdAt: "2 days ago"
+    createdAt: "2 days ago",
   },
   {
     id: 5,
@@ -58,8 +58,8 @@ const forumPosts = [
     views: 2300,
     upvotes: 210,
     tags: ["Physics", "Quantum Mechanics", "Science"],
-    createdAt: "3 days ago"
-  }
+    createdAt: "3 days ago",
+  },
 ];
 
 const categories = [
@@ -71,7 +71,7 @@ const categories = [
   "Biology",
   "History",
   "Literature",
-  "Languages"
+  "Languages",
 ];
 
 export default function ForumsPage() {

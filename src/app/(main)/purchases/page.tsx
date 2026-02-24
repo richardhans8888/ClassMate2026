@@ -1,7 +1,13 @@
 "use client";
 
-import { Button } from '@/components/ui/Button';
-import { CreditCard, Download, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Button } from "@/components/ui/Button";
+import {
+  CreditCard,
+  Download,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 
 const transactions = [
   {
@@ -10,7 +16,7 @@ const transactions = [
     item: "Premium Plan (Monthly)",
     amount: "$9.99",
     status: "Completed",
-    method: "Visa ending in 4242"
+    method: "Visa ending in 4242",
   },
   {
     id: "TRX-2024-002",
@@ -18,7 +24,7 @@ const transactions = [
     item: "Premium Plan (Monthly)",
     amount: "$9.99",
     status: "Completed",
-    method: "Visa ending in 4242"
+    method: "Visa ending in 4242",
   },
   {
     id: "TRX-2023-089",
@@ -26,7 +32,7 @@ const transactions = [
     item: "Premium Plan (Monthly)",
     amount: "$9.99",
     status: "Completed",
-    method: "Visa ending in 4242"
+    method: "Visa ending in 4242",
   },
   {
     id: "TRX-2023-085",
@@ -34,7 +40,7 @@ const transactions = [
     item: "1-on-1 Tutoring: Calculus II",
     amount: "$45.00",
     status: "Completed",
-    method: "PayPal"
+    method: "PayPal",
   },
   {
     id: "TRX-2023-072",
@@ -42,8 +48,8 @@ const transactions = [
     item: "Premium Plan (Monthly)",
     amount: "$9.99",
     status: "Completed",
-    method: "Visa ending in 4242"
-  }
+    method: "Visa ending in 4242",
+  },
 ];
 
 export default function PurchasesPage() {
@@ -51,8 +57,12 @@ export default function PurchasesPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-[#05050A] text-gray-900 dark:text-white p-4 md:p-8 transition-colors duration-300">
       <div className="max-w-5xl mx-auto space-y-8">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Purchase History</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">View and manage your transactions and memberships.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            Purchase History
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">
+            View and manage your transactions and memberships.
+          </p>
         </div>
 
         {/* Current Membership Card */}
@@ -66,11 +76,17 @@ export default function PurchasesPage() {
                 </span>
               </div>
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Next billing date: <span className="font-medium text-gray-900 dark:text-white">March 15, 2024</span>
+                Next billing date:{" "}
+                <span className="font-medium text-gray-900 dark:text-white">
+                  March 15, 2024
+                </span>
               </p>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/10">
+              <Button
+                variant="outline"
+                className="text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/10"
+              >
                 Cancel Plan
               </Button>
               <Button className="bg-blue-600 hover:bg-blue-500 text-white">
@@ -92,7 +108,7 @@ export default function PurchasesPage() {
               Export CSV
             </Button>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead className="bg-gray-50 dark:bg-[#1E2028] text-gray-500 dark:text-gray-400 font-medium border-b border-gray-200 dark:border-gray-800">
@@ -107,13 +123,22 @@ export default function PurchasesPage() {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                 {transactions.map((trx) => (
-                  <tr key={trx.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                  <tr
+                    key={trx.id}
+                    className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                  >
                     <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                       {trx.item}
-                      <div className="text-xs text-gray-500 dark:text-gray-500 font-normal mt-0.5">{trx.id}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-500 font-normal mt-0.5">
+                        {trx.id}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{trx.date}</td>
-                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{trx.amount}</td>
+                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
+                      {trx.date}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                      {trx.amount}
+                    </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                         <CheckCircle className="w-3 h-3" />

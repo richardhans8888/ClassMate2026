@@ -10,10 +10,13 @@ export default function TutorRegisterPage() {
             <div className="p-2 rounded-lg bg-purple-600 text-white">
               <UserPlus className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Tutor Registration</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              Tutor Registration
+            </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-            Fill out the form below to apply for tutor access. We review applications within 48 hours.
+            Fill out the form below to apply for tutor access. We review
+            applications within 48 hours.
           </p>
 
           <div className="space-y-3">
@@ -27,13 +30,21 @@ export default function TutorRegisterPage() {
                 <input className="w-full mt-1 bg-[#15181E] border border-gray-800 rounded-lg px-3 py-2 text-sm text-white" />
               </div>
               <div>
-                <label className="text-xs text-gray-500">Years Experience</label>
-                <input type="number" className="w-full mt-1 bg-[#15181E] border border-gray-800 rounded-lg px-3 py-2 text-sm text-white" />
+                <label className="text-xs text-gray-500">
+                  Years Experience
+                </label>
+                <input
+                  type="number"
+                  className="w-full mt-1 bg-[#15181E] border border-gray-800 rounded-lg px-3 py-2 text-sm text-white"
+                />
               </div>
             </div>
             <div>
               <label className="text-xs text-gray-500">Bio</label>
-              <textarea rows={4} className="w-full mt-1 bg-[#15181E] border border-gray-800 rounded-lg px-3 py-2 text-sm text-white" />
+              <textarea
+                rows={4}
+                className="w-full mt-1 bg-[#15181E] border border-gray-800 rounded-lg px-3 py-2 text-sm text-white"
+              />
             </div>
           </div>
 

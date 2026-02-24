@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { MessageSquare, Eye, ArrowBigUp } from 'lucide-react';
+import Link from "next/link";
+import { MessageSquare, Eye, ArrowBigUp } from "lucide-react";
 
 interface ForumCardProps {
   id: number | string;
@@ -22,7 +22,7 @@ export function ForumCard({
   views,
   upvotes,
   tags,
-  createdAt
+  createdAt,
 }: ForumCardProps) {
   return (
     <div className="bg-white p-6 rounded-xl border hover:shadow-md transition-shadow">
@@ -31,14 +31,16 @@ export function ForumCard({
           <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-blue-100 text-blue-800">
             {category}
           </span>
-          <span className="text-xs text-gray-500">• Posted by {author} • {createdAt}</span>
+          <span className="text-xs text-gray-500">
+            • Posted by {author} • {createdAt}
+          </span>
         </div>
       </div>
-      
+
       <h3 className="text-xl font-semibold text-gray-900 mb-2 hover:text-blue-600 cursor-pointer">
         <Link href={`/forums/${id}`}>{title}</Link>
       </h3>
-      
+
       <div className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-6 text-sm text-gray-500">
           <div className="flex items-center gap-1">
@@ -54,10 +56,13 @@ export function ForumCard({
             <span>{views} views</span>
           </div>
         </div>
-        
+
         <div className="flex gap-2">
-          {tags.map(tag => (
-            <span key={tag} className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-600">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-600"
+            >
               #{tag}
             </span>
           ))}

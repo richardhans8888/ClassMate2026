@@ -1,9 +1,13 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from "react";
 
 // Fix TypeScript not recognizing SpeechRecognition types
-type SpeechRecognitionType = typeof window extends { SpeechRecognition: infer T } ? T : never;
+type SpeechRecognitionType = typeof window extends {
+  SpeechRecognition: infer T;
+}
+  ? T
+  : never;
 
 interface SpeechRecognitionEvent {
   resultIndex: number;
@@ -30,10 +34,13 @@ interface UseVoiceOptions {
   language?: string;
 }
 
-export function useVoice({ onTranscript, language = 'en-US' }: UseVoiceOptions = {}) {
+export function useVoice({
+  onTranscript,
+  language = "en-US",
+}: UseVoiceOptions = {}) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [transcript, setTranscript] = useState('');
+  const [transcript, setTranscript] = useState("");
   const [isSupported, setIsSupported] = useState(false);
 
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
@@ -44,7 +51,8 @@ export function useVoice({ onTranscript, language = 'en-US' }: UseVoiceOptions =
       webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
     };
 
-    const SpeechRecognitionAPI = win.SpeechRecognition || win.webkitSpeechRecognition;
+    const SpeechRecognitionAPI =
+      win.SpeechRecognition || win.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) return;
 
@@ -55,8 +63,8 @@ export function useVoice({ onTranscript, language = 'en-US' }: UseVoiceOptions =
     recognition.lang = language;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
+      let finalTranscript = "";
+      let interimTranscript = "";
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
@@ -76,7 +84,7 @@ export function useVoice({ onTranscript, language = 'en-US' }: UseVoiceOptions =
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error:', event.error);
+      console.error("Speech recognition error:", event.error);
       setIsListening(false);
     };
 
@@ -93,7 +101,7 @@ export function useVoice({ onTranscript, language = 'en-US' }: UseVoiceOptions =
 
   const startListening = useCallback(() => {
     if (!recognitionRef.current || isListening) return;
-    setTranscript('');
+    setTranscript("");
     recognitionRef.current.start();
     setIsListening(true);
   }, [isListening]);
@@ -110,24 +118,24 @@ export function useVoice({ onTranscript, language = 'en-US' }: UseVoiceOptions =
     window.speechSynthesis.cancel();
 
     const cleanText = text
-      .replace(/```[\s\S]*?```/g, 'Here is a code example.')
-      .replace(/`[^`]+`/g, '')
-      .replace(/\*\*([^*]+)\*\*/g, '$1')
-      .replace(/\*([^*]+)\*/g, '$1')
-      .replace(/#{1,6}\s/g, '')
-      .replace(/\$\$[\s\S]*?\$\$/g, 'equation')
-      .replace(/\$[^$]+\$/g, 'equation')
+      .replace(/```[\s\S]*?```/g, "Here is a code example.")
+      .replace(/`[^`]+`/g, "")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1")
+      .replace(/#{1,6}\s/g, "")
+      .replace(/\$\$[\s\S]*?\$\$/g, "equation")
+      .replace(/\$[^$]+\$/g, "equation")
       .trim();
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.rate = rate;
     utterance.pitch = pitch;
-    utterance.lang = 'en-US';
+    utterance.lang = "en-US";
 
     const voices = window.speechSynthesis.getVoices();
     const preferredVoice =
-      voices.find((v) => v.name.includes('Google') && v.lang === 'en-US') ||
-      voices.find((v) => v.lang === 'en-US') ||
+      voices.find((v) => v.name.includes("Google") && v.lang === "en-US") ||
+      voices.find((v) => v.lang === "en-US") ||
       voices[0];
 
     if (preferredVoice) utterance.voice = preferredVoice;

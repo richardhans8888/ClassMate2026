@@ -1,21 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  format, 
-  startOfMonth, 
-  endOfMonth, 
-  startOfWeek, 
-  endOfWeek, 
-  eachDayOfInterval, 
-  isSameMonth, 
-  isSameDay, 
-  addMonths, 
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  isSameMonth,
+  isSameDay,
+  addMonths,
   subMonths,
   addDays,
   addWeeks,
   subWeeks,
-  isSameWeek
+  isSameWeek,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus, Clock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -24,88 +24,88 @@ import { Button } from "@/components/ui/Button";
 const getMockEvents = (baseDate: Date) => {
   const year = baseDate.getFullYear();
   const month = baseDate.getMonth();
-  
+
   return [
-    { 
-      id: 1, 
-      title: "Physics 101", 
-      time: "10:00 AM", 
+    {
+      id: 1,
+      title: "Physics 101",
+      time: "10:00 AM",
       duration: "1h",
-      date: new Date(year, month, 2), 
-      color: "bg-purple-500/20 text-purple-300 border-purple-500/30" 
+      date: new Date(year, month, 2),
+      color: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     },
-    { 
-      id: 2, 
-      title: "Calculus II", 
-      time: "2:00 PM", 
+    {
+      id: 2,
+      title: "Calculus II",
+      time: "2:00 PM",
       duration: "1.5h",
-      date: new Date(year, month, 4), 
-      color: "bg-teal-500/20 text-teal-300 border-teal-500/30" 
+      date: new Date(year, month, 4),
+      color: "bg-teal-500/20 text-teal-300 border-teal-500/30",
     },
-    { 
-      id: 3, 
-      title: "Group Study", 
-      time: "4:30 PM", 
+    {
+      id: 3,
+      title: "Group Study",
+      time: "4:30 PM",
       duration: "2h",
-      date: new Date(year, month, 4), 
-      color: "bg-orange-500/20 text-orange-300 border-orange-500/30" 
+      date: new Date(year, month, 4),
+      color: "bg-orange-500/20 text-orange-300 border-orange-500/30",
     },
-    { 
-      id: 4, 
-      title: "Physics 101", 
-      time: "10:00 AM", 
+    {
+      id: 4,
+      title: "Physics 101",
+      time: "10:00 AM",
       duration: "1h",
-      date: new Date(year, month, 7), 
-      color: "bg-purple-500/20 text-purple-300 border-purple-500/30" 
+      date: new Date(year, month, 7),
+      color: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     },
-    { 
-      id: 5, 
-      title: "Chemistry", 
-      time: "1:00 PM", 
+    {
+      id: 5,
+      title: "Chemistry",
+      time: "1:00 PM",
       duration: "1h",
-      date: new Date(year, month, 9), 
-      color: "bg-blue-500/20 text-blue-300 border-blue-500/30" 
+      date: new Date(year, month, 9),
+      color: "bg-blue-500/20 text-blue-300 border-blue-500/30",
     },
-    { 
-      id: 6, 
-      title: "Calculus II", 
-      time: "2:00 PM", 
+    {
+      id: 6,
+      title: "Calculus II",
+      time: "2:00 PM",
       duration: "1.5h",
-      date: new Date(year, month, 11), 
-      color: "bg-teal-500/20 text-teal-300 border-teal-500/30" 
+      date: new Date(year, month, 11),
+      color: "bg-teal-500/20 text-teal-300 border-teal-500/30",
     },
-    { 
-      id: 7, 
-      title: "Physics 101", 
-      time: "10:00 AM", 
+    {
+      id: 7,
+      title: "Physics 101",
+      time: "10:00 AM",
       duration: "1h",
-      date: new Date(year, month, 14), 
-      color: "bg-purple-500/20 text-purple-300 border-purple-500/30" 
+      date: new Date(year, month, 14),
+      color: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     },
-    { 
-      id: 8, 
-      title: "Calculus II", 
-      time: "2:00 PM", 
+    {
+      id: 8,
+      title: "Calculus II",
+      time: "2:00 PM",
       duration: "1.5h",
-      date: new Date(year, month, 14), 
-      color: "bg-teal-500/20 text-teal-300 border-teal-500/30" 
+      date: new Date(year, month, 14),
+      color: "bg-teal-500/20 text-teal-300 border-teal-500/30",
     },
-    { 
-      id: 9, 
-      title: "Group Study", 
-      time: "4:30 PM", 
+    {
+      id: 9,
+      title: "Group Study",
+      time: "4:30 PM",
       duration: "2h",
-      date: new Date(year, month, 16), 
-      color: "bg-orange-500/20 text-orange-300 border-orange-500/30" 
+      date: new Date(year, month, 16),
+      color: "bg-orange-500/20 text-orange-300 border-orange-500/30",
     },
     // Add events for current day to ensure "Day View" has content for demo
-    { 
-      id: 10, 
-      title: "Demo Session", 
-      time: "9:00 AM", 
+    {
+      id: 10,
+      title: "Demo Session",
+      time: "9:00 AM",
       duration: "1h",
-      date: new Date(), 
-      color: "bg-green-500/20 text-green-300 border-green-500/30" 
+      date: new Date(),
+      color: "bg-green-500/20 text-green-300 border-green-500/30",
     },
   ];
 };
@@ -125,7 +125,9 @@ export default function SchedulePage() {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
   const [draftTime, setDraftTime] = useState("10:00");
-  const [draftColor, setDraftColor] = useState<"teal" | "purple" | "orange" | "blue" | "green">("teal");
+  const [draftColor, setDraftColor] = useState<
+    "teal" | "purple" | "orange" | "blue" | "green"
+  >("teal");
   const [userEvents, setUserEvents] = useState<EventItem[]>([]);
 
   // Navigation Logic
@@ -144,7 +146,7 @@ export default function SchedulePage() {
   // Date Generation Logic
   let calendarDays: Date[] = [];
   let gridClass = "";
-  
+
   if (view === "month") {
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(monthStart);
@@ -168,20 +170,24 @@ export default function SchedulePage() {
 
   // Today's stats
   const today = new Date();
-  const todaysEvents = events.filter(event => isSameDay(event.date, today));
-  
+  const todaysEvents = events.filter((event) => isSameDay(event.date, today));
+
   return (
     <div className="h-full flex flex-col space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-[#15181E] p-6 rounded-2xl border border-gray-800">
         <div>
           <h1 className="text-3xl font-bold text-white mb-1">
-            {view === "day" 
-              ? format(currentDate, "MMMM d, yyyy") 
+            {view === "day"
+              ? format(currentDate, "MMMM d, yyyy")
               : format(currentDate, "MMMM yyyy")}
           </h1>
           <p className="text-gray-400 text-sm">
-            You have <span className="text-teal-400 font-bold">{todaysEvents.length} sessions</span> today.
+            You have{" "}
+            <span className="text-teal-400 font-bold">
+              {todaysEvents.length} sessions
+            </span>{" "}
+            today.
           </p>
         </div>
 
@@ -203,13 +209,13 @@ export default function SchedulePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={prev}
               className="p-2 hover:bg-[#252b36] rounded-lg transition-colors text-gray-400 hover:text-white"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <button 
+            <button
               onClick={next}
               className="p-2 hover:bg-[#252b36] rounded-lg transition-colors text-gray-400 hover:text-white"
             >
@@ -230,7 +236,10 @@ export default function SchedulePage() {
         {view !== "day" && (
           <div className="grid grid-cols-7 mb-4">
             {weekDays.map((day) => (
-              <div key={day} className="text-gray-500 text-sm font-bold uppercase tracking-wider pl-2">
+              <div
+                key={day}
+                className="text-gray-500 text-sm font-bold uppercase tracking-wider pl-2"
+              >
                 {day}
               </div>
             ))}
@@ -242,7 +251,9 @@ export default function SchedulePage() {
           {calendarDays.map((day) => {
             const isCurrentMonth = isSameMonth(day, currentDate); // Only relevant for month view styling
             const isToday = isSameDay(day, new Date());
-            const dayEvents = events.filter(event => isSameDay(event.date, day));
+            const dayEvents = events.filter((event) =>
+              isSameDay(event.date, day),
+            );
 
             return (
               <div
@@ -261,10 +272,12 @@ export default function SchedulePage() {
                 {/* Date Header */}
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
-                    <span className={`
+                    <span
+                      className={`
                       text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full
                       ${isToday ? "bg-teal-500 text-black font-bold" : "text-gray-400"}
-                    `}>
+                    `}
+                    >
                       {format(day, "d")}
                     </span>
                     {view === "day" && (
@@ -292,23 +305,31 @@ export default function SchedulePage() {
                       `}
                     >
                       <div>
-                        <div className={`${view === "day" ? "text-lg font-bold" : "font-bold truncate"}`}>
+                        <div
+                          className={`${view === "day" ? "text-lg font-bold" : "font-bold truncate"}`}
+                        >
                           {event.title}
                         </div>
-                        <div className={`opacity-80 ${view === "day" ? "text-sm flex items-center gap-2 mt-1" : "text-[10px]"}`}>
+                        <div
+                          className={`opacity-80 ${view === "day" ? "text-sm flex items-center gap-2 mt-1" : "text-[10px]"}`}
+                        >
                           {view === "day" && <Clock className="w-4 h-4" />}
                           {event.time} {view === "day" && `(${event.duration})`}
                         </div>
                       </div>
-                      
+
                       {view === "day" && (
-                        <Button size="sm" variant="ghost" className="hover:bg-white/10">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="hover:bg-white/10"
+                        >
                           View Details
                         </Button>
                       )}
                     </div>
                   ))}
-                  
+
                   {dayEvents.length === 0 && view === "day" && (
                     <div className="flex flex-col items-center justify-center h-48 text-gray-500">
                       <Clock className="w-8 h-8 mb-2 opacity-50" />
@@ -318,8 +339,10 @@ export default function SchedulePage() {
                 </div>
 
                 {selectedDay && isSameDay(selectedDay, day) && (
-                  <div className="absolute top-10 right-3 z-20 w-60 bg-[#0F1115] border border-gray-800 rounded-xl shadow-xl p-3"
-                       onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="absolute top-10 right-3 z-20 w-60 bg-[#0F1115] border border-gray-800 rounded-xl shadow-xl p-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="text-xs font-semibold text-gray-400 mb-2">
                       New Event • {format(selectedDay, "MMM d")}
                     </div>
@@ -347,7 +370,7 @@ export default function SchedulePage() {
                           { key: "orange", cls: "bg-orange-500" },
                           { key: "blue", cls: "bg-blue-500" },
                           { key: "green", cls: "bg-green-500" },
-                        ].map(c => (
+                        ].map((c) => (
                           <button
                             key={c.key}
                             className={`w-5 h-5 rounded ${c.cls} ${draftColor === c.key ? "ring-2 ring-white/50" : ""}`}
@@ -372,12 +395,15 @@ export default function SchedulePage() {
                             if (!selectedDay) return;
                             const colorMap = {
                               teal: "bg-teal-500/20 text-teal-300 border-teal-500/30",
-                              purple: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-                              orange: "bg-orange-500/20 text-orange-300 border-orange-500/30",
+                              purple:
+                                "bg-purple-500/20 text-purple-300 border-purple-500/30",
+                              orange:
+                                "bg-orange-500/20 text-orange-300 border-orange-500/30",
                               blue: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-                              green: "bg-green-500/20 text-green-300 border-green-500/30",
+                              green:
+                                "bg-green-500/20 text-green-300 border-green-500/30",
                             } as const;
-                            setUserEvents(prev => [
+                            setUserEvents((prev) => [
                               ...prev,
                               {
                                 id: Date.now(),
