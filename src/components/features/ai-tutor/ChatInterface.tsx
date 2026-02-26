@@ -11,7 +11,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Message } from "../../../hooks/useChat";
+import type { Message } from "../../../hooks/useChat";
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -86,11 +86,10 @@ export function ChatInterface({
 
   const parseContent = (content: string) => {
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-    const parts: {
-      type: "text" | "code";
-      content: string;
-      language?: string;
-    }[] = [];
+    const parts: (
+      | { type: "text"; content: string }
+      | { type: "code"; content: string; language: string }
+    )[] = [];
     let lastIndex = 0;
     let match;
 
@@ -103,8 +102,8 @@ export function ChatInterface({
       }
       parts.push({
         type: "code",
-        language: match[1] || "code",
-        content: match[2],
+        language: (match[1] ?? "code") as string,
+        content: (match[2] ?? "") as string,
       });
       lastIndex = match.index + match[0].length;
     }

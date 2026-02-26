@@ -1,116 +1,3 @@
-<<<<<<< HEAD
-"use client";
-
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { useEffect } from "react";
-
-export default function MyModulesPage() {
-  const defaultModules = ["server-module"];
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const raw = localStorage.getItem("enrolledModules");
-      const arr = (() => {
-        try {
-          const parsed = JSON.parse(raw || "[]");
-          return Array.isArray(parsed) ? parsed : [];
-        } catch {
-          return [];
-        }
-      })();
-      let changed = false;
-      for (const slug of defaultModules) {
-        if (!arr.includes(slug)) {
-          arr.push(slug);
-          changed = true;
-        }
-      }
-      if (changed) localStorage.setItem("enrolledModules", JSON.stringify(arr));
-    } catch {}
-  }, []);
-  const enrolledRaw =
-    typeof window !== "undefined"
-      ? localStorage.getItem("enrolledModules")
-      : null;
-  const enrolled = (() => {
-    try {
-      const parsed = JSON.parse(enrolledRaw || "[]");
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  })();
-
-  const modules = Array.from(new Set([...defaultModules, ...enrolled])).map(
-    (slug: string) => {
-      const safe = (() => {
-        try {
-          return decodeURIComponent(slug);
-        } catch {
-          return slug;
-        }
-      })();
-      const title = safe
-        .split("-")
-        .filter(Boolean)
-        .map((s: string) => s.charAt(0).toUpperCase() + s.slice(1))
-        .join(" ");
-      return { slug, title };
-    },
-  );
-
-  return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-[#0A0F1F] dark:text-white">
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl md:text-4xl font-extrabold">Your Modules</h1>
-          <Link href="/tutors">
-            <Button className="bg-indigo-600 hover:bg-indigo-500">
-              Find a Tutor
-            </Button>
-          </Link>
-        </div>
-
-        {modules.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0F1117] p-8 text-center">
-            <div className="text-lg font-semibold">No enrolled modules yet</div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              Enroll in a module to see it here.
-            </p>
-            <div className="mt-4">
-              <Link href="/tutors">
-                <Button
-                  variant="outline"
-                  className="border-gray-200 dark:border-gray-700"
-                >
-                  Explore Tutors
-                </Button>
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {modules.map((m) => (
-              <Link
-                key={m.slug}
-                href={`/modules/${m.slug}`}
-                className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0F1117] p-6 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors"
-              >
-                <div className="text-sm font-semibold">{m.title}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Enrolled
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-=======
  "use client";
  
  import Link from "next/link";
@@ -175,56 +62,64 @@ export default function MyModulesPage() {
      []
    );
  
-   return (
-     <div className="min-h-screen bg-gradient-to-b from-[#0A0F1F] to-[#0B0E1A] text-white">
-       <div className="max-w-6xl mx-auto px-6 py-8">
-         <div className="rounded-3xl bg-gradient-to-br from-indigo-900/40 to-slate-800/30 border border-white/10 p-6 md:p-8">
-           <div className="text-[11px] font-bold uppercase tracking-wide text-indigo-300 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 w-fit">
-             Fall Semester 2023
-           </div>
-           <h1 className="text-3xl md:text-4xl font-extrabold mt-3">My Academic Journey</h1>
-           <p className="text-sm text-slate-300 mt-2 max-w-2xl">
-             Welcome back. Keep up the momentum for your mid-terms.
-           </p>
-           <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-xl">
-             <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-               <div className="text-[11px] text-slate-400">Sem. Progress</div>
-               <div className="flex items-end gap-2">
-                 <div className="text-2xl font-bold">75%</div>
-                 <div className="text-emerald-400 text-xs font-semibold">On Track</div>
-               </div>
-             </div>
-             <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-               <div className="text-[11px] text-slate-400">Cum. GPA</div>
-               <div className="flex items-end gap-2">
-                 <div className="text-2xl font-bold">3.8</div>
-                 <div className="text-emerald-400 text-xs font-semibold">+0.2</div>
-               </div>
-             </div>
-             <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-               <div className="text-[11px] text-slate-400">Credits</div>
-               <div className="flex items-end gap-2">
-                 <div className="text-2xl font-bold">18</div>
-               </div>
-             </div>
-           </div>
-         </div>
+  return (
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gradient-to-b dark:from-[#0A0F1F] dark:to-[#0B0E1A] dark:text-white">
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="rounded-3xl p-6 md:p-8 border bg-white border-gray-200 dark:bg-gradient-to-br dark:from-[#0E1530] dark:via-[#0B1226] dark:to-[#0A0F1F] dark:border-white/10 dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+          <div className="text-[11px] font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-200 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700/50 w-fit">
+            Fall Semester 2023
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold mt-3">My Academic Journey</h1>
+          <p className="text-sm text-gray-600 dark:text-slate-200 mt-2 max-w-2xl">
+            Welcome back. Keep up the momentum for your mid-terms.
+          </p>
+          <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-xl">
+            <div className="rounded-xl p-4 border bg-gray-50 border-gray-200 dark:bg-white/10 dark:border-white/15">
+              <div className="text-[11px] text-gray-500 dark:text-slate-300">Sem. Progress</div>
+              <div className="flex items-end gap-2">
+                <div className="text-2xl font-bold">75%</div>
+                <div className="text-emerald-700 dark:text-emerald-400 text-xs font-semibold">On Track</div>
+              </div>
+            </div>
+            <div className="rounded-xl p-4 border bg-gray-50 border-gray-200 dark:bg-white/10 dark:border-white/15">
+              <div className="text-[11px] text-gray-500 dark:text-slate-300">Cum. GPA</div>
+              <div className="flex items-end gap-2">
+                <div className="text-2xl font-bold">3.8</div>
+                <div className="text-emerald-700 dark:text-emerald-400 text-xs font-semibold">+0.2</div>
+              </div>
+            </div>
+            <div className="rounded-xl p-4 border bg-gray-50 border-gray-200 dark:bg-white/10 dark:border-white/15">
+              <div className="text-[11px] text-gray-500 dark:text-slate-300">Credits</div>
+              <div className="flex items-end gap-2">
+                <div className="text-2xl font-bold">18</div>
+              </div>
+            </div>
+          </div>
+        </div>
  
          <div className="flex items-center justify-between mt-8">
            <div className="flex items-center gap-2">
              <div className="w-4 h-4 rounded-sm bg-indigo-500/30 border border-indigo-400/30" />
              <h2 className="text-xl font-semibold">Current Modules</h2>
            </div>
-           <div className="flex items-center gap-2">
-             <button
-               className={`h-9 w-9 rounded-lg border border-white/10 flex items-center justify-center ${view === "list" ? "bg-white/10" : "hover:bg-white/5"}`}
+          <div className="flex items-center gap-2">
+            <button
+              className={`h-9 w-9 rounded-lg border flex items-center justify-center ${
+                view === "list"
+                  ? "bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/10"
+                  : "hover:bg-gray-50 dark:hover:bg-white/5 border-gray-200 dark:border-white/10"
+              }`}
                onClick={() => setView("list")}
                aria-label="List view"
              >
                <List className="w-4 h-4" />
              </button>
-             <button
-               className={`h-9 w-9 rounded-lg border border-white/10 flex items-center justify-center ${view === "grid" ? "bg-white/10" : "hover:bg-white/5"}`}
+            <button
+              className={`h-9 w-9 rounded-lg border flex items-center justify-center ${
+                view === "grid"
+                  ? "bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/10"
+                  : "hover:bg-gray-50 dark:hover:bg-white/5 border-gray-200 dark:border-white/10"
+              }`}
                onClick={() => setView("grid")}
                aria-label="Grid view"
              >
@@ -249,7 +144,7 @@ export default function MyModulesPage() {
                <Link
                  key={slug}
                  href={`/modules/${slug}`}
-                 className="group rounded-2xl overflow-hidden border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
+                className="group rounded-2xl overflow-hidden border bg-white hover:bg-gray-50 border-gray-200 dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04] transition-colors"
                >
                  <div className="relative">
                    <div className="aspect-[16/9] w-full overflow-hidden">
@@ -259,39 +154,39 @@ export default function MyModulesPage() {
                        className="w-full h-full object-cover opacity-80 group-hover:opacity-90 transition-opacity"
                      />
                    </div>
-                   <span className="absolute right-4 top-4 px-2 py-1 rounded-full text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  <span className="absolute right-4 top-4 px-2 py-1 rounded-full text-xs bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-400/30">
                      {m.status}
                    </span>
  
                    <div className="absolute -bottom-5 left-5">
                      <div className="relative w-12 h-12 rounded-full grid place-items-center">
                        <div className="absolute inset-0 rounded-full" style={progressStyle} />
-                       <div className="absolute inset-1 rounded-full bg-[#0B0E1A]" />
+                      <div className="absolute inset-1 rounded-full bg-white dark:bg-[#0B0E1A]" />
                        <div className="relative text-xs font-bold">{m.progress}%</div>
                      </div>
                    </div>
                  </div>
  
                  <div className="p-5 pt-7">
-                   <div className="text-[13px] text-slate-300">{m.professor} • {m.code}</div>
-                   <div className="text-lg md:text-xl font-semibold mt-1">{m.title}</div>
+                  <div className="text-[13px] text-gray-600 dark:text-slate-300">{m.professor} • {m.code}</div>
+                  <div className="text-lg md:text-xl font-semibold mt-1 text-gray-900 dark:text-white">{m.title}</div>
  
-                   <div className="mt-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 flex items-center gap-3">
-                     <div className="p-2 rounded-lg bg-indigo-500/20 border border-indigo-400/20 text-indigo-300">
+                  <div className="mt-4 p-4 rounded-xl border bg-gray-50 border-gray-200 dark:bg-white/[0.03] dark:border-white/10 flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 dark:bg-indigo-500/20 dark:border-indigo-400/20 dark:text-indigo-300">
                        <BookOpen className="w-4 h-4" />
                      </div>
                      <div>
-                       <div className="text-[11px] text-slate-400 uppercase font-bold">Upcoming Task</div>
-                       <div className="text-sm">{m.upcoming}</div>
+                      <div className="text-[11px] text-gray-500 dark:text-slate-400 uppercase font-bold">Upcoming Task</div>
+                      <div className="text-sm text-gray-900 dark:text-white">{m.upcoming}</div>
                      </div>
                    </div>
  
                    <div className="mt-4 flex items-center justify-between">
-                     <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300 text-sm">
                        <Users className="w-4 h-4" />
                        <span>{m.participants}</span>
                      </div>
-                     <div className="inline-flex items-center gap-1 text-sm text-indigo-300 group-hover:text-indigo-200">
+                    <div className="inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-300 group-hover:text-indigo-700 dark:group-hover:text-indigo-200">
                        Enter Class <ChevronRight className="w-4 h-4" />
                      </div>
                    </div>
@@ -304,4 +199,3 @@ export default function MyModulesPage() {
      </div>
    );
  }
->>>>>>> 3ec0163 (Your module added)

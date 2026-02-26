@@ -1,21 +1,13 @@
-"use client";
+ "use client";
+ 
+ import Link from "next/link";
+ import { Button } from "@/components/ui/Button";
+ import { ArrowLeft, Users, Video, Mic, MicOff, VideoOff, Monitor, List } from "lucide-react";
+ import { useEffect, useRef, useState } from "react";
 
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { ArrowLeft, Calendar, Users, BookOpen, Star, Play } from "lucide-react";
-
-export default function ModuleDetailsPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default function ModuleDetailsPage({ params }: { params: { slug: string } }) {
   const slugFromParams = (params as any)?.slug;
-  const raw =
-    typeof slugFromParams === "string"
-      ? slugFromParams
-      : Array.isArray(slugFromParams)
-        ? slugFromParams.join("-")
-        : "module";
+  const raw = typeof slugFromParams === "string" ? slugFromParams : Array.isArray(slugFromParams) ? slugFromParams.join("-") : "module";
   const safe = (() => {
     try {
       return decodeURIComponent(raw);
@@ -28,261 +20,211 @@ export default function ModuleDetailsPage({
     .filter(Boolean)
     .map((s: string) => s.charAt(0).toUpperCase() + s.slice(1))
     .join(" ");
-  const outcomes = [
-    {
-      title: "Qubit Mechanics",
-      desc: "Understand superposition and entanglement principles.",
-    },
-    {
-      title: "Quantum Gates",
-      desc: "Learn to manipulate qubits using single and multi‑qubit gates.",
-    },
-    {
-      title: "Shor’s Algorithm",
-      desc: "Dive into prime factorization and cryptography impacts.",
-    },
-    {
-      title: "Error Correction",
-      desc: "Study methods to protect quantum information from noise.",
-    },
+  const lessons = [
+    { type: "Video", title: "Introduction", duration: "4 min" },
+    { type: "Updates", title: "Module Announcements", duration: "1 min" },
+    { type: "Reading", title: "Syllabus", duration: "10 min" },
+    { type: "Video", title: "Meet your Professor", duration: "1 min" },
+    { type: "Video", title: "Design Thinking", duration: "8 min" },
+    { type: "Reading", title: "Assignment Submission", duration: "10 min" },
+    { type: "Video", title: "Visualization Wheel", duration: "30 min" },
+    { type: "Video", title: "Graphical Heuristics", duration: "4 min" },
   ];
-  const tutors = [
-    {
-      id: 1,
-      name: "Dr. Aris Thorne",
-      role: "PhD, Physics @ MIT",
-      rate: 80,
-      rating: 5.0,
-    },
-    {
-      id: 2,
-      name: "Sarah Jenkins",
-      role: "Researcher @ Google",
-      rate: 120,
-      rating: 4.9,
-    },
-    {
-      id: 3,
-      name: "Kenji Sato",
-      role: "MSc, Quantum @ Stanford",
-      rate: 85,
-      rating: 4.8,
-    },
+ 
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [muted, setMuted] = useState(false);
+  const [cameraOn, setCameraOn] = useState(true);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLDivElement>(null);
+  const [activeModule, setActiveModule] = useState("Module 1");
+  const activeTutors = [
+    { id: "t1", name: "Dr. Alan Grant" },
+    { id: "t2", name: "Sarah Jenkins" },
   ];
-  const weeks = [
-    {
-      label: "Week 1-2",
-      title: "Linear Algebra & Physics Foundations",
-      desc: "Matrices, vectors, and the physical basis of quantum mechanics required for computing.",
-    },
-    {
-      label: "Week 3-4",
-      title: "Quantum Gates & Circuits",
-      desc: "Building blocks of quantum algorithms. Designing simple circuits.",
-    },
-    {
-      label: "Week 5-6",
-      title: "Algorithms & Complexity",
-      desc: "Grover’s search, Simon’s problem, and introduction to quantum complexity classes.",
-    },
-    {
-      label: "Week 7-8",
-      title: "Final Project & Review",
-      desc: "Implement a quantum algorithm on a simulator or real quantum hardware.",
-    },
+  const activeStudents = [
+    { id: "s1", name: "You" },
+    { id: "s2", name: "David Kim" },
+    { id: "s3", name: "Emily Davis" },
   ];
+ 
+  useEffect(() => {
+    return () => {
+      stream?.getTracks().forEach((t) => t.stop());
+    };
+  }, [stream]);
+ 
+  async function startCall() {
+    const s = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    setStream(s);
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = s;
+      localVideoRef.current.play().catch(() => {});
+    }
+  }
+  function endCall() {
+    stream?.getTracks().forEach((t) => t.stop());
+    setStream(null);
+  }
+  function toggleMute() {
+    setMuted((v) => {
+      const next = !v;
+      stream?.getAudioTracks().forEach((t) => (t.enabled = !next));
+      return next;
+    });
+  }
+  function toggleCamera() {
+    setCameraOn((v) => {
+      const next = !v;
+      stream?.getVideoTracks().forEach((t) => (t.enabled = next));
+      return next;
+    });
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-[#0A0F1F] dark:text-white">
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <Link href="/tutors">
-          <Button
-            variant="ghost"
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 -ml-2 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back
-          </Button>
-        </Link>
-
-        <div className="rounded-3xl overflow-hidden border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0F1117] mb-6">
-          <div className="p-6 md:p-8 relative">
-            <div className="absolute inset-0 opacity-20 pointer-events-none" />
-            <div className="flex items-center gap-2 text-xs font-bold">
-              <span className="px-2 py-1 rounded-full bg-purple-600/20 text-purple-300 border border-purple-500/30">
-                Advanced Module
-              </span>
-              <div className="flex items-center gap-1 text-yellow-400">
-                <Star className="w-3 h-3 fill-yellow-400" />
-                <span>4.9</span>
-                <span className="text-gray-500 dark:text-gray-400">
-                  (1.2k reviews)
-                </span>
-              </div>
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-[#0A0F1F] dark:text-white">
+      <div className="w-full h-screen flex">
+        <aside className="w-[300px] bg-gray-50 border-r border-gray-200 dark:bg-black/30 dark:border-white/10 hidden md:flex flex-col">
+          <div className="p-4 flex items-center justify-between border-b border-gray-200 dark:border-white/10">
+            <div className="flex items-center gap-2">
+              <List className="w-4 h-4" />
+              <div className="text-sm font-semibold">Module 1</div>
             </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold mt-3">
-              {title}
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 max-w-2xl">
-              Master the fundamental concepts and algorithms in this
-              comprehensive 8‑week module designed for future engineers.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Button
-                className="bg-indigo-600 hover:bg-indigo-500"
-                onClick={() => {
-                  try {
-                    if (typeof window !== "undefined") {
-                      const enrolled = JSON.parse(
-                        localStorage.getItem("enrolledModules") || "[]",
-                      );
-                      const next = Array.isArray(enrolled) ? enrolled : [];
-                      if (!next.includes(raw)) next.push(raw);
-                      localStorage.setItem(
-                        "enrolledModules",
-                        JSON.stringify(next),
-                      );
-                    }
-                  } catch {}
-                  window.location.href = "/tutors";
-                }}
-              >
-                Enroll Now
-              </Button>
-              <Button
-                variant="outline"
-                className="border-gray-200 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
-              >
-                Save Course
-              </Button>
-              <span className="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200 dark:bg-white/10 dark:text-white dark:border-white/20">
-                8 Weeks
-              </span>
-              <span className="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200 dark:bg-white/10 dark:text-white dark:border-white/20">
-                Intermediate
-              </span>
-            </div>
+            <span className="text-[11px] text-gray-500 dark:text-slate-400">Principles</span>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8 space-y-6">
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0F1117] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">What You Will Learn</h2>
-                <button className="text-xs text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                  Download Syllabus
-                </button>
+          <div className="flex-1 overflow-auto">
+            <div className="px-3 py-2 text-[11px] uppercase tracking-wide text-gray-500 dark:text-slate-400">Lessons</div>
+            {lessons.map((l, i) => (
+              <button key={i} className={`w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 border-l-2 ${i === 0 ? "border-indigo-500 bg-gray-100 dark:bg-white/5" : "border-transparent"} transition-colors`}>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">{l.title}</span>
+                  <span className="text-xs text-gray-500 dark:text-slate-400">{l.duration}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </aside>
+ 
+        <main className="flex-1 flex flex-col">
+          <div className="px-4 py-3 flex items-center justify-between border-b border-gray-200 dark:border-white/10 bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:bg-transparent">
+            <div className="flex items-center gap-3">
+              <Link href="/learn/modules">
+                <Button variant="ghost" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-white/10">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+              </Link>
+              <div className="flex items-center gap-3">
+                <div className="text-sm">
+                  <div className="font-semibold">{title}</div>
+                  <div className="text-gray-500 dark:text-slate-400 text-xs">Live tutoring session</div>
+                </div>
+                <select
+                  className="text-xs bg-white border border-gray-200 rounded-md px-2 py-1 text-gray-700 hover:bg-gray-50 dark:bg-white/5 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10"
+                  value={activeModule}
+                  onChange={(e) => setActiveModule(e.target.value)}
+                >
+                  <option>Module 1</option>
+                  <option>Module 2</option>
+                  <option>Module 3</option>
+                </select>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {outcomes.map((o, i) => (
-                  <div
-                    key={i}
-                    className="p-4 rounded-xl bg-gray-50 border border-gray-200 dark:bg-[#0D1420] dark:border-gray-800"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="p-2 rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:text-blue-300">
-                        <BookOpen className="w-4 h-4" />
+            </div>
+            <div className="text-gray-500 dark:text-slate-400 text-xs hidden md:block">Transcript</div>
+          </div>
+ 
+          <div className="flex-1 grid grid-rows-[1fr_auto]">
+            <div className="relative bg-gray-100 dark:bg-black/40">
+              <div className="absolute inset-0 grid grid-cols-1 lg:grid-cols-[1fr_280px]">
+                <div className="relative">
+                  <video ref={localVideoRef} muted playsInline className="w-full h-full object-cover bg-black" />
+                  {!stream && (
+                    <div className="absolute inset-0 grid place-items-center text-center px-6">
+                      <div>
+                        <div className="text-xl font-semibold mb-2">Ready to start your video call?</div>
+                        <div className="text-gray-600 dark:text-slate-400 text-sm">Grant camera and microphone access to join the session with your tutor.</div>
                       </div>
-                      <div className="text-sm font-semibold">{o.title}</div>
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {o.desc}
-                    </p>
+                  )}
+                </div>
+                <div className="hidden lg:block border-l border-gray-200 dark:border-white/10 bg-white dark:bg-black/20">
+                  <div className="p-3 text-xs text-gray-500 dark:text-slate-400 border-b border-gray-200 dark:border-white/10">
+                    In Call
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0F1117] p-6">
-              <h3 className="font-semibold mb-4">Course Timeline</h3>
-              <div className="space-y-3">
-                {weeks.map((w, i) => (
-                  <div
-                    key={i}
-                    className="p-4 rounded-xl bg-gray-50 border border-gray-200 dark:bg-[#0D1420] dark:border-gray-800"
-                  >
-                    <div className="text-[11px] text-indigo-600 dark:text-indigo-300 font-bold uppercase">
-                      {w.label}
+                  <div ref={remoteVideoRef} className="h-full overflow-auto">
+                    <div className="p-3 space-y-4">
+                      <div>
+                        <div className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-slate-400 mb-2">
+                          Tutors ({activeTutors.length})
+                        </div>
+                        <div className="space-y-2">
+                          {activeTutors.map((u) => (
+                            <div key={u.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 border border-gray-200 dark:bg-white/5 dark:border-white/10">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-200 text-indigo-600 dark:bg-indigo-600/30 dark:border-indigo-500/30 flex items-center justify-center text-xs font-bold dark:text-indigo-200">
+                                  {u.name.split(' ').map(n => n[0]).join('')}
+                                </div>
+                                <div className="text-sm text-gray-900 dark:text-white">{u.name}</div>
+                              </div>
+                              <span className="text-[10px] text-emerald-600 dark:text-emerald-400">Online</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="pt-1">
+                        <div className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-slate-400 mb-2">
+                          Students ({activeStudents.length})
+                        </div>
+                        <div className="space-y-2">
+                          {activeStudents.map((u) => (
+                            <div key={u.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 border border-gray-200 dark:bg-white/5 dark:border-white/10">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-gray-200 border border-gray-300 text-gray-700 dark:bg-slate-600/30 dark:border-white/10 flex items-center justify-center text-xs font-bold dark:text-slate-200">
+                                  {u.name.split(' ').map(n => n[0]).join('')}
+                                </div>
+                                <div className="text-sm text-gray-900 dark:text-white">{u.name}</div>
+                              </div>
+                              <span className="text-[10px] text-emerald-600 dark:text-emerald-400">Online</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm font-semibold mt-1">{w.title}</div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                      {w.desc}
-                    </p>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0F1117] overflow-hidden">
-              <div className="aspect-video relative">
-                <img
-                  src="https://images.unsplash.com/photo-1556157382-97eda0fe8aae?q=80&w=1600&auto=format&fit=crop"
-                  alt="Course Intro"
-                  className="w-full h-full object-cover opacity-70"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <button className="w-16 h-16 rounded-full bg-black/10 dark:bg-white/10 backdrop-blur-md border border-gray-300 dark:border-white/30 flex items-center justify-center text-gray-900 dark:text-white">
-                    <Play className="w-7 h-7" />
-                  </button>
                 </div>
               </div>
-              <div className="p-4 text-sm text-gray-600 dark:text-gray-400">
-                Watch Course Intro
+            </div>
+ 
+            <div className="px-4 py-3 flex items-center gap-2 bg-white border-t border-gray-200 dark:bg-black/40 dark:border-white/10">
+              {!stream ? (
+                <Button onClick={startCall} className="bg-indigo-600 hover:bg-indigo-500">
+                  <Video className="w-4 h-4 mr-2" />
+                  Start Call
+                </Button>
+              ) : (
+                <>
+                  <Button onClick={toggleMute} variant="secondary" className="bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20">
+                    {muted ? <MicOff className="w-4 h-4 mr-2" /> : <Mic className="w-4 h-4 mr-2" />}
+                    {muted ? "Unmute" : "Mute"}
+                  </Button>
+                  <Button onClick={toggleCamera} variant="secondary" className="bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20">
+                    {cameraOn ? <Video className="w-4 h-4 mr-2" /> : <VideoOff className="w-4 h-4 mr-2" />}
+                    {cameraOn ? "Camera Off" : "Camera On"}
+                  </Button>
+                  <Button onClick={endCall} variant="danger">
+                    End Call
+                  </Button>
+                </>
+              )}
+              <div className="ml-auto flex items-center gap-2 text-gray-600 dark:text-slate-300 text-sm">
+                <Users className="w-4 h-4" />
+                <span>1 of 2</span>
+                <span className="mx-2">•</span>
+                <Monitor className="w-4 h-4" />
+                <span>HD</span>
               </div>
             </div>
           </div>
-
-          <div className="lg:col-span-4 space-y-4">
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0F1117] p-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Users className="w-4 h-4" /> Available Experts
-                </h3>
-                <span className="text-xs text-gray-600 dark:text-gray-400">
-                  Highest Rated
-                </span>
-              </div>
-              <div className="space-y-3">
-                {tutors.map((t) => (
-                  <div
-                    key={t.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-200 dark:bg-[#0D1420] dark:border-gray-800"
-                  >
-                    <div>
-                      <div className="text-sm font-medium">{t.name}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-500">
-                        {t.role}
-                      </div>
-                      <div className="flex items-center gap-1 text-[11px] text-yellow-600 dark:text-yellow-400 mt-1">
-                        <Star className="w-3 h-3 fill-yellow-400" />
-                        <span>{t.rating}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold">
-                        ${t.rate}/hr
-                      </span>
-                      <Button
-                        size="sm"
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white"
-                      >
-                        Book Now
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3 text-right">
-                <Link
-                  href="/tutors"
-                  className="text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
-                >
-                  View all tutors
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        </main>
       </div>
     </div>
   );
