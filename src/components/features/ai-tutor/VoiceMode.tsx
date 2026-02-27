@@ -9,7 +9,7 @@ import {
   Maximize2,
   MicOff,
 } from "lucide-react";
-import { Message } from "../../../hooks/useChat";
+import type { Message } from "../../../hooks/useChat";
 
 interface VoiceModeProps {
   messages: Message[];

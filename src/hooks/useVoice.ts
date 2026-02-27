@@ -68,10 +68,13 @@ export function useVoice({
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
+        if (!result) continue;
+        const first = result[0];
+        const text = first?.transcript ?? "";
         if (result.isFinal) {
-          finalTranscript += result[0].transcript;
+          finalTranscript += text;
         } else {
-          interimTranscript += result[0].transcript;
+          interimTranscript += text;
         }
       }
 

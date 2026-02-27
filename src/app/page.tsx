@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Dashboard from '@/components/Dashboard';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/Button';
 import { BookOpen, Moon, Mail, Lock, User, Eye, EyeOff, Loader2, X } from 'lucide-react';
 import ColorThief from 'colorthief';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
 
 const TEST_MODE = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
@@ -25,8 +25,9 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const forceAuth = typeof window !== 'undefined' && (searchParams.get('add_account') === '1');
+  const forceAuth =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('add_account') === '1';
 
   useEffect(() => {
     if (TEST_MODE) {
@@ -124,16 +125,19 @@ export default function Home() {
 
   if (session && !forceAuth) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#0F172A] transition-colors duration-300">
-        <Header />
-        <main className="flex-1">
-          <Dashboard />
-        </main>
-      </div>
+      <Suspense fallback={null}>
+        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#0F172A] transition-colors duration-300">
+          <Header />
+          <main className="flex-1">
+            <Dashboard />
+          </main>
+        </div>
+      </Suspense>
     );
   }
 
   return (
+    <Suspense fallback={null}>
     <div className="min-h-screen bg-white flex flex-col lg:flex-row">
       {/* Left Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 overflow-hidden">
@@ -363,5 +367,6 @@ export default function Home() {
         </div>
       )}
     </div>
+    </Suspense>
   );
 }
