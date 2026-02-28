@@ -2,6 +2,15 @@
   "name": "classmate",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/richardhans8888/ClassMate2026.git"
+  },
+  "contributors": [
+    { "name": "Kenny Tang" },
+    { "name": "Richard Hans" },
+    { "name": "Stefan Luciano Kencana" }
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
