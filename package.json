@@ -8,9 +8,15 @@
     "url": "https://github.com/richardhans8888/ClassMate2026.git"
   },
   "contributors": [
-    { "name": "Kenny Tang" },
-    { "name": "Richard Hans" },
-    { "name": "Stefan Luciano Kencana" }
+    {
+      "name": "Kenny Tang"
+    },
+    {
+      "name": "Richard Hans"
+    },
+    {
+      "name": "Stefan Luciano Kencana"
+    }
   ],
   "scripts": {
     "dev": "next dev",
@@ -20,6 +26,7 @@
     "lint:fix": "eslint . --fix",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "format": "prettier . --write"
   },
   "dependencies": {
@@ -46,6 +53,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/colorthief": "^2.6.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
