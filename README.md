@@ -13,9 +13,9 @@
 
 | Name | Student ID | Role | GitHub Username |
 | :--- | :--- | :--- | :--- |
-| Kenny Tang | 2802517733 | - | [@kennytangg](github.com/kennytangg) |
-| Richard Hans | 2802516384 | - | [@richardhans8888](github.com/richardhans8888)  |
-| Stefan Luciano Kencana | 2802521314 | - | [@Krozlov](github.com/Krozlov) |
+| Kenny Tang | 2802517733 | - | [@kennytangg](https://github.com/kennytangg) |
+| Richard Hans | 2802516384 | - | [@richardhans8888](https://github.com/richardhans8888)  |
+| Stefan Luciano Kencana | 2802521314 | - | [@Krozlov](https://github.com/Krozlov) |
 
 
 ---
