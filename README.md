@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Final Project - Web Application Development and Security
+**Course Code:** COMP6703001  
+**Course Name:** Web Application Development and Security  
+**Institution:** BINUS University International
 
-## Getting Started
+---
 
-First, run the development server:
+## 1. Project Information
+* **Project Title:** ClassMate
+* **Project Domain:** Student Community & Collaboration Platform 
+* **Class:** L4AC
+* **Group Members:**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+| Name | Student ID | Role | GitHub Username |
+| :--- | :--- | :--- | :--- |
+| Kenny Tang | 2802517733 | - | [@kennytangg](github.com/kennytangg) |
+| Richard Hans | 2802516384 | - | [@richardhans8888](github.com/richardhans8888)  |
+| Stefan Luciano Kencana | 2802521314 | - | [@Krozlov](github.com/Krozlov) |
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 2. Project Overview
 
-## Learn More
+### 2.1 Problem Statement
+* **Problem:** [What problem does this application solve?]
+* **Target Users:** [Who are the target users?]
 
-To learn more about Next.js, take a look at the following resources:
+### 2.2 Solution Overview
+* **Main Features:** 
+* **Appropriateness:** [Why this solution is appropriate]
+* **AI Integration:** [Where AI is used]
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 3. Technology Stack 
 
-## Deploy on Vercel
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | Next.js |
+| **Backend** | Node.js or Next.js |
+| **API** | REST API |
+| **Database** | PostgreSQL/Firebase (for auth only) |
+| **Containerization** | Docker |
+| **Deployment** | [Hosting Platform] |
+| **Version Control** | GitHub |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 5. System Architecture 
+
+### 5.1 Architecture Diagram
+
+### 5.2 Architecture Explanation
+* **Frontend:** [Explanation]
+* **API:** [Explanation] 
+* **Database Interaction:** [Explanation]
+* **Separation of Concerns:** [Explanation]
+* **Security Enforcement:** [Where security is enforced]
+
+---
+
+## 6. API Design 
+
+### 6.1 API Endpoints 
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| GET | | | Yes/No | 
+| POST | | | Yes/No |
+| PUT | | | Yes/No |
+| DELETE | | | Yes/No |
+
+### 6.2 API Documentation
+* **Swagger/Postman Link:** [Link if available] 
+* **Example Request & Response (JSON):** [Insert JSON example] 
