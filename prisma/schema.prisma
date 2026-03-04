@@ -12,3 +12,403 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ENUMS
+
+enum UserRole {
+  STUDENT
+  TUTOR
+  ADMIN
+}
+
+enum NotificationType {
+  FORUM_REPLY
+  FORUM_UPVOTE
+  CHAT_MESSAGE
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  BOOKING_COMPLETED
+  TUTOR_REVIEW
+  STUDY_GROUP_INVITE
+  STUDY_GROUP_MEMBER_JOINED
+  SYSTEM_MESSAGE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum PointActionType {
+  FORUM_POST_CREATED
+  FORUM_REPLY_CREATED
+  FORUM_UPVOTE_RECEIVED
+  TUTOR_SESSION_COMPLETED
+  MATERIAL_UPLOADED
+  STUDY_GROUP_CREATED
+  STREAK_BONUS
+  REVIEW_POSTED
+  CHAT_STREAK
+}
+
+// USER & PROFILE MANAGEMENT
+
+model User {
+  id            String   @id @default(cuid())
+  firebaseUid   String   @unique
+  email         String   @unique
+  name          String?
+  image         String?
+  emailVerified Boolean  @default(false)
+  role          UserRole @default(STUDENT)
+  isPremium     Boolean  @default(false)
+  xp            Int      @default(0)
+  level         Int      @default(1)
+
+  profile              UserProfile?
+  tutor                Tutor?
+  forumPosts           ForumPost[]
+  forumReplies         ForumReply[]
+  chatMessagesSent     ChatMessage[]      @relation("sender")
+  chatMessagesReceived ChatMessage[]      @relation("recipient")
+  chatSessions         ChatSession[]
+  studyMaterials       StudyMaterial[]
+  bookingsAsStudent    Booking[]          @relation("student")
+  studyGroupsOwned     StudyGroup[]       @relation("owner")
+  studyGroupMembers    StudyGroupMember[]
+  pointTransactions    PointTransaction[]
+  tutorReviewsGiven    TutorReview[]      @relation("reviewer")
+  notifications        Notification[]
+  upvotedForumPosts    ForumPost[]        @relation("upvoters")
+  upvotedReplies       ForumReply[]       @relation("upvoters")
+  streakRecords        StreakRecord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([firebaseUid])
+  @@index([role])
+  @@index([level])
+  @@index([xp])
+}
+
+model UserProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  displayName String?
+  bio         String?
+  avatarUrl   String?
+  university  String?
+  major       String?
+  reputation  Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([reputation])
+}
+
+// TUTOR MANAGEMENT
+
+model Tutor {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subjects    String[]
+  hourlyRate  Float
+  bio         String?
+  rating      Float   @default(0)
+  reviewCount Int     @default(0)
+  isAvailable Boolean @default(true)
+
+  reviews  TutorReview[]
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([rating])
+  @@index([isAvailable])
+}
+
+model TutorReview {
+  id         String @id @default(cuid())
+  tutorId    String
+  tutor      Tutor  @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  reviewerId String
+  reviewer   User   @relation("reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  rating  Int
+  comment String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tutorId, reviewerId])
+  @@index([tutorId])
+  @@index([reviewerId])
+  @@index([rating])
+}
+
+// FORUM & DISCUSSIONS
+
+model ForumPost {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title        String
+  content      String
+  category     String
+  upvotes      Int     @default(0)
+  views        Int     @default(0)
+  isAnswered   Boolean @default(false)
+  repliesCount Int     @default(0)
+
+  replies          ForumReply[]
+  tags             ForumTag[]
+  upvoters         User[]            @relation("upvoters")
+  pointTransaction PointTransaction?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([category])
+  @@index([createdAt])
+  @@index([upvotes])
+  @@index([isAnswered])
+}
+
+model ForumReply {
+  id     String    @id @default(cuid())
+  postId String
+  post   ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId String
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content          String
+  upvotes          Int     @default(0)
+  isAccepted       Boolean @default(false)
+  upvoters         User[]  @relation("upvoters")
+  pointTransaction PointTransaction?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([upvotes])
+  @@index([isAccepted])
+}
+
+model ForumTag {
+  id   String @id @default(cuid())
+  name String @unique
+
+  posts ForumPost[]
+
+  createdAt DateTime @default(now())
+}
+
+// CHAT & MESSAGING
+
+model ChatMessage {
+  id          String       @id @default(cuid())
+  senderId    String
+  sender      User         @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId String
+  recipient   User         @relation("recipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sessionId   String?
+  session     ChatSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  content     String
+  messageType String  @default("text")
+  isRead      Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@index([isRead])
+}
+
+model ChatSession {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String  @default("Chat Session")
+  subject     String  @default("General")
+  description String?
+  messages    ChatMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// STUDY MATERIALS
+
+model StudyMaterial {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  fileUrl     String
+  subject     String
+  fileType    String?
+  downloads   Int   @default(0)
+  rating      Float @default(0)
+  reviewCount Int   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([subject])
+  @@index([createdAt])
+  @@index([rating])
+}
+
+// STUDY GROUPS
+
+model StudyGroup {
+  id      String @id @default(cuid())
+  ownerId String
+  owner   User   @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  subject     String
+  maxMembers  Int?
+  isPrivate   Boolean @default(false)
+  memberCount Int     @default(1)
+
+  members StudyGroupMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([subject])
+  @@index([createdAt])
+  @@index([isPrivate])
+}
+
+model StudyGroupMember {
+  id      String     @id @default(cuid())
+  groupId String
+  group   StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role     String   @default("member")
+  joinedAt DateTime @default(now())
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+// TUTOR BOOKINGS
+
+model Booking {
+  id        String @id @default(cuid())
+  tutorId   String
+  tutor     Tutor  @relation(fields: [tutorId], references: [id], onDelete: Restrict)
+  studentId String
+  student   User   @relation("student", fields: [studentId], references: [id], onDelete: Cascade)
+
+  subject         String
+  scheduledAt     DateTime
+  durationMinutes Int
+  hourlyRate      Float
+  totalPrice      Float
+  status          BookingStatus @default(PENDING)
+  notes           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tutorId])
+  @@index([studentId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+// GAMIFICATION & POINTS
+
+model PointTransaction {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  actionType  PointActionType
+  points      Int
+  description String?
+
+  forumPostId  String?    @unique
+  forumPost    ForumPost? @relation(fields: [forumPostId], references: [id], onDelete: SetNull)
+  forumReplyId String?    @unique
+  forumReply   ForumReply? @relation(fields: [forumReplyId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([actionType])
+  @@index([createdAt])
+}
+
+model StreakRecord {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  streakDate DateTime @db.Date
+  isBroken   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, streakDate])
+  @@index([userId])
+  @@index([streakDate])
+}
+
+// NOTIFICATIONS
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type          NotificationType
+  title         String
+  message       String
+  isRead        Boolean @default(false)
+  referenceId   String?
+  referenceType String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([isRead])
+  @@index([type])
+}
