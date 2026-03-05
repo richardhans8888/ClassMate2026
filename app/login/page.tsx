@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { BookOpen, Mail, Lock, Eye, EyeOff, Loader2, Moon } from 'lucide-react';
-import { Button } from 'components/ui/Button';
+import { Button } from '@/components/ui/Button2';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ColorThief from 'colorthief';
 import { auth } from 'lib/firebase';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-
-const googleProvider = new GoogleAuthProvider();
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -35,15 +33,40 @@ export default function LoginPage() {
     };
   }, []);
 
+  const createSession = async (idToken: string) => {
+    const res = await fetch("/api/session", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${idToken}` },
+    });
+    if (!res.ok) throw new Error("Failed to create session");
+  };
+
   const handleEmailLogin = async () => {
     if (!email || !password) { setError('Email and password are required'); return; }
     setIsLoading(true);
     setError(null);
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+
+      const idToken = await result.user.getIdToken();
+      await createSession(idToken);
+
       router.push('/');
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Invalid email or password');
+      router.refresh();
+    } catch (error: any) {
+      console.error(error);
+
+      let message = 'Login failed';
+      if (error.code === "auth/user-not-found") {
+        message = "User not found";
+      } else if (error.code === "auth/wrong-password") {
+        message = "wrong password";
+      } else if (error.code === "auth/invalid-email") {
+        message = "invalid email format";
+      }
+
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -52,11 +75,20 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setError(null);
+
     try {
-      await signInWithPopup(auth, googleProvider);
+
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
+
+      await createSession(idToken);
+
       router.push('/');
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Google sign in failed');
+      router.refresh();
+    } catch (error: any) {
+      console.error(error);
+      setError(error instanceof Error ? error.message : 'Google sign in failed');
     } finally {
       setIsLoading(false);
     }
