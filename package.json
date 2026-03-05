@@ -8,9 +8,15 @@
     "url": "https://github.com/richardhans8888/ClassMate2026.git"
   },
   "contributors": [
-    { "name": "Kenny Tang" },
-    { "name": "Richard Hans" },
-    { "name": "Stefan Luciano Kencana" }
+    {
+      "name": "Kenny Tang"
+    },
+    {
+      "name": "Richard Hans"
+    },
+    {
+      "name": "Stefan Luciano Kencana"
+    }
   ],
   "scripts": {
     "dev": "next dev",
@@ -25,6 +31,8 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@supabase/ssr": "^0.8.0",
@@ -32,11 +40,13 @@
     "clsx": "^2.1.1",
     "colorthief": "^2.6.0",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.3.1",
     "framer-motion": "^12.34.0",
     "lucide-react": "^0.564.0",
     "next": "16.1.4",
     "next-themes": "^0.4.6",
     "openai": "^6.22.0",
+    "pg": "^8.19.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "^3.4.1",
@@ -51,6 +61,7 @@
     "@types/colorthief": "^2.6.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
+    "@types/pg": "^8.18.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
@@ -61,6 +72,7 @@
     "jest-environment-jsdom": "^30.2.0",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "prisma": "^7.4.2",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5"
