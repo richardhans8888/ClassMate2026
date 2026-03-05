@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { ArrowLeft, Users, Video, Mic, MicOff, VideoOff, Monitor, List } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 

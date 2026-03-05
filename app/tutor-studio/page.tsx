@@ -12,7 +12,7 @@ import {
   Flame,
   Clock,
 } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 
 export default function TutorStudioPage() {
   return (

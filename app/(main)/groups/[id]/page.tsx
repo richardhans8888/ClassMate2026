@@ -17,7 +17,7 @@ import {
   ArrowLeft,
   ChevronLeft,
 } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -576,10 +576,10 @@ export default function GroupChatPage() {
                       </p>
                       <p
                         className={`text-[10px] ${member.role === "Scholar"
-                            ? "text-amber-600 dark:text-amber-500"
-                            : member.role === "Novice"
-                              ? "text-gray-500 dark:text-gray-500"
-                              : "text-blue-500 dark:text-blue-400"
+                          ? "text-amber-600 dark:text-amber-500"
+                          : member.role === "Novice"
+                            ? "text-gray-500 dark:text-gray-500"
+                            : "text-blue-500 dark:text-blue-400"
                           } font-medium flex items-center gap-1`}
                       >
                         {member.role}

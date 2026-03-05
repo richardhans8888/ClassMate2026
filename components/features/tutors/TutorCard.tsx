@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button } from 'components/ui/Button';
+import { Button } from '@/components/ui/Button2';
 import { Star, Clock, Video, Award } from 'lucide-react';
 
 interface TutorCardProps {

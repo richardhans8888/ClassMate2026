@@ -19,7 +19,7 @@ import {
   AlertTriangle,
   X,
 } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { usePathname } from "next/navigation";
 
 const navigation = [
@@ -92,8 +92,8 @@ export default function TutorStudioLayout({
                 key={item.name}
                 href={item.href}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive
-                    ? "bg-gray-100 text-teal-600 border border-teal-200 dark:bg-[#1A1F26] dark:text-teal-400 dark:border-teal-900/30"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#1A1F26] dark:hover:text-white"
+                  ? "bg-gray-100 text-teal-600 border border-teal-200 dark:bg-[#1A1F26] dark:text-teal-400 dark:border-teal-900/30"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#1A1F26] dark:hover:text-white"
                   }`}
               >
                 <div className="flex items-center gap-3">

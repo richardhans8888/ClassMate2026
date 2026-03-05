@@ -15,7 +15,7 @@ import {
   Calendar as CalendarIcon,
   Loader2,
 } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { ModeToggle } from "components/mode-toggle";
 import { supabase } from "../../lib/supabase";
 const TEST_MODE = process.env.NEXT_PUBLIC_TEST_MODE === "true";

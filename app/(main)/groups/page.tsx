@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import {
   Users,
   Search,
@@ -258,8 +258,8 @@ export default function StudyGroupsPage() {
               key={s}
               onClick={() => setActiveSubject(s)}
               className={`px-3 py-1.5 rounded-full text-xs border transition ${activeSubject === s
-                  ? "bg-gray-100 dark:bg-[#1E2330] border-purple-500/40 text-gray-900 dark:text-white"
-                  : "bg-white dark:bg-[#151921] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1E2330]"
+                ? "bg-gray-100 dark:bg-[#1E2330] border-purple-500/40 text-gray-900 dark:text-white"
+                : "bg-white dark:bg-[#151921] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1E2330]"
                 }`}
             >
               {s}

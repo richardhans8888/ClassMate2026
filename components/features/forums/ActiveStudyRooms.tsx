@@ -11,7 +11,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import Link from "next/link";
 import {
   Dialog,
@@ -243,8 +243,8 @@ export function ActiveStudyRooms() {
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${activeCategory === cat
-                ? "bg-blue-600 text-white"
-                : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-blue-500"
+              ? "bg-blue-600 text-white"
+              : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-blue-500"
               }`}
           >
             {cat}

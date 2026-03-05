@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { useMemo, useState, type CSSProperties } from "react";
 import { LayoutGrid, List, Users, BookOpen, ChevronRight } from "lucide-react";
 
@@ -105,8 +105,8 @@ export default function MyModulesPage() {
           <div className="flex items-center gap-2">
             <button
               className={`h-9 w-9 rounded-lg border flex items-center justify-center ${view === "list"
-                  ? "bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/10"
-                  : "hover:bg-gray-50 dark:hover:bg-white/5 border-gray-200 dark:border-white/10"
+                ? "bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/10"
+                : "hover:bg-gray-50 dark:hover:bg-white/5 border-gray-200 dark:border-white/10"
                 }`}
               onClick={() => setView("list")}
               aria-label="List view"
@@ -115,8 +115,8 @@ export default function MyModulesPage() {
             </button>
             <button
               className={`h-9 w-9 rounded-lg border flex items-center justify-center ${view === "grid"
-                  ? "bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/10"
-                  : "hover:bg-gray-50 dark:hover:bg-white/5 border-gray-200 dark:border-white/10"
+                ? "bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/10"
+                : "hover:bg-gray-50 dark:hover:bg-white/5 border-gray-200 dark:border-white/10"
                 }`}
               onClick={() => setView("grid")}
               aria-label="Grid view"

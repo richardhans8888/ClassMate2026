@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { Calendar, Clock, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
@@ -161,8 +161,8 @@ export default function MySchedulePage() {
                 key={dateISO}
                 onClick={() => openNew(dateISO)}
                 className={`h-28 rounded-xl border p-2 text-left transition-colors ${inCurrent
-                    ? "bg-white dark:bg-[#0F1117] border-gray-200 dark:border-gray-800 hover:border-blue-500"
-                    : "bg-gray-100 dark:bg-[#0D1320] border-gray-200 dark:border-gray-800 opacity-70"
+                  ? "bg-white dark:bg-[#0F1117] border-gray-200 dark:border-gray-800 hover:border-blue-500"
+                  : "bg-gray-100 dark:bg-[#0D1320] border-gray-200 dark:border-gray-800 opacity-70"
                   }`}
               >
                 <div className="flex items-center justify-between">

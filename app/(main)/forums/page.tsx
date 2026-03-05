@@ -1,6 +1,6 @@
 import { ActiveStudyRooms } from "components/features/forums/ActiveStudyRooms";
 import Link from "next/link";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { ForumCard } from "components/features/forums/ForumCard";
 import { Plus, Search, Filter } from "lucide-react";
 

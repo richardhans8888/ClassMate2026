@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { MaterialCard } from "components/features/materials/MaterialCard";
 import { Search, Filter, Upload, FileText, Download } from "lucide-react";
 
