@@ -16,6 +16,8 @@ import {
   Calendar,
   LogOut,
   Home,
+  AlertTriangle,
+  X,
 } from "lucide-react";
 import { Button } from "components/ui/Button";
 import { usePathname } from "next/navigation";
@@ -42,6 +44,7 @@ export default function TutorStudioLayout({
   const [email, setEmail] = useState<string | null>(null);
   const [isTutor, setIsTutor] = useState<boolean>(false);
   const [gateOpen, setGateOpen] = useState<boolean>(false);
+  const [dismissed, setDismissed] = useState<boolean>(false);
 
   useEffect(() => {
     try {
@@ -63,6 +66,11 @@ export default function TutorStudioLayout({
       setGateOpen(true);
     }
   }, []);
+
+  const handleDismiss = () => {
+    setGateOpen(false);
+    setDismissed(true);
+  };
 
   return (
     <div className="flex h-screen bg-gray-50 text-gray-900 dark:bg-[#0F1115] dark:text-white overflow-hidden">
@@ -134,17 +142,37 @@ export default function TutorStudioLayout({
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto bg-gray-50 dark:bg-[#0F1115]">
+        {/* Reminder banner shown after dismissing the dialog */}
+        {!isTutor && dismissed && (
+          <div className="flex items-center justify-between gap-3 px-5 py-2.5 bg-amber-50 border-b border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20">
+            <div className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              You're browsing in preview mode.{" "}
+              <Link
+                href="/tutor-studio/register"
+                className="underline underline-offset-2 font-medium hover:text-amber-900 dark:hover:text-amber-300"
+              >
+                Register as a tutor
+              </Link>{" "}
+              to unlock all features.
+            </div>
+            <button
+              onClick={() => setDismissed(false)}
+              className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-300"
+              aria-label="Dismiss banner"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
         <div className="h-full p-8">{children}</div>
       </main>
 
-      <Dialog
-        open={gateOpen}
-        onOpenChange={(o) => setGateOpen(!isTutor ? true : o)}
-      >
+      <Dialog open={gateOpen} onOpenChange={setGateOpen}>
         <DialogContent className="bg-white dark:bg-[#0F1117] border border-gray-200 dark:border-gray-800">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-white">
-              You’re Not a Registered Tutor
+              You're Not a Registered Tutor
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
@@ -152,13 +180,22 @@ export default function TutorStudioLayout({
               Please register to access Tutor Studio{email ? ` (${email})` : ""}
               .
             </div>
-            <div className="flex justify-end gap-2">
-              <Link href="/">
-                <Button variant="outline">Go Back</Button>
-              </Link>
-              <Link href="/tutor-studio/register">
-                <Button>Register as Tutor</Button>
-              </Link>
+            <div className="flex justify-between gap-2">
+              <Button
+                variant="ghost"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                onClick={handleDismiss}
+              >
+                Preview only
+              </Button>
+              <div className="flex gap-2">
+                <Link href="/">
+                  <Button variant="outline">Go Back</Button>
+                </Link>
+                <Link href="/tutor-studio/register">
+                  <Button>Register as Tutor</Button>
+                </Link>
+              </div>
             </div>
           </div>
         </DialogContent>
