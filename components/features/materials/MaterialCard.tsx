@@ -1,4 +1,4 @@
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { FileText, Download, Star } from "lucide-react";
 
 interface MaterialCardProps {

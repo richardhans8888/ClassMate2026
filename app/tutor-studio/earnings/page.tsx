@@ -10,7 +10,7 @@ import {
   ChevronRight,
   MoreHorizontal,
 } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 
 // Mock Data
 const transactions = [
@@ -165,8 +165,8 @@ export default function EarningsPage() {
                 <button
                   key={period}
                   className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${period === "6M"
-                      ? "bg-[#1A1F26] text-white"
-                      : "text-gray-500 hover:text-gray-300"
+                    ? "bg-[#1A1F26] text-white"
+                    : "text-gray-500 hover:text-gray-300"
                     }`}
                 >
                   {period}

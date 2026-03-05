@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Button } from 'components/ui/Button';
+import { Button } from '@/components/ui/Button2';
 import { Star, Play, Award, Filter, ChevronDown, Check } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -433,8 +433,8 @@ export default function TutorsPage() {
               key={c}
               onClick={() => setActiveModuleCategory(c)}
               className={`text-xs md:text-sm rounded-full border px-3 py-1.5 transition-colors ${activeModuleCategory === c
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-white/10'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-white/10'
                 }`}
             >
               {c}

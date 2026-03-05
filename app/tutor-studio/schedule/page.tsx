@@ -18,7 +18,7 @@ import {
   isSameWeek,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus, Clock } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 
 // Mock events generator relative to a date
 const getMockEvents = (baseDate: Date) => {
@@ -198,8 +198,8 @@ export default function SchedulePage() {
                 key={v}
                 onClick={() => setView(v)}
                 className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${view === v
-                    ? "bg-teal-500/20 text-teal-400"
-                    : "text-gray-400 hover:text-white"
+                  ? "bg-teal-500/20 text-teal-400"
+                  : "text-gray-400 hover:text-white"
                   }`}
               >
                 {v.charAt(0).toUpperCase() + v.slice(1)}

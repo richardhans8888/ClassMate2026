@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Plus, BookOpen, Clock, Users, ArrowRight } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import {
   Dialog,
   DialogContent,

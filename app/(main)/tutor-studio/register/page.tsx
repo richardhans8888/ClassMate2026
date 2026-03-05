@@ -1,4 +1,4 @@
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { UserPlus } from "lucide-react";
 
 export default function TutorRegisterPage() {

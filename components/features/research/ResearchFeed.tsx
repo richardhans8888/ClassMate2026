@@ -15,7 +15,7 @@ import {
   Check,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { useSearchParams } from "next/navigation";
 
 // Types for our articles
@@ -381,8 +381,8 @@ function FilterDropdown({
                     setIsOpen(false);
                   }}
                   className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors ${value === option
-                      ? "bg-blue-600 text-white font-medium"
-                      : "text-gray-300 hover:bg-[#374151] hover:text-white"
+                    ? "bg-blue-600 text-white font-medium"
+                    : "text-gray-300 hover:bg-[#374151] hover:text-white"
                     }`}
                 >
                   {option}
@@ -524,10 +524,10 @@ export function ResearchFeed() {
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className={`p-1.5 rounded-lg ${article.source.type === "University"
-                        ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
-                        : article.source.type === "Professional"
-                          ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
-                          : "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                      : article.source.type === "Professional"
+                        ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+                        : "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
                       }`}
                   >
                     {article.source.type === "University" && (

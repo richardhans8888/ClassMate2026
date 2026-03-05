@@ -1,4 +1,4 @@
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { Check, Star, Zap, UserCheck, BarChart } from "lucide-react";
 
 const plans = [
@@ -55,8 +55,8 @@ export default function PremiumPage() {
           <div
             key={plan.name}
             className={`rounded-2xl p-8 border shadow-sm relative ${plan.highlight
-                ? "bg-white border-blue-200 ring-2 ring-blue-500 shadow-lg"
-                : "bg-white"
+              ? "bg-white border-blue-200 ring-2 ring-blue-500 shadow-lg"
+              : "bg-white"
               }`}
           >
             {plan.highlight && (

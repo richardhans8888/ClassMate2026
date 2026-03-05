@@ -13,7 +13,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 
 // Mock Data for the Article
 const articleData = {
@@ -101,8 +101,8 @@ export default function ArticlePage() {
                     setActiveSection(section.id);
                   }}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${activeSection === section.id
-                      ? "bg-blue-600/10 text-blue-400 border-l-2 border-blue-500"
-                      : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/50"
+                    ? "bg-blue-600/10 text-blue-400 border-l-2 border-blue-500"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/50"
                     }`}
                 >
                   {section.id === "abstract" && (

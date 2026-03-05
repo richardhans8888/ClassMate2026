@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import {
   MessageSquare,
   Mic,
@@ -156,8 +156,8 @@ function Tool({
   return (
     <button
       className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${active
-          ? "bg-blue-600 text-white"
-          : "bg-[#1E2330] text-gray-300 hover:bg-[#2A3040]"
+        ? "bg-blue-600 text-white"
+        : "bg-[#1E2330] text-gray-300 hover:bg-[#2A3040]"
         }`}
       aria-label={label}
     >

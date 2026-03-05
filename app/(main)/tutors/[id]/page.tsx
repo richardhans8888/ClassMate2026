@@ -14,7 +14,7 @@ import {
   Zap,
   TrendingUp
 } from 'lucide-react';
-import { Button } from 'components/ui/Button';
+import { Button } from '@/components/ui/Button2';
 import { useState } from 'react';
 
 export default function TutorProfilePage() {
@@ -297,8 +297,8 @@ I believe in a personalized approach, tailoring each session to the student's le
                     <button
                       onClick={() => setActiveDate(d.date)}
                       className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${activeDate === d.date
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40 scale-110'
-                          : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40 scale-110'
+                        : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                         }`}
                     >
                       {d.date}
@@ -315,8 +315,8 @@ I believe in a personalized approach, tailoring each session to the student's le
                       key={time}
                       onClick={() => setActiveTime(time)}
                       className={`text-xs font-bold px-4 py-2 rounded-xl border transition-all ${activeTime === time
-                          ? 'bg-blue-600/20 text-blue-400 border-blue-500/50'
-                          : 'bg-[#1E2330] text-gray-400 border-gray-800 hover:border-gray-600 hover:text-gray-300'
+                        ? 'bg-blue-600/20 text-blue-400 border-blue-500/50'
+                        : 'bg-[#1E2330] text-gray-400 border-gray-800 hover:border-gray-600 hover:text-gray-300'
                         }`}
                     >
                       {time}

@@ -17,7 +17,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -218,10 +218,10 @@ export default function CourseDetailPage({
                     <div className="col-span-6 flex items-center gap-3">
                       <div
                         className={`p-2 rounded-lg ${module.type === "pdf"
-                            ? "bg-red-500/10 text-red-400"
-                            : module.type === "doc"
-                              ? "bg-blue-500/10 text-blue-400"
-                              : "bg-purple-500/10 text-purple-400"
+                          ? "bg-red-500/10 text-red-400"
+                          : module.type === "doc"
+                            ? "bg-blue-500/10 text-blue-400"
+                            : "bg-purple-500/10 text-purple-400"
                           }`}
                       >
                         {module.type === "pdf" && (
@@ -245,8 +245,8 @@ export default function CourseDetailPage({
                     <div className="col-span-3">
                       <span
                         className={`text-xs font-bold px-2 py-1 rounded-full border ${module.status === "Published"
-                            ? "bg-teal-500/10 text-teal-400 border-teal-500/20"
-                            : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                          ? "bg-teal-500/10 text-teal-400 border-teal-500/20"
+                          : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
                           }`}
                       >
                         {module.status}
@@ -302,8 +302,8 @@ export default function CourseDetailPage({
                     </div>
                     <div
                       className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#15181E] ${student.status === "Online"
-                          ? "bg-green-500"
-                          : "bg-gray-500"
+                        ? "bg-green-500"
+                        : "bg-gray-500"
                         }`}
                     ></div>
                   </div>

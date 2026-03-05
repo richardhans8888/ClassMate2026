@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Dashboard from 'components/Dashboard';
 import { Header } from 'components/layout/Header';
-import { Button } from 'components/ui/Button';
+import { Button } from '@/components/ui/Button2';
 import { BookOpen, Moon, Mail, Lock, User, Eye, EyeOff, Loader2, X } from 'lucide-react';
 import ColorThief from 'colorthief';
 import { useRouter, useSearchParams } from 'next/navigation';

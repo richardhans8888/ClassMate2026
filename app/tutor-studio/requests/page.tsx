@@ -12,7 +12,7 @@ import {
   Clock,
   Star,
 } from "lucide-react";
-import { Button } from "components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 
 const requests = [
   {
@@ -103,8 +103,8 @@ export default function RequestsPage() {
             <div
               key={req.id}
               className={`rounded-2xl border p-5 transition-all ${req.highlight
-                  ? "bg-[#15181E] border-gray-800 hover:border-gray-700"
-                  : "bg-[#15181E]/50 border-gray-800/50"
+                ? "bg-[#15181E] border-gray-800 hover:border-gray-700"
+                : "bg-[#15181E]/50 border-gray-800/50"
                 }`}
             >
               <div className="flex justify-between items-start mb-4">
