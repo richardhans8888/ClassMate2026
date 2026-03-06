@@ -33,13 +33,18 @@ export default function LoginPage() {
     };
   }, []);
 
-  const createSession = async (idToken: string) => {
-    const res = await fetch("/api/session", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${idToken}` },
-    });
-    if (!res.ok) throw new Error("Failed to create session");
-  };
+const createSession = async (idToken: string) => {
+  const res = await fetch("/api/auth/firebase", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create session");
+  }
+};
 
   const handleEmailLogin = async () => {
     if (!email || !password) { setError('Email and password are required'); return; }

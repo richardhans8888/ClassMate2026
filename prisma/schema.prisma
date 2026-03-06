@@ -58,7 +58,6 @@ enum PointActionType {
 
 model User {
   id            String   @id @default(cuid())
-  firebaseUid   String   @unique
   email         String   @unique
   name          String?
   image         String?
@@ -85,12 +84,13 @@ model User {
   upvotedForumPosts    ForumPost[]        @relation("upvoters")
   upvotedReplies       ForumReply[]       @relation("upvoters")
   streakRecords        StreakRecord[]
+  sessions             Session[]
+  accounts             Account[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([email])
-  @@index([firebaseUid])
   @@index([role])
   @@index([level])
   @@index([xp])
@@ -113,6 +113,50 @@ model UserProfile {
 
   @@index([userId])
   @@index([reputation])
+}
+
+// BETTER AUTH TABLES
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 // TUTOR MANAGEMENT
