@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { BookOpen, User, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import ColorThief from "colorthief";
 import { authClient } from "@/lib/auth-client";
 import { getAvatarUrl } from "@/lib/avatar";
 import { toast } from "sonner";
@@ -20,22 +18,7 @@ export default function RegisterPage() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [themeColor, setThemeColor] = useState("#5A3DFF");
-
-    useEffect(() => {
-        const img = new Image();
-        img.src = "/hero-classmate.webp";
-        img.crossOrigin = "Anonymous";
-        img.onload = () => {
-            try {
-                const colorThief = new ColorThief();
-                const color = colorThief.getColor(img);
-                if (color) setThemeColor(`rgb(${color[0]}, ${color[1]}, ${color[2]})`);
-            } catch (e) {
-                console.error("Color extraction failed:", e);
-            }
-        };
-    }, []);
+    const [themeColor] = useState("#5A3DFF");
 
     const validate = (): string | null => {
         if (!name.trim()) return "Name is required.";
@@ -84,17 +67,16 @@ export default function RegisterPage() {
 
             {/* Left Panel — Form */}
             <div className="lg:w-1/2 flex flex-col min-h-screen relative">
-                <div className="flex justify-start p-6">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg" style={{ backgroundColor: themeColor }}>
-                            <BookOpen className="w-6 h-6 text-white" />
-                        </div>
-                        <span className="text-xl font-bold text-gray-900 tracking-tight">ClassMate</span>
-                    </div>
-                </div>
-
                 <div className="flex-1 flex flex-col justify-center items-center px-8 lg:px-16 pb-10">
                     <div className="w-full max-w-[420px]">
+                        {/* Logo */}
+                        <div className="flex items-center gap-3 mb-10">
+                            <div className="p-2 rounded-lg" style={{ backgroundColor: themeColor }}>
+                                <BookOpen className="w-6 h-6 text-white" />
+                            </div>
+                            <span className="text-xl font-bold text-gray-900 tracking-tight">ClassMate</span>
+                        </div>
+
                         <h2 className="text-3xl font-bold text-gray-900 mb-1">Create your account</h2>
                         <p className="text-sm text-gray-500 mb-8">Start your learning journey today</p>
 

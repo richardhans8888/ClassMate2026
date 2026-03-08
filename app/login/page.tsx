@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { BookOpen, Mail, Lock, Eye, EyeOff, Loader2, Moon } from 'lucide-react';
+import { useState } from 'react';
+import { BookOpen, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button2';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import ColorThief from 'colorthief';
 import { auth } from 'lib/firebase';
 import { authClient } from '@/lib/auth-client';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
@@ -16,23 +15,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [themeColor, setThemeColor] = useState('#5A3DFF');
+  const themeColor = '#5A3DFF';
   const router = useRouter();
-
-  useEffect(() => {
-    const img = new Image();
-    img.src = '/hero-classmate.webp';
-    img.crossOrigin = 'Anonymous';
-    img.onload = () => {
-      try {
-        const colorThief = new ColorThief();
-        const color = colorThief.getColor(img);
-        if (color) setThemeColor(`rgb(${color[0]}, ${color[1]}, ${color[2]})`);
-      } catch (e) {
-        console.error('Color extraction failed:', e);
-      }
-    };
-  }, []);
 
   const createSession = async (idToken: string) => {
     const res = await fetch("/api/auth/firebase", {
@@ -126,10 +110,6 @@ export default function LoginPage() {
 
       {/* Right Panel — the modal form, now a full page */}
       <div className="flex-1 flex flex-col justify-center items-center px-8 lg:px-24 py-10 relative">
-        <button className="absolute top-8 right-8 text-gray-400 hover:text-gray-600">
-          <Moon className="w-5 h-5" />
-        </button>
-
         <div className="max-w-[480px] w-full">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-10">
