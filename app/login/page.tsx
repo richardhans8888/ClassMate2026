@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ColorThief from 'colorthief';
 import { auth } from 'lib/firebase';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { authClient } from '@/lib/auth-client';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -33,18 +34,18 @@ export default function LoginPage() {
     };
   }, []);
 
-const createSession = async (idToken: string) => {
-  const res = await fetch("/api/auth/firebase", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${idToken}`,
-    },
-  });
+  const createSession = async (idToken: string) => {
+    const res = await fetch("/api/auth/firebase", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
 
-  if (!res.ok) {
-    throw new Error("Failed to create session");
-  }
-};
+    if (!res.ok) {
+      throw new Error("Failed to create session");
+    }
+  };
 
   const handleEmailLogin = async () => {
     if (!email || !password) { setError('Email and password are required'); return; }
@@ -52,26 +53,30 @@ const createSession = async (idToken: string) => {
     setError(null);
 
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
+      const { data, error } = await authClient.signIn.email({
+        email: email.trim(),
+        password,
+        callbackURL: "/dashboard",
+      });
 
-      const idToken = await result.user.getIdToken();
-      await createSession(idToken);
-
-      router.push('/');
-      router.refresh();
-    } catch (error: any) {
-      console.error(error);
-
-      let message = 'Login failed';
-      if (error.code === "auth/user-not-found") {
-        message = "User not found";
-      } else if (error.code === "auth/wrong-password") {
-        message = "wrong password";
-      } else if (error.code === "auth/invalid-email") {
-        message = "invalid email format";
+      if (error) {
+        if (error.message?.toLowerCase().includes("invalid credentials") ||
+          error.message?.toLowerCase().includes("invalid email or password")) {
+          setError("Invalid email or password.");
+        } else if (error.message?.toLowerCase().includes("user not found")) {
+          setError("No account found with this email. Please sign up first.");
+        } else {
+          setError(error.message ?? "Sign-in failed. Please try again.");
+        }
+        return;
       }
 
-      setError(message);
+      if (data) {
+        router.push('/dashboard');
+        router.refresh();
+      }
+    } catch (err: unknown) {
+      setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
