@@ -828,6 +828,471 @@ export const swaggerSpec = {
         },
       },
     },
+
+    '/api/sessions': {
+      get: {
+        tags: ['sessions'],
+        summary: 'List AI chat sessions for a user',
+        description:
+          'Returns up to 20 sessions ordered by updated_at descending. Each session includes a message count via a nested chat_messages aggregate.',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the user',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Sessions retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    sessions: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/ChatSession' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameter',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['sessions'],
+        summary: 'Create a new AI chat session',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userId'],
+                properties: {
+                  userId: { type: 'string' },
+                  title: { type: 'string', description: 'Defaults to "New Session"' },
+                  subject: { type: 'string', description: 'Defaults to "General"' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Session created successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    session: { $ref: '#/components/schemas/ChatSession' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ['sessions'],
+        summary: 'Delete a session and its messages',
+        description: 'Deletes the session record and all associated chat messages.',
+        parameters: [
+          {
+            name: 'sessionId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the session to delete',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the session owner',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Session deleted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameters',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/sessions/{sessionId}/messages': {
+      get: {
+        tags: ['sessions'],
+        summary: 'Get messages for a session',
+        description:
+          'Returns all messages in chronological order. Ownership is verified: the session must belong to the requesting user. Returns 404 if the session does not exist or belongs to a different user.',
+        parameters: [
+          {
+            name: 'sessionId',
+            in: 'path',
+            required: true,
+            description: 'UUID of the chat session',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the session owner',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Messages retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    messages: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/ChatMessage' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameter',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          404: {
+            description:
+              'Session not found — returned both when the session does not exist and when it belongs to a different user (PRD AC19)',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/user/profile': {
+      get: {
+        tags: ['user'],
+        summary: 'Get a user profile',
+        description:
+          'Augments the raw database record with three computed XP progress fields: xpProgress (xp % 500), xpForNextLevel (always 500), and progressPercent (integer percentage toward next level).',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the user',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Profile retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    profile: { $ref: '#/components/schemas/UserProfile' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameter',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      patch: {
+        tags: ['user'],
+        summary: 'Update a user profile',
+        description:
+          'Only the following fields are updated: display_name, bio, university, major, avatar_url. Any other fields in the request body are silently ignored by an allow-list filter in the route handler.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userId'],
+                properties: {
+                  userId: { type: 'string' },
+                  display_name: { type: 'string', description: 'Allow-listed field' },
+                  bio: { type: 'string', description: 'Allow-listed field' },
+                  university: { type: 'string', description: 'Allow-listed field' },
+                  major: { type: 'string', description: 'Allow-listed field' },
+                  avatar_url: { type: 'string', description: 'Allow-listed field' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Profile updated successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    profile: { $ref: '#/components/schemas/UserProfile' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/notifications': {
+      get: {
+        tags: ['notifications'],
+        summary: 'List notifications for a user',
+        description: 'Returns up to 30 notifications ordered by created_at descending.',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the user',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Notifications retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    notifications: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Notification' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameter',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      patch: {
+        tags: ['notifications'],
+        summary: 'Mark notifications as read',
+        description:
+          'Supports marking a single notification (via notificationId) or all notifications (via markAllRead: true). If markAllRead is true, notificationId is ignored.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userId'],
+                properties: {
+                  userId: { type: 'string' },
+                  notificationId: {
+                    type: 'string',
+                    description: 'UUID of a specific notification to mark as read. Ignored if markAllRead is true.',
+                  },
+                  markAllRead: {
+                    type: 'boolean',
+                    description: "Pass true to mark all of the user's notifications as read.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Notifications marked as read',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ['notifications'],
+        summary: 'Delete a notification',
+        parameters: [
+          {
+            name: 'notificationId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the notification to delete',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the owning user',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Notification deleted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameters',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   components: {
     schemas: {
