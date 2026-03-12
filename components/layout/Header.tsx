@@ -17,8 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button2";
 import { ModeToggle } from "components/mode-toggle";
-import { supabase } from "../../lib/supabase";
-const TEST_MODE = process.env.NEXT_PUBLIC_TEST_MODE === "true";
+import { authClient } from "@/lib/auth-client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,8 +40,9 @@ interface HeaderProps {
 }
 
 export function Header({ onLogout }: HeaderProps) {
-  const [name, setName] = useState<string>("User");
-  const [email, setEmail] = useState<string>("");
+  const { data: session } = authClient.useSession();
+  const name = session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "User";
+  const email = session?.user?.email ?? "";
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   type NotificationItem = {
@@ -58,35 +58,6 @@ export function Header({ onLogout }: HeaderProps) {
     () => notifications.filter((n) => !n.read).length,
     [notifications],
   );
-
-  // Load real user from Supabase session
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setEmail(session.user.email || "");
-        setName(
-          session.user.user_metadata?.full_name ||
-          session.user.email?.split("@")[0] ||
-          "User",
-        );
-      }
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setEmail(session.user.email || "");
-        setName(
-          session.user.user_metadata?.full_name ||
-          session.user.email?.split("@")[0] ||
-          "User",
-        );
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   // Seed notifications
   useEffect(() => {
@@ -115,13 +86,9 @@ export function Header({ onLogout }: HeaderProps) {
   }, []);
 
   async function handleLogout() {
-    if (TEST_MODE) {
-      window.location.href = "/";
-      return;
-    }
     setIsLoggingOut(true);
     try {
-      await supabase.auth.signOut();
+      await authClient.signOut();
       onLogout?.();
       window.location.href = "/";
     } catch (error) {
@@ -314,7 +281,7 @@ export function Header({ onLogout }: HeaderProps) {
                   </Link>
                 </DropdownMenuItem>
 
-                {/* ✅ Real Supabase Sign Out */}
+                {/* Sign Out */}
                 <DropdownMenuItem
                   className="text-red-600 dark:text-red-400 cursor-pointer"
                   onClick={handleLogout}
