@@ -20,7 +20,399 @@ export const swaggerSpec = {
     { name: 'user', description: 'User profile and XP' },
     { name: 'notifications', description: 'In-app notifications' },
   ],
-  paths: {},
+  paths: {
+    '/api/bookings': {
+      get: {
+        tags: ['bookings'],
+        summary: 'List bookings for a user',
+        description:
+          'Returns bookings for the given user. When role=tutor, if no tutor profile exists for the user, returns { bookings: [] } with 200 (not a 404).',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'ID of the requesting user',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'role',
+            in: 'query',
+            required: false,
+            description: "Filter bookings by the user's role in the booking. Defaults to student.",
+            schema: { type: 'string', enum: ['student', 'tutor'] },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Bookings retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    bookings: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Booking' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameter',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['bookings'],
+        summary: 'Create a booking',
+        description: 'Awards 50 XP to the student. Sends a notification to the tutor.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['tutorId', 'studentId', 'subject', 'scheduledAt'],
+                properties: {
+                  tutorId: { type: 'string' },
+                  studentId: { type: 'string' },
+                  subject: { type: 'string' },
+                  scheduledAt: { type: 'string', format: 'date-time', description: 'ISO 8601 date-time string' },
+                  durationMinutes: { type: 'number', description: 'Defaults to 60' },
+                  notes: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Booking created successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    booking: { $ref: '#/components/schemas/Booking' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      patch: {
+        tags: ['bookings'],
+        summary: 'Update booking status',
+        description:
+          'Sends a status-change notification to the student. When status becomes "completed": awards 100 XP to the student and 75 XP to the tutor (if userId is provided).',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['bookingId', 'status'],
+                properties: {
+                  bookingId: { type: 'string' },
+                  status: {
+                    type: 'string',
+                    enum: ['pending', 'confirmed', 'completed', 'cancelled'],
+                  },
+                  userId: {
+                    type: 'string',
+                    description: "Tutor's user ID. Required when status=completed to award tutor XP.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Booking updated successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    booking: { $ref: '#/components/schemas/Booking' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/tutors': {
+      get: {
+        tags: ['tutors'],
+        summary: 'List tutors',
+        description: 'All parameters are optional filters. Results are ordered by rating descending.',
+        parameters: [
+          {
+            name: 'subject',
+            in: 'query',
+            required: false,
+            description: 'Filter to tutors who teach this subject',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'search',
+            in: 'query',
+            required: false,
+            description: 'Case-insensitive name filter applied after the database query',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'available',
+            in: 'query',
+            required: false,
+            description: 'Pass "true" to filter to available tutors only (is_available = true)',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Tutors retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    tutors: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Tutor' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['tutors'],
+        summary: 'Register or update a tutor profile',
+        description:
+          'Upserts the tutor record. If the user already has a tutor record it is updated; otherwise a new record is created and the user\'s role in user_profiles is set to "tutor".',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userId', 'subjects'],
+                properties: {
+                  userId: { type: 'string' },
+                  subjects: { type: 'array', items: { type: 'string' } },
+                  hourlyRate: { type: 'number' },
+                  bio: { type: 'string' },
+                  availability: { type: 'object', description: 'Free-form availability schedule' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Tutor profile upserted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    tutor: { $ref: '#/components/schemas/Tutor' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/tutors/reviews': {
+      get: {
+        tags: ['reviews'],
+        summary: 'Get reviews for a tutor',
+        description: 'Returns all reviews ordered by created_at descending.',
+        parameters: [
+          {
+            name: 'tutorId',
+            in: 'query',
+            required: true,
+            description: 'ID of the tutor',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Reviews retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    reviews: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/TutorReview' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameter',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['reviews'],
+        summary: 'Submit a tutor review',
+        description:
+          'One review per student per tutor is enforced. Awards 25 XP to the student. ' +
+          '400 errors: (1) missing fields — "tutorId, studentId, rating required"; (2) duplicate review — "You have already reviewed this tutor".',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['tutorId', 'studentId', 'rating'],
+                properties: {
+                  tutorId: { type: 'string' },
+                  studentId: { type: 'string' },
+                  rating: { type: 'number', description: 'Numeric rating 1–5' },
+                  comment: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Review submitted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    review: { $ref: '#/components/schemas/TutorReview' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description:
+              'Bad request — missing required fields ("tutorId, studentId, rating required") or duplicate review ("You have already reviewed this tutor")',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
   components: {
     schemas: {
       ErrorResponse: {
