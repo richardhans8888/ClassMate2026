@@ -306,6 +306,422 @@ export const swaggerSpec = {
       },
     },
 
+    '/api/study-groups': {
+      get: {
+        tags: ['study-groups'],
+        summary: 'List study groups',
+        description:
+          'Returns public groups by default. When myGroups=true, returns all groups the user belongs to including private ones they are a member of.',
+        parameters: [
+          {
+            name: 'subject',
+            in: 'query',
+            required: false,
+            description: 'Exact-match filter on subject',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'userId',
+            in: 'query',
+            required: false,
+            description: 'Required when myGroups=true',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'myGroups',
+            in: 'query',
+            required: false,
+            description: 'Pass "true" to return only groups the requesting user belongs to',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Study groups retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    groups: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/StudyGroup' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['study-groups'],
+        summary: 'Create a study group',
+        description: 'Auto-adds the owner as a member with role "owner". Awards 30 XP to the owner.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name', 'subject', 'ownerId'],
+                properties: {
+                  name: { type: 'string' },
+                  subject: { type: 'string' },
+                  ownerId: { type: 'string' },
+                  description: { type: 'string' },
+                  maxMembers: { type: 'number', description: 'Defaults to 10' },
+                  isPrivate: {
+                    type: 'boolean',
+                    description: 'When true, the group requires an invite code to join. Defaults to false.',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Study group created successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    group: { $ref: '#/components/schemas/StudyGroup' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ['study-groups'],
+        summary: 'Delete a study group',
+        description:
+          'Only succeeds if the requesting user is the group owner (enforced by owner_id = userId check in the database query).',
+        parameters: [
+          {
+            name: 'groupId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the study group',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'Must be the group owner',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Study group deleted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameters',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/study-groups/{groupId}/join': {
+      post: {
+        tags: ['study-groups'],
+        summary: 'Join a study group',
+        description:
+          'Handles both public and private (invite-code-gated) groups. Awards 20 XP to the joining user. Notifies the group owner.',
+        parameters: [
+          {
+            name: 'groupId',
+            in: 'path',
+            required: true,
+            description: 'UUID of the study group',
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userId'],
+                properties: {
+                  userId: { type: 'string' },
+                  inviteCode: {
+                    type: 'string',
+                    description: 'Required only if the group is private',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Joined successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description:
+              'Bad request — (1) missing userId ("userId required"); (2) already a member ("Already a member"); (3) group at capacity ("Group is full")',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          403: {
+            description: 'Invalid invite code',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          404: {
+            description: 'Group not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ['study-groups'],
+        summary: 'Leave a study group',
+        parameters: [
+          {
+            name: 'groupId',
+            in: 'path',
+            required: true,
+            description: 'UUID of the study group',
+            schema: { type: 'string' },
+          },
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'UUID of the user leaving the group',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Left successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required query parameter',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/study-groups/{groupId}/messages': {
+      get: {
+        tags: ['study-groups'],
+        summary: 'Get group messages',
+        description:
+          'Returns the most recent 100 messages ordered by created_at ascending. Each message includes the sender\'s display_name and avatar_url via a nested user_profiles join.',
+        parameters: [
+          {
+            name: 'groupId',
+            in: 'path',
+            required: true,
+            description: 'UUID of the study group',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Messages retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    messages: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/StudyGroupMessage' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['study-groups'],
+        summary: 'Send a group message',
+        description: 'Membership is verified before insertion. Awards 5 XP to the sender.',
+        parameters: [
+          {
+            name: 'groupId',
+            in: 'path',
+            required: true,
+            description: 'UUID of the study group',
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userId', 'content'],
+                properties: {
+                  userId: { type: 'string' },
+                  content: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Message sent successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { $ref: '#/components/schemas/StudyGroupMessage' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Missing required fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          403: {
+            description: 'You are not a member of this group',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+
     '/api/tutors/reviews': {
       get: {
         tags: ['reviews'],
