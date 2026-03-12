@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button2';
+import { Button } from '@/components/ui/button';
 import { Star, Clock, Video, Award } from 'lucide-react';
 
 interface TutorCardProps {
@@ -73,10 +73,10 @@ export function TutorCard({
 
       <div className="grid grid-cols-2 gap-3 mt-auto">
         <Link href={`/tutors/${id}`} className="w-full">
-          <Button variant="outline" className="w-full">View Profile</Button>
+          <Button variant="outline" className="rounded-lg w-full">View Profile</Button>
         </Link>
         <Link href="/schedule" className="w-full">
-          <Button className="w-full">Book Session</Button>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg w-full">Book Session</Button>
         </Link>
       </div>
     </div>

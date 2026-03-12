@@ -15,7 +15,7 @@ import {
   Check,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 
 // Types for our articles
@@ -591,7 +591,7 @@ export function ResearchFeed() {
 
       <div className="flex justify-center mt-12">
         <Link href="/research">
-          <Button variant="outline" size="lg" className="px-8">
+          <Button variant="outline" size="lg" className="rounded-lg px-8">
             Browse All Articles
           </Button>
         </Link>

@@ -12,7 +12,7 @@ import {
   Clock,
   Star,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 
 const requests = [
   {
@@ -162,13 +162,13 @@ export default function RequestsPage() {
               <div className="flex gap-3">
                 {req.highlight ? (
                   <>
-                    <Button className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-medium py-5 rounded-xl shadow-[0_0_20px_-5px_rgba(37,99,235,0.5)]">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex-1 bg-blue-600 hover:bg-blue-500 text-white font-medium py-5 rounded-xl shadow-[0_0_20px_-5px_rgba(37,99,235,0.5)]">
                       <CheckCircle2 className="w-5 h-5 mr-2" />
                       Accept Request
                     </Button>
                     <Button
                       variant="secondary"
-                      className="bg-[#1A1F26] hover:bg-[#252b36] text-gray-300 border border-gray-700 py-5 px-5 rounded-xl"
+                      className="rounded-lg bg-[#1A1F26] hover:bg-[#252b36] text-gray-300 border border-gray-700 py-5 px-5 rounded-xl"
                     >
                       <MessageSquare className="w-5 h-5 mr-2" />
                       Message
@@ -176,12 +176,12 @@ export default function RequestsPage() {
                   </>
                 ) : (
                   <>
-                    <Button className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-xl">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex-1 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-xl">
                       Accept
                     </Button>
                     <Button
                       variant="secondary"
-                      className="bg-[#1A1F26] hover:bg-[#252b36] text-gray-300 border border-gray-700 py-2 px-4 rounded-xl"
+                      className="rounded-lg bg-[#1A1F26] hover:bg-[#252b36] text-gray-300 border border-gray-700 py-2 px-4 rounded-xl"
                     >
                       Decline
                     </Button>
@@ -275,7 +275,7 @@ export default function RequestsPage() {
                       </span>
                       <Button
                         variant="outline"
-                        className="bg-[#1A1F26] border-gray-700 hover:bg-[#252b36] hover:text-white text-gray-300 h-9"
+                        className="rounded-lg bg-[#1A1F26] border-gray-700 hover:bg-[#252b36] hover:text-white text-gray-300 h-9"
                       >
                         Connect <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
@@ -301,7 +301,7 @@ export default function RequestsPage() {
                   </div>
                   <Button
                     variant="secondary"
-                    className="bg-[#1A1F26] hover:bg-[#252b36] text-gray-300 border border-gray-700 h-9 px-4"
+                    className="rounded-lg bg-[#1A1F26] hover:bg-[#252b36] text-gray-300 border border-gray-700 h-9 px-4"
                   >
                     View
                   </Button>
@@ -316,7 +316,7 @@ export default function RequestsPage() {
             </span>
             <Button
               variant="secondary"
-              className="bg-[#252b36] hover:bg-[#2f3642] text-white border-0 h-8 text-xs"
+              className="rounded-lg bg-[#252b36] hover:bg-[#2f3642] text-white border-0 h-8 text-xs"
             >
               View
             </Button>

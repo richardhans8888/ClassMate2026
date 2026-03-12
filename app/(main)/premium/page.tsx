@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { Check, Star, Zap, UserCheck, BarChart } from "lucide-react";
 
 const plans = [
@@ -77,8 +77,8 @@ export default function PremiumPage() {
             <p className="text-gray-600 mb-6">{plan.description}</p>
 
             <Button
-              className="w-full mb-8"
-              variant={plan.highlight ? "primary" : "outline"}
+              className={plan.highlight ? "bg-blue-600 hover:bg-blue-700 text-white rounded-lg w-full mb-8" : "rounded-lg w-full mb-8"}
+              variant={plan.highlight ? undefined : "outline"}
               disabled={plan.current}
             >
               {plan.cta}

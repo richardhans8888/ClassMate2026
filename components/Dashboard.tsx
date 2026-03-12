@@ -4,7 +4,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/Button2';
 import { ArrowRight, MessageSquare, TrendingUp, BookOpen, Star, Flame, Trophy, User, Search, Play, Filter, Check, ChevronDown, ChevronLeft, ChevronRight, Bot, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 

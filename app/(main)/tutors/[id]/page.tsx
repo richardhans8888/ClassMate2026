@@ -14,7 +14,7 @@ import {
   Zap,
   TrendingUp
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button2';
+import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
 export default function TutorProfilePage() {
@@ -81,7 +81,7 @@ I believe in a personalized approach, tailoring each session to the student's le
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Link href="/tutors" className="inline-block mb-6">
-          <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-gray-800 -ml-4">
+          <Button variant="ghost" className="rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 -ml-4">
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Tutors
           </Button>
@@ -124,12 +124,12 @@ I believe in a personalized approach, tailoring each session to the student's le
                     </div>
 
                     <div className="flex gap-3">
-                      <Button variant="outline" size="sm" className="bg-transparent border-gray-700 hover:bg-gray-800 text-gray-300">
+                      <Button variant="outline" size="sm" className="rounded-lg bg-transparent border-gray-700 hover:bg-gray-800 text-gray-300">
                         <Share2 className="w-4 h-4 mr-2" />
                         Share Profile
                       </Button>
                       <Link href="/profile">
-                        <Button variant="outline" size="sm" className="bg-transparent border-gray-700 hover:bg-gray-800 text-gray-300">
+                        <Button variant="outline" size="sm" className="rounded-lg bg-transparent border-gray-700 hover:bg-gray-800 text-gray-300">
                           <Heart className="w-4 h-4 mr-2" />
                           Save
                         </Button>
@@ -212,7 +212,7 @@ I believe in a personalized approach, tailoring each session to the student's le
                   </div>
                 ))}
                 <Link href="#reviews" className="block">
-                  <Button variant="outline" className="w-full py-6 rounded-2xl border-gray-800 text-gray-400 hover:text-white hover:bg-[#1A202C] hover:border-gray-700">
+                  <Button variant="outline" className="rounded-lg w-full py-6 rounded-2xl border-gray-800 text-gray-400 hover:text-white hover:bg-[#1A202C] hover:border-gray-700">
                     View All 342 Reviews
                   </Button>
                 </Link>
@@ -264,13 +264,13 @@ I believe in a personalized approach, tailoring each session to the student's le
 
               <div className="space-y-4 mb-8">
                 <Link href="/schedule" className="block">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-6 rounded-2xl shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.02]">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-6 rounded-2xl shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.02]">
                     <Calendar className="w-5 h-5 mr-2" />
                     Book 1:1 Session
                   </Button>
                 </Link>
                 <Link href="/groups" className="block">
-                  <Button variant="outline" className="w-full bg-transparent border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800 font-bold py-6 rounded-2xl transition-all">
+                  <Button variant="outline" className="rounded-lg w-full bg-transparent border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800 font-bold py-6 rounded-2xl transition-all">
                     <Users className="w-5 h-5 mr-2" />
                     Request Group Session
                   </Button>

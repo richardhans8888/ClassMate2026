@@ -17,7 +17,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -196,7 +196,7 @@ export default function CourseDetailPage({
               <h3 className="font-bold text-lg">Course Content</h3>
               <Button
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-500 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-blue-600 hover:bg-blue-500 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" /> Add Module
               </Button>
@@ -271,7 +271,7 @@ export default function CourseDetailPage({
           <div className="flex justify-end pt-4 border-t border-gray-800">
             <Button
               variant="ghost"
-              className="text-red-400 hover:text-red-300 hover:bg-red-900/10"
+              className="rounded-lg text-red-400 hover:text-red-300 hover:bg-red-900/10"
             >
               End Course & Archive
             </Button>
@@ -346,7 +346,7 @@ export default function CourseDetailPage({
           <div className="p-4 border-t border-gray-800 mt-auto">
             <Button
               variant="outline"
-              className="w-full border-gray-700 text-gray-300 hover:bg-[#1A1F26] hover:text-white"
+              className="rounded-lg w-full border-gray-700 text-gray-300 hover:bg-[#1A1F26] hover:text-white"
             >
               View Full Roster
             </Button>

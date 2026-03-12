@@ -10,7 +10,7 @@ import {
   ChevronRight,
   MoreHorizontal,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 
 // Mock Data
 const transactions = [
@@ -80,7 +80,7 @@ export default function EarningsPage() {
             <Calendar className="w-4 h-4" />
             Oct 1, 2023 - Oct 31, 2023
           </button>
-          <Button className="bg-blue-600 hover:bg-blue-500 text-white">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-blue-600 hover:bg-blue-500 text-white">
             <Download className="w-4 h-4 mr-2" />
             Export Report
           </Button>
@@ -123,7 +123,7 @@ export default function EarningsPage() {
             <p className="text-gray-400 text-sm mb-1">Available Balance</p>
             <h2 className="text-3xl font-bold text-white">$840.00</h2>
           </div>
-          <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-6">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-6">
             Withdraw Funds <ArrowUpRight className="w-4 h-4 ml-2" />
           </Button>
         </div>

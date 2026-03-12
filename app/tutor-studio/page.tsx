@@ -12,7 +12,7 @@ import {
   Flame,
   Clock,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 
 export default function TutorStudioPage() {
   return (
@@ -158,11 +158,11 @@ export default function TutorStudioPage() {
                   <div className="flex gap-2">
                     <Button
                       variant="ghost"
-                      className="text-gray-400 hover:text-white hover:bg-white/10 border border-gray-700"
+                      className="rounded-lg text-gray-400 hover:text-white hover:bg-white/10 border border-gray-700"
                     >
                       Decline
                     </Button>
-                    <Button className="bg-teal-500 hover:bg-teal-600 text-black font-bold">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-teal-500 hover:bg-teal-600 text-black font-bold">
                       Accept
                     </Button>
                   </div>

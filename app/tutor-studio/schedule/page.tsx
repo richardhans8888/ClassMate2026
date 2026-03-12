@@ -18,7 +18,7 @@ import {
   isSameWeek,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus, Clock } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 
 // Mock events generator relative to a date
 const getMockEvents = (baseDate: Date) => {
@@ -222,7 +222,7 @@ export default function SchedulePage() {
             </button>
           </div>
 
-          <Button className="bg-teal-500 hover:bg-teal-600 text-black font-bold">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-teal-500 hover:bg-teal-600 text-black font-bold">
             <Plus className="w-4 h-4 mr-2" />
             New Session
           </Button>
@@ -321,7 +321,7 @@ export default function SchedulePage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="hover:bg-white/10"
+                          className="rounded-lg hover:bg-white/10"
                         >
                           View Details
                         </Button>
@@ -381,6 +381,7 @@ export default function SchedulePage() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="rounded-lg"
                           onClick={() => {
                             setSelectedDay(null);
                             setDraftTitle("");
@@ -390,6 +391,7 @@ export default function SchedulePage() {
                         </Button>
                         <Button
                           size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                           onClick={() => {
                             if (!selectedDay) return;
                             const colorMap = {

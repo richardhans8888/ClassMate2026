@@ -17,7 +17,6 @@ import {
   ArrowLeft,
   ChevronLeft,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
 import {
   DropdownMenu,
   DropdownMenuContent,

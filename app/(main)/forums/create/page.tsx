@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -95,11 +95,11 @@ export default function CreateForumPostPage() {
 
           <div className="flex justify-end gap-4 pt-4 border-t">
             <Link href="/forums">
-              <Button variant="outline" type="button">
+              <Button variant="outline" type="button" className="rounded-lg">
                 Cancel
               </Button>
             </Link>
-            <Button type="submit">Post Discussion</Button>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Post Discussion</Button>
           </div>
         </form>
       </div>

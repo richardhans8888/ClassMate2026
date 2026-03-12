@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Plus, BookOpen, Clock, Users, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -54,7 +54,7 @@ export default function CoursesPage() {
           </p>
         </div>
         <Button
-          className="bg-teal-500 hover:bg-teal-600 text-black font-bold"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-teal-500 hover:bg-teal-600 text-black font-bold"
           onClick={() => setOpen(true)}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -175,10 +175,10 @@ export default function CoursesPage() {
               />
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button variant="ghost" onClick={() => setOpen(false)}>
+              <Button variant="ghost" className="rounded-lg" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setOpen(false)}>Propose</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg" onClick={() => setOpen(false)}>Propose</Button>
             </div>
           </div>
         </DialogContent>

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import {
   Phone,
   Video,
@@ -91,7 +91,7 @@ export default function ChatConversationPage({
       <div className="p-4 border-b flex items-center justify-between bg-white z-10">
         <div className="flex items-center gap-3">
           <Link href="/chat" className="md:hidden">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="rounded-lg">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
@@ -107,13 +107,13 @@ export default function ChatConversationPage({
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="text-gray-500">
+          <Button variant="ghost" size="icon" className="rounded-lg text-gray-500">
             <Phone className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-gray-500">
+          <Button variant="ghost" size="icon" className="rounded-lg text-gray-500">
             <Video className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-gray-500">
+          <Button variant="ghost" size="icon" className="rounded-lg text-gray-500">
             <MoreVertical className="h-5 w-5" />
           </Button>
         </div>
@@ -158,7 +158,7 @@ export default function ChatConversationPage({
           <Button
             variant="ghost"
             size="icon"
-            className="text-gray-400 shrink-0"
+            className="rounded-lg text-gray-400 shrink-0"
           >
             <Paperclip className="h-5 w-5" />
           </Button>
@@ -171,7 +171,7 @@ export default function ChatConversationPage({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-1 top-1.5 h-7 w-7 text-gray-400"
+              className="rounded-lg absolute right-1 top-1.5 h-7 w-7 text-gray-400"
             >
               <Smile className="h-5 w-5" />
             </Button>
@@ -180,11 +180,11 @@ export default function ChatConversationPage({
           <Button
             variant="ghost"
             size="icon"
-            className="text-gray-400 shrink-0"
+            className="rounded-lg text-gray-400 shrink-0"
           >
             <Mic className="h-5 w-5" />
           </Button>
-          <Button size="icon" className="rounded-full shrink-0 h-10 w-10">
+          <Button size="icon" className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg rounded-full shrink-0 h-10 w-10">
             <Send className="h-5 w-5 ml-0.5" />
           </Button>
         </div>

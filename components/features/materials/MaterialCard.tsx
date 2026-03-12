@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { FileText, Download, Star } from "lucide-react";
 
 interface MaterialCardProps {
@@ -55,7 +55,7 @@ export function MaterialCard({
         </div>
         <Button
           variant="outline"
-          className="w-full flex items-center justify-center gap-2 group hover:border-blue-500 hover:text-blue-600"
+          className="rounded-lg w-full flex items-center justify-center gap-2 group hover:border-blue-500 hover:text-blue-600"
         >
           <Download className="h-4 w-4 group-hover:text-blue-600" />
           Download

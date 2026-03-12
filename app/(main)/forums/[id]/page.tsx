@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   MessageSquare,
@@ -86,7 +86,7 @@ export default function ForumPostPage({ params }: { params: { id: string } }) {
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-blue-100 text-blue-800">
                 {post.category}
               </span>
-              <Button variant="ghost" size="icon" className="text-gray-400">
+              <Button variant="ghost" size="icon" className="rounded-lg text-gray-400">
                 <MoreHorizontal className="h-5 w-5" />
               </Button>
             </div>
@@ -115,7 +115,7 @@ export default function ForumPostPage({ params }: { params: { id: string } }) {
             <div className="flex items-center gap-6">
               <Button
                 variant="ghost"
-                className="text-gray-600 hover:text-blue-600 px-2"
+                className="rounded-lg text-gray-600 hover:text-blue-600 px-2"
               >
                 <ArrowBigUp className="h-6 w-6 mr-1" />
                 <span className="font-medium">{post.upvotes}</span>
@@ -129,7 +129,7 @@ export default function ForumPostPage({ params }: { params: { id: string } }) {
                 <span>{post.views} Views</span>
               </div>
             </div>
-            <Button variant="ghost" className="text-gray-500">
+            <Button variant="ghost" className="rounded-lg text-gray-500">
               <Share2 className="h-5 w-5 mr-2" />
               Share
             </Button>
@@ -147,7 +147,7 @@ export default function ForumPostPage({ params }: { params: { id: string } }) {
             className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
           ></textarea>
           <div className="flex justify-end">
-            <Button>Post Reply</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Post Reply</Button>
           </div>
         </div>
       </div>
@@ -209,12 +209,12 @@ export default function ForumPostPage({ params }: { params: { id: string } }) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-gray-500 hover:text-blue-600 px-0"
+                className="rounded-lg text-gray-500 hover:text-blue-600 px-0"
               >
                 <ArrowBigUp className="h-5 w-5 mr-1" />
                 <span>{comment.upvotes} Helpful</span>
               </Button>
-              <Button variant="ghost" size="sm" className="text-gray-500 px-0">
+              <Button variant="ghost" size="sm" className="rounded-lg text-gray-500 px-0">
                 Reply
               </Button>
             </div>

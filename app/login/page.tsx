@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { BookOpen, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button2';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from 'lib/firebase';
@@ -132,7 +132,7 @@ export default function LoginPage() {
             {/* Google */}
             <Button
               variant="outline"
-              className="w-full rounded-full bg-white text-gray-700 hover:bg-gray-50 border-gray-200 h-12 font-medium text-base flex items-center justify-center gap-3"
+              className="rounded-lg w-full rounded-full bg-white text-gray-700 hover:bg-gray-50 border-gray-200 h-12 font-medium text-base flex items-center justify-center gap-3"
               onClick={handleGoogleLogin}
               disabled={isLoading}
             >

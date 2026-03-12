@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import {
   MessageSquare,
   Mic,
@@ -23,7 +23,7 @@ export default function StudyRoomPage({ params }: { params: { id: string } }) {
             <Button
               variant="ghost"
               size="sm"
-              className="bg-[#1E2330] hover:bg-[#252b3b] text-gray-400"
+              className="rounded-lg bg-[#1E2330] hover:bg-[#252b3b] text-gray-400"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -39,14 +39,14 @@ export default function StudyRoomPage({ params }: { params: { id: string } }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-500">
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-blue-600 hover:bg-blue-500">
             <Share2 className="w-4 h-4 mr-2" /> Share Screen
           </Button>
           <Link href={`/session/${params.id}`}>
             <Button
               size="sm"
               variant="outline"
-              className="border-gray-700 hover:bg-[#1E2330]"
+              className="rounded-lg border-gray-700 hover:bg-[#1E2330]"
             >
               <Mic className="w-4 h-4 mr-2" /> Join Voice
             </Button>

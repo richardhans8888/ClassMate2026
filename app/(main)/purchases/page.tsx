@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import {
   CreditCard,
   Download,
@@ -85,11 +85,11 @@ export default function PurchasesPage() {
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                className="text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/10"
+                className="rounded-lg text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/10"
               >
                 Cancel Plan
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-500 text-white">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-blue-600 hover:bg-blue-500 text-white">
                 Manage Subscription
               </Button>
             </div>
@@ -103,7 +103,7 @@ export default function PurchasesPage() {
               <CreditCard className="w-5 h-5 text-gray-500" />
               Transactions
             </h2>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="rounded-lg">
               <Download className="w-4 h-4 mr-2" />
               Export CSV
             </Button>

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 
 export default function TutorRegisterPage() {
@@ -49,8 +49,8 @@ export default function TutorRegisterPage() {
           </div>
 
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline">Cancel</Button>
-            <Button>Submit Application</Button>
+            <Button variant="outline" className="rounded-lg">Cancel</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Submit Application</Button>
           </div>
         </div>
       </div>

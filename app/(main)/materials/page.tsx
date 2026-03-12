@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { MaterialCard } from "components/features/materials/MaterialCard";
 import { Search, Filter, Upload, FileText, Download } from "lucide-react";
 
@@ -99,7 +99,7 @@ export default function MaterialsPage() {
           </p>
         </div>
         <Link href="/materials/upload">
-          <Button>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
             <Upload className="mr-2 h-4 w-4" />
             Upload Material
           </Button>
@@ -217,7 +217,7 @@ export default function MaterialsPage() {
           </div>
 
           <div className="flex justify-center mt-10">
-            <Button variant="outline">Load More Resources</Button>
+            <Button variant="outline" className="rounded-lg">Load More Resources</Button>
           </div>
         </div>
       </div>

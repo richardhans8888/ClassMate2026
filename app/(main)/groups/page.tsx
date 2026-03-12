@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import {
   Users,
   Search,
@@ -243,7 +243,7 @@ export default function StudyGroupsPage() {
           </div>
           <Button
             size="sm"
-            className="bg-purple-600 hover:bg-purple-500"
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-purple-600 hover:bg-purple-500"
             onClick={() => setCreateOpen(true)}
           >
             <Plus className="w-4 h-4 mr-2" /> Create Group
@@ -272,7 +272,7 @@ export default function StudyGroupsPage() {
           <Button
             size="sm"
             variant="outline"
-            className="border-gray-700 hover:bg-[#1E2330]"
+            className="rounded-lg border-gray-700 hover:bg-[#1E2330]"
             onClick={() => setCreateOpen(true)}
           >
             Create Group
@@ -286,7 +286,7 @@ export default function StudyGroupsPage() {
                 Join a group below to get started.
               </div>
               <Link href="/groups">
-                <Button size="sm" className="bg-purple-600 hover:bg-purple-500">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-purple-600 hover:bg-purple-500">
                   Browse Groups
                 </Button>
               </Link>
@@ -570,13 +570,13 @@ export default function StudyGroupsPage() {
             <div className="flex justify-end gap-2 pt-2">
               <Button
                 variant="outline"
-                className="border-white/10"
+                className="rounded-lg border-white/10"
                 onClick={() => setCreateOpen(false)}
               >
                 Cancel
               </Button>
               <Button
-                className="bg-purple-600 hover:bg-purple-500"
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-purple-600 hover:bg-purple-500"
                 disabled={!formName.trim()}
                 onClick={() => {
                   const newGroup: Group = {

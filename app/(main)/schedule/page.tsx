@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
@@ -121,13 +121,14 @@ export default function MySchedulePage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={prevMonth}>
+            <Button variant="outline" className="rounded-lg" onClick={prevMonth}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="outline" onClick={nextMonth}>
+            <Button variant="outline" className="rounded-lg" onClick={nextMonth}>
               <ChevronRight className="w-4 h-4" />
             </Button>
             <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
               onClick={() =>
                 openNew(
                   toISO(current.year, current.month, new Date().getDate()),
@@ -224,7 +225,7 @@ export default function MySchedulePage() {
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="rounded-lg">
                     Details
                   </Button>
                 </div>
@@ -270,10 +271,10 @@ export default function MySchedulePage() {
                 ))}
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setOpen(false)}>
+                <Button variant="outline" className="rounded-lg" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={saveEvent}>Save</Button>
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg" onClick={saveEvent}>Save</Button>
               </div>
             </div>
           </DialogContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users, Video, Mic, MicOff, VideoOff, Monitor, List } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -108,7 +108,7 @@ export default function ModuleDetailsPage({ params }: { params: { slug: string }
           <div className="px-4 py-3 flex items-center justify-between border-b border-gray-200 dark:border-white/10 bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:bg-transparent">
             <div className="flex items-center gap-3">
               <Link href="/learn/modules">
-                <Button variant="ghost" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-white/10">
+                <Button variant="ghost" className="rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-white/10">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
@@ -196,21 +196,21 @@ export default function ModuleDetailsPage({ params }: { params: { slug: string }
 
             <div className="px-4 py-3 flex items-center gap-2 bg-white border-t border-gray-200 dark:bg-black/40 dark:border-white/10">
               {!stream ? (
-                <Button onClick={startCall} className="bg-indigo-600 hover:bg-indigo-500">
+                <Button onClick={startCall} className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-indigo-600 hover:bg-indigo-500">
                   <Video className="w-4 h-4 mr-2" />
                   Start Call
                 </Button>
               ) : (
                 <>
-                  <Button onClick={toggleMute} variant="secondary" className="bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20">
+                  <Button onClick={toggleMute} variant="secondary" className="rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20">
                     {muted ? <MicOff className="w-4 h-4 mr-2" /> : <Mic className="w-4 h-4 mr-2" />}
                     {muted ? "Unmute" : "Mute"}
                   </Button>
-                  <Button onClick={toggleCamera} variant="secondary" className="bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20">
+                  <Button onClick={toggleCamera} variant="secondary" className="rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20">
                     {cameraOn ? <Video className="w-4 h-4 mr-2" /> : <VideoOff className="w-4 h-4 mr-2" />}
                     {cameraOn ? "Camera Off" : "Camera On"}
                   </Button>
-                  <Button onClick={endCall} variant="danger">
+                  <Button onClick={endCall} variant="destructive" className="rounded-lg">
                     End Call
                   </Button>
                 </>

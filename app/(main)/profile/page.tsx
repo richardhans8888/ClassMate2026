@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import {
   User,
   Settings,
@@ -199,13 +199,13 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex flex-wrap gap-3 pt-2">
-                <Button className="bg-blue-600 hover:bg-blue-500 text-white rounded-full px-6">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-blue-600 hover:bg-blue-500 text-white rounded-full px-6">
                   <PenTool className="w-4 h-4 mr-2" />
                   Edit Profile
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-full border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-[#1E2028]"
+                  className="rounded-lg rounded-full border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-[#1E2028]"
                 >
                   <Share2 className="w-4 h-4 mr-2" />
                   Share Profile

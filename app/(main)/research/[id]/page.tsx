@@ -13,7 +13,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 
 // Mock Data for the Article
 const articleData = {
@@ -77,7 +77,7 @@ export default function ArticlePage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="mb-6 -ml-2 text-gray-400 hover:text-white"
+                className="rounded-lg mb-6 -ml-2 text-gray-400 hover:text-white"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back to Feed
@@ -122,7 +122,7 @@ export default function ArticlePage() {
             </nav>
 
             <div className="mt-auto space-y-6">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-6 font-bold shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.02]">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-6 font-bold shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.02]">
                 <Quote className="w-4 h-4 mr-2" />
                 Cite This Article
               </Button>
@@ -242,7 +242,7 @@ export default function ArticlePage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full backdrop-blur-sm"
+                    className="rounded-lg absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full backdrop-blur-sm"
                   >
                     <Search className="w-5 h-5" />
                   </Button>

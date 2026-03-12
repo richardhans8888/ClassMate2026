@@ -19,7 +19,7 @@ import {
   AlertTriangle,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 
 const navigation = [
@@ -124,7 +124,7 @@ export default function TutorStudioLayout({
           <Link href="/">
             <Button
               variant="ghost"
-              className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-[#1A1F26] pl-3"
+              className="rounded-lg w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-[#1A1F26] pl-3"
             >
               <Home className="w-5 h-5 mr-3" />
               Back to Home
@@ -132,7 +132,7 @@ export default function TutorStudioLayout({
           </Link>
           <Button
             variant="ghost"
-            className="w-full justify-start text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/10 pl-3"
+            className="rounded-lg w-full justify-start text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/10 pl-3"
           >
             <LogOut className="w-5 h-5 mr-3" />
             Logout
@@ -183,17 +183,17 @@ export default function TutorStudioLayout({
             <div className="flex justify-between gap-2">
               <Button
                 variant="ghost"
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 onClick={handleDismiss}
               >
                 Preview only
               </Button>
               <div className="flex gap-2">
                 <Link href="/">
-                  <Button variant="outline">Go Back</Button>
+                  <Button variant="outline" className="rounded-lg">Go Back</Button>
                 </Link>
                 <Link href="/tutor-studio/register">
-                  <Button>Register as Tutor</Button>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Register as Tutor</Button>
                 </Link>
               </div>
             </div>

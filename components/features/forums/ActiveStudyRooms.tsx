@@ -11,7 +11,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
   Dialog,
@@ -230,7 +230,7 @@ export function ActiveStudyRooms() {
               className="w-full pl-9 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
             />
           </div>
-          <Button className="shrink-0">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shrink-0">
             <Plus className="w-4 h-4 mr-2" /> Create Room
           </Button>
         </div>
@@ -351,8 +351,8 @@ export function ActiveStudyRooms() {
                     size="sm"
                     className={
                       room.status === "Scheduled"
-                        ? "bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 h-8 text-xs"
-                        : "bg-blue-600 hover:bg-blue-500 text-white h-8 text-xs shadow-lg shadow-blue-900/20"
+                        ? "bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 h-8 text-xs"
+                        : "bg-blue-600 hover:bg-blue-700 text-white rounded-lg bg-blue-600 hover:bg-blue-500 text-white h-8 text-xs shadow-lg shadow-blue-900/20"
                     }
                     onClick={() => {
                       if (room.status === "Scheduled") {

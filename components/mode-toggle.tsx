@@ -5,7 +5,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
@@ -21,7 +21,7 @@ export function ModeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon">
+      <Button variant="ghost" size="icon" className="rounded-lg">
         <Sun className="h-[1.2rem] w-[1.2rem] text-transparent" />
       </Button>
     );
@@ -32,7 +32,7 @@ export function ModeToggle() {
       variant="ghost"
       size="icon"
       onClick={toggleTheme}
-      className="relative overflow-hidden"
+      className="rounded-lg relative overflow-hidden"
     >
       <motion.div
         initial={false}

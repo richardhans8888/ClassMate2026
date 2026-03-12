@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button2';
+import { Button } from '@/components/ui/button';
 import { Star, Play, Award, Filter, ChevronDown, Check } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -267,10 +267,10 @@ export default function TutorsPage() {
               </div>
               <div className="flex items-center gap-3 mt-6">
                 <Link href="/tutors/sarah-jenkins">
-                  <Button className="shadow">View Profile</Button>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">View Profile</Button>
                 </Link>
                 <Link href="/tutors/sarah-jenkins">
-                  <Button variant="ghost" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10">
+                  <Button variant="ghost" className="rounded-lg text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10">
                     <Play className="h-4 w-4 mr-2" />
                     Watch Intro
                   </Button>
@@ -305,7 +305,7 @@ export default function TutorsPage() {
               <div className="flex items-center justify-between mt-6">
                 <span className="text-xs text-gray-500 dark:text-white/60">Starts in</span>
                 <Link href="/schedule">
-                  <Button variant="outline" className="bg-white text-slate-900 hover:bg-gray-100">
+                  <Button variant="outline" className="rounded-lg bg-white text-slate-900 hover:bg-gray-100">
                     Reserve Spot
                   </Button>
                 </Link>
@@ -316,7 +316,7 @@ export default function TutorsPage() {
 
         {/* Category Pills */}
         <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-2">
-          <Button variant="outline" size="sm" className="whitespace-nowrap">
+          <Button variant="outline" size="sm" className="rounded-lg whitespace-nowrap">
             <Filter className="h-4 w-4 mr-2" />
             Filters
           </Button>
@@ -386,7 +386,7 @@ export default function TutorsPage() {
                       ${tutor.hourlyRate}<span className="text-xs font-normal text-gray-500">/hr</span>
                     </span>
                     <Link href={`/tutors/${tutor.id}`}>
-                      <Button size="sm" variant="ghost" className="h-8 px-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                      <Button size="sm" variant="ghost" className="rounded-lg h-8 px-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400">
                         Profile
                         <ChevronDown className="h-3 w-3 ml-1 -rotate-90" />
                       </Button>
@@ -400,7 +400,7 @@ export default function TutorsPage() {
                   <Button
                     variant="outline"
                     onClick={() => setVisibleCount(filteredTutors.length)}
-                    className="min-w-[200px]"
+                    className="rounded-lg min-w-[200px]"
                   >
                     View More Tutors
                   </Button>
@@ -416,7 +416,7 @@ export default function TutorsPage() {
                   setActiveSubject("All Subjects");
                   setActiveSort("Recommended");
                 }}
-                className="mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                className="rounded-lg mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
               >
                 Clear Filters
               </Button>
@@ -451,7 +451,7 @@ export default function TutorsPage() {
             </p>
           </div>
           <Link href="/ai-tutor">
-            <Button variant="outline" className="bg-white text-slate-900 hover:bg-gray-100">
+            <Button variant="outline" className="rounded-lg bg-white text-slate-900 hover:bg-gray-100">
               Try AI Assistant
             </Button>
           </Link>
@@ -497,7 +497,7 @@ export default function TutorsPage() {
               <Button
                 variant="ghost"
                 onClick={() => setActiveModuleCategory("All Modules")}
-                className="mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                className="rounded-lg mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
               >
                 Clear Filters
               </Button>

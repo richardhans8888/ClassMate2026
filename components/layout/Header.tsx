@@ -15,7 +15,7 @@ import {
   Calendar as CalendarIcon,
   Loader2,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button2";
+import { Button } from "@/components/ui/button";
 import { ModeToggle } from "components/mode-toggle";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -354,7 +354,7 @@ export function Header({ onLogout }: HeaderProps) {
 
                 <Button
                   variant="outline"
-                  className="w-full border-dashed border-2 border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300"
+                  className="rounded-lg w-full border-dashed border-2 border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300"
                   onClick={handleLogout}
                 >
                   <Plus className="mr-2 h-4 w-4" />
@@ -367,7 +367,7 @@ export function Header({ onLogout }: HeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden text-gray-500 dark:text-gray-400"
+            className="rounded-lg md:hidden text-gray-500 dark:text-gray-400"
           >
             <Menu className="h-5 w-5" />
           </Button>
