@@ -20,6 +20,8 @@ export const swaggerSpec = {
     { name: 'user', description: 'User profile and XP' },
     { name: 'notifications', description: 'In-app notifications' },
   ],
+  // Authentication is handled by Firebase client-side; no OpenAPI security scheme applies.
+  security: [],
   paths: {
     '/api/bookings': {
       get: {
