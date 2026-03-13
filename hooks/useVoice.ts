@@ -2,12 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 
-// Fix TypeScript not recognizing SpeechRecognition types
-type SpeechRecognitionType = typeof window extends {
-  SpeechRecognition: infer T;
-}
-  ? T
-  : never;
 
 interface SpeechRecognitionEvent {
   resultIndex: number;

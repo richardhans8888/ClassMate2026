@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from 'next/image';
 import {
   Send,
   Image as ImageIcon,
@@ -269,10 +270,13 @@ export function ChatInterface({
 
               {msg.role === "user" && (
                 <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border-2 border-emerald-500 p-0.5">
-                  <img
+                  <Image
                     src="https://api.dicebear.com/7.x/avataaars/svg?seed=Richard"
                     alt="User"
+                    width={32}
+                    height={32}
                     className="w-full h-full rounded-full"
+                    unoptimized
                   />
                 </div>
               )}

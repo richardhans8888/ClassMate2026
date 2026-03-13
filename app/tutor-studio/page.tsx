@@ -12,6 +12,7 @@ import {
   Flame,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from 'next/image';
 
 export default function TutorStudioPage() {
   return (
@@ -129,10 +130,13 @@ export default function TutorStudioPage() {
                 >
                   <div className="flex items-center gap-4">
                     <div className="relative">
-                      <img
+                      <Image
                         src={req.img}
                         alt={req.name}
+                        width={48}
+                        height={48}
                         className="w-12 h-12 rounded-full bg-gray-700"
+                        unoptimized
                       />
                       {req.new && (
                         <div className="absolute bottom-0 right-0 w-3 h-3 bg-yellow-500 border-2 border-[#15181E] rounded-full"></div>
@@ -216,9 +220,13 @@ export default function TutorStudioPage() {
                       key={i}
                       className="w-6 h-6 rounded-full border-2 border-[#15181E] bg-gray-700 overflow-hidden"
                     >
-                      <img
+                      <Image
                         src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`}
+                        alt=""
+                        width={24}
+                        height={24}
                         className="w-full h-full"
+                        unoptimized
                       />
                     </div>
                   ))}
@@ -258,9 +266,13 @@ export default function TutorStudioPage() {
                       key={i}
                       className="w-6 h-6 rounded-full border-2 border-[#15181E] bg-gray-700 overflow-hidden"
                     >
-                      <img
+                      <Image
                         src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`}
+                        alt=""
+                        width={24}
+                        height={24}
                         className="w-full h-full"
+                        unoptimized
                       />
                     </div>
                   ))}
@@ -324,9 +336,12 @@ export default function TutorStudioPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden">
-                      <img
+                      <Image
                         src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.img}`}
                         alt={student.name}
+                        width={32}
+                        height={32}
+                        unoptimized
                       />
                     </div>
                     <div>

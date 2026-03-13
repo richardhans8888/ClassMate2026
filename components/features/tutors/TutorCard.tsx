@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Star, Clock, Video, Award } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 interface TutorCardProps {
   id: number | string;

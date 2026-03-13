@@ -76,7 +76,7 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          console.log("RAW CHUNK:", buffer);
+          console.error("RAW CHUNK:", buffer);
           const lines = buffer.split("\n");
 
           // Keep the last incomplete line in the buffer

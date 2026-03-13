@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MaterialCard } from "components/features/materials/MaterialCard";
-import { Search, Filter, Upload, FileText, Download } from "lucide-react";
+import { Search, Filter, Upload, Download } from "lucide-react";
 
 const materials = [
   {

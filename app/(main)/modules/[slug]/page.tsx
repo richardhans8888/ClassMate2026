@@ -6,7 +6,7 @@ import { ArrowLeft, Users, Video, Mic, MicOff, VideoOff, Monitor, List } from "l
 import { useEffect, useRef, useState } from "react";
 
 export default function ModuleDetailsPage({ params }: { params: { slug: string } }) {
-  const slugFromParams = (params as any)?.slug;
+  const slugFromParams = (params as { slug: string | string[] })?.slug;
   const raw = typeof slugFromParams === "string" ? slugFromParams : Array.isArray(slugFromParams) ? slugFromParams.join("-") : "module";
   const safe = (() => {
     try {

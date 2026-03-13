@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Image from 'next/image';
 import {
-  User,
-  Settings,
   Share2,
   Flame,
   Star,
@@ -25,7 +24,6 @@ import {
   Award,
   History,
 } from "lucide-react";
-import { motion } from "framer-motion";
 
 const user = {
   name: "Alex Rivera",
@@ -150,10 +148,13 @@ export default function ProfilePage() {
             <div className="relative">
               <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-blue-500 to-purple-600">
                 <div className="w-full h-full rounded-full bg-white dark:bg-[#15171E] p-1">
-                  <img
+                  <Image
                     src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
                     alt="Alex Rivera"
+                    width={128}
+                    height={128}
                     className="w-full h-full rounded-full bg-[#FFD6A5]"
+                    unoptimized
                   />
                 </div>
               </div>

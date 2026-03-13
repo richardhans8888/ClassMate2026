@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft,
   Star,
@@ -101,10 +102,11 @@ I believe in a personalized approach, tailoring each session to the student's le
                 <div className="relative shrink-0">
                   <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-br from-blue-500 to-purple-600">
                     <div className="w-full h-full rounded-full bg-gray-800 overflow-hidden relative">
-                      <img
+                      <Image
                         src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1888&auto=format&fit=crop"
                         alt="Dr. Sarah Jenkins"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     </div>
                   </div>
@@ -225,10 +227,11 @@ I believe in a personalized approach, tailoring each session to the student's le
                 <h2 className="text-xl font-bold text-white">Teaching Philosophy</h2>
               </div>
               <div className="bg-[#151921] rounded-3xl overflow-hidden border border-gray-800 aspect-video relative group cursor-pointer">
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2873&auto=format&fit=crop"
                   alt="Teaching Philosophy"
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-500 group-hover:scale-105"
+                  fill
+                  className="object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 group-hover:scale-110 transition-transform duration-300 shadow-2xl">

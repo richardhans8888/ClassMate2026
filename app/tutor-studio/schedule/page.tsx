@@ -15,7 +15,6 @@ import {
   addDays,
   addWeeks,
   subWeeks,
-  isSameWeek,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -373,7 +372,7 @@ export default function SchedulePage() {
                           <button
                             key={c.key}
                             className={`w-5 h-5 rounded ${c.cls} ${draftColor === c.key ? "ring-2 ring-white/50" : ""}`}
-                            onClick={() => setDraftColor(c.key as any)}
+                            onClick={() => setDraftColor(c.key as "teal" | "purple" | "orange" | "blue" | "green")}
                           />
                         ))}
                       </div>

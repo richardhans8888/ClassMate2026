@@ -26,16 +26,8 @@ import {
 } from "components/ui/dropdown-menu";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { cn } from "lib/utils";
 
 // Mock Data matching the screenshot
-const currentUser = {
-  id: "me",
-  name: "You",
-  avatar: "/avatars/me.jpg",
-  role: "Novice",
-};
-
 const groupInfo = {
   id: "404",
   name: "Advanced Macroeconomics",
@@ -151,8 +143,7 @@ export default function GroupChatPage() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [showFiles, setShowFiles] = useState(false);
   const files = messages.filter((m) => !!m.attachment);
-  const [groupVoiceJoined, setGroupVoiceJoined] = useState(false);
-  const [groupVoiceMuted, setGroupVoiceMuted] = useState(false);
+  const [groupVoiceJoined] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -189,7 +180,7 @@ export default function GroupChatPage() {
   };
 
   const filteredMessages = searchQuery.trim()
-    ? messages.filter((m: any) => {
+    ? messages.filter((m: { content?: string; attachment?: { name?: string } }) => {
       const text = (m.content || "") + " " + (m.attachment?.name || "");
       return text.toLowerCase().includes(searchQuery.toLowerCase());
     })

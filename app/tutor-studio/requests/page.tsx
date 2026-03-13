@@ -4,15 +4,14 @@ import {
   Filter,
   MessageSquare,
   CheckCircle2,
-  XCircle,
   ArrowRight,
   Sparkles,
   Zap,
   Calendar,
-  Clock,
   Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from 'next/image';
 
 const requests = [
   {
@@ -111,10 +110,13 @@ export default function RequestsPage() {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden">
-                      <img
+                      <Image
                         src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${req.avatar}`}
                         alt={req.name}
+                        width={48}
+                        height={48}
                         className="w-full h-full bg-[#2A303C]"
+                        unoptimized
                       />
                     </div>
                     {req.highlight && (
@@ -216,10 +218,13 @@ export default function RequestsPage() {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-gray-700 overflow-hidden">
-                        <img
+                        <Image
                           src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${match.avatar}`}
                           alt={match.name}
+                          width={48}
+                          height={48}
                           className="w-full h-full bg-[#FFD6A5]"
+                          unoptimized
                         />
                       </div>
                       <div>
@@ -286,10 +291,13 @@ export default function RequestsPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gray-700 overflow-hidden">
-                      <img
+                      <Image
                         src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${match.avatar}`}
                         alt={match.name}
+                        width={40}
+                        height={40}
                         className="w-full h-full bg-[#E5E7EB]"
+                        unoptimized
                       />
                     </div>
                     <div>

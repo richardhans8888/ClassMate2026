@@ -5,7 +5,7 @@ import { BookOpen, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { auth } from 'lib/firebase';
+import { auth } from '@/lib/firebase';
 import { authClient } from '@/lib/auth-client';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
@@ -59,7 +59,7 @@ export default function LoginPage() {
         router.push('/dashboard');
         router.refresh();
       }
-    } catch (_err: unknown) {
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
@@ -80,7 +80,7 @@ export default function LoginPage() {
 
       router.push('/');
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
       setError(error instanceof Error ? error.message : 'Google sign in failed');
     } finally {

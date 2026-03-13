@@ -20,7 +20,6 @@ import { useSearchParams } from "next/navigation";
 
 // Types for our articles
 type ArticleSource = "University" | "Professional" | "Tutor";
-type ArticleType = "Research Paper" | "Case Study" | "Article" | "Tutorial";
 
 interface Article {
   id: number;

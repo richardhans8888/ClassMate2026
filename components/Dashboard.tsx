@@ -4,64 +4,13 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, MessageSquare, TrendingUp, BookOpen, Star, Flame, Trophy, User, Search, Play, Filter, Check, ChevronDown, ChevronLeft, ChevronRight, Bot, Zap } from 'lucide-react';
+import { ArrowRight, Star, Flame, Search, Play, Check, Bot, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { ResearchFeed } from 'components/features/research/ResearchFeed';
 import LogoutButton from './logout-button';
 
 // Mock Data
-const featuredTutors = [
-  {
-    id: 1,
-    name: "Sarah Jenkins",
-    rating: 4.9,
-    reviews: 120,
-    subtitle: "MS in Data Science",
-    tags: ["Python", "Statistics", "AI Tools"],
-    description: "I help students bridge the gap between theory and code...",
-    badge: "100+ Hours Taught",
-    rate: 35,
-    color: "from-pink-500 to-rose-500"
-  },
-  {
-    id: 2,
-    name: "Marcus Chen",
-    rating: 4.7,
-    reviews: 45,
-    subtitle: "PhD Candidate, Physics",
-    tags: ["Calculus III", "Physics 101"],
-    description: "Focusing on mechanics and thermodynamics. I use real-world...",
-    badge: "Level 8 Mentor",
-    rate: 45,
-    color: "from-blue-500 to-cyan-500"
-  },
-  {
-    id: 3,
-    name: "Elena Rodriguez",
-    rating: 4.8,
-    reviews: 60,
-    subtitle: "BFA in Creative Writing",
-    tags: ["Essay Writing", "Literature"],
-    description: "Struggling with your thesis? I help structure arguments and refine...",
-    badge: "New Talent",
-    rate: 28,
-    color: "from-purple-500 to-indigo-500"
-  },
-  {
-    id: 4,
-    name: "David Kim",
-    rating: 4.8,
-    reviews: 210,
-    subtitle: "Senior Software Engineer",
-    tags: ["Algorithms", "Java", "System Design"],
-    description: "Preparing for technical interviews? I offer mock interviews and code...",
-    badge: "Top 1% Mentor",
-    rate: 80,
-    color: "from-emerald-500 to-teal-500"
-  }
-];
-
 const container = {
   hidden: { opacity: 0 },
   show: {

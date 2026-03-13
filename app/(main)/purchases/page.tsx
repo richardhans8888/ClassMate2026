@@ -5,8 +5,6 @@ import {
   CreditCard,
   Download,
   CheckCircle,
-  Clock,
-  AlertCircle,
 } from "lucide-react";
 
 const transactions = [

@@ -13,7 +13,7 @@ interface MaterialCardProps {
 }
 
 export function MaterialCard({
-  id,
+  id: _id,
   title,
   author,
   subject,

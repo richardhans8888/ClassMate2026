@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -149,7 +150,7 @@ function Tool({
   label,
   active = false,
 }: {
-  icon: any;
+  icon: React.ElementType;
   label: string;
   active?: boolean;
 }) {

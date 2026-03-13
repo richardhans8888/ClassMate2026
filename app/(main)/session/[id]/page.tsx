@@ -10,7 +10,7 @@ import {
   MessageSquare,
   Monitor,
 } from "lucide-react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const participants = [
   { id: 1, name: "You", avatar: "You", angle: -140 },
@@ -22,7 +22,6 @@ const participants = [
 
 export default function SessionPage() {
   const router = useRouter();
-  const params = useParams();
   const searchParams = useSearchParams();
   const initialPanel = searchParams.get("panel");
   const [isMicOn, setIsMicOn] = useState(true);

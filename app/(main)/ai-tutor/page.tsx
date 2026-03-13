@@ -34,6 +34,7 @@ export default function AITutorPage() {
     if (lastAiMessage.id === lastSpokenIdRef.current) return;
     lastSpokenIdRef.current = lastAiMessage.id;
     speak(lastAiMessage.content);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, isLoading]);
 
   return (

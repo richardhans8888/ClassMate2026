@@ -6,7 +6,6 @@ import {
   ArrowBigUp,
   Share2,
   MoreHorizontal,
-  User,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -56,7 +55,7 @@ const comments = [
   },
 ];
 
-export default function ForumPostPage({ params }: { params: { id: string } }) {
+export default function ForumPostPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <Link

@@ -238,7 +238,7 @@ export function ActiveStudyRooms() {
 
       {/* Category Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide">
-        {categories.map((cat, i) => (
+        {categories.map((cat, _i) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}

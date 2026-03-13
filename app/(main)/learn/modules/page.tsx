@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from 'next/image';
 import { useMemo, useState, type CSSProperties } from "react";
 import { LayoutGrid, List, Users, BookOpen, ChevronRight } from "lucide-react";
 
@@ -144,11 +145,12 @@ export default function MyModulesPage() {
                 className="group rounded-2xl overflow-hidden border bg-white hover:bg-gray-50 border-gray-200 dark:border-white/10 dark:bg-white/[0.02] dark:hover:bg-white/[0.04] transition-colors"
               >
                 <div className="relative">
-                  <div className="aspect-[16/9] w-full overflow-hidden">
-                    <img
+                  <div className="aspect-[16/9] w-full overflow-hidden relative">
+                    <Image
                       src={m.image}
                       alt={m.title}
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-90 transition-opacity"
+                      fill
+                      className="object-cover opacity-80 group-hover:opacity-90 transition-opacity"
                     />
                   </div>
                   <span className="absolute right-4 top-4 px-2 py-1 rounded-full text-xs bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-400/30">
