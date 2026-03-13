@@ -207,7 +207,7 @@ I believe in a personalized approach, tailoring each session to the student's le
                           ))}
                         </div>
                       </div>
-                      <p className="text-gray-300 italic text-lg">"{review.text}"</p>
+                      <p className="text-gray-300 italic text-lg">&quot;{review.text}&quot;</p>
                     </div>
                   </div>
                 ))}

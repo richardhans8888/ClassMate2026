@@ -1,7 +1,8 @@
 // src/app/api/sessions/[sessionId]/messages/route.ts
 // Fetch messages for a specific session
 
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(

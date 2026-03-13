@@ -41,7 +41,14 @@ export function useVoice({
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [isSupported, setIsSupported] = useState(false);
+  const [isSupported, setIsSupported] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const win = window as unknown as {
+      SpeechRecognition?: new () => SpeechRecognitionInstance;
+      webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+    };
+    return !!(win.SpeechRecognition || win.webkitSpeechRecognition);
+  });
 
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
@@ -55,8 +62,6 @@ export function useVoice({
       win.SpeechRecognition || win.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) return;
-
-    setIsSupported(true);
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;

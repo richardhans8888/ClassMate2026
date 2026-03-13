@@ -99,7 +99,7 @@ export default function LoginPage() {
         />
         <div className="relative z-10 mt-auto p-12 w-full max-w-2xl">
           <blockquote className="font-serif text-4xl md:text-5xl font-medium text-white leading-tight mb-6">
-            "Education is the passport to the future, for tomorrow belongs to those who prepare for it today."
+            &quot;Education is the passport to the future, for tomorrow belongs to those who prepare for it today.&quot;
           </blockquote>
           <div className="flex items-center text-white/80 font-medium">
             <div className="h-px w-8 bg-white/50 mr-3"></div>
@@ -203,7 +203,7 @@ export default function LoginPage() {
 
             {/* Switch to register */}
             <p className="text-center text-sm text-gray-500">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link
                 href="/register"
                 className="font-medium hover:underline"

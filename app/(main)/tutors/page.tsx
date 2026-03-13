@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Star, Play, Award, Filter, ChevronDown, Check } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DropdownMenu,
@@ -204,11 +204,6 @@ export default function TutorsPage() {
   const [activeModuleCategory, setActiveModuleCategory] = useState("All Modules");
   const [visibleCount, setVisibleCount] = useState(4);
 
-  // Reset visible count when filters change
-  useEffect(() => {
-    setVisibleCount(4);
-  }, [activeSubject, activeSort]);
-
   const filteredTutors = tutors.filter((tutor) => {
     if (activeSubject === "All Subjects") return true;
     return tutor.subject === activeSubject;
@@ -325,14 +320,14 @@ export default function TutorsPage() {
             label="Subject"
             value={activeSubject}
             options={subjects}
-            onChange={setActiveSubject}
+            onChange={(v) => { setActiveSubject(v); setVisibleCount(4); }}
           />
 
           <FilterDropdown
             label="Sort By"
             value={activeSort}
             options={["Recommended", "Top Rated", "Price: Low to High", "Price: High to Low"]}
-            onChange={setActiveSort}
+            onChange={(v) => { setActiveSort(v); setVisibleCount(4); }}
           />
         </div>
 

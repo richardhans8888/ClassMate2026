@@ -202,7 +202,7 @@ export default function RegisterPage() {
                 />
                 <div className="relative z-10 mt-auto p-12 w-full">
                     <blockquote className="font-serif text-4xl md:text-5xl font-medium text-white leading-tight mb-6">
-                        "The beautiful thing about learning is that nobody can take it away from you."
+                        &quot;The beautiful thing about learning is that nobody can take it away from you.&quot;
                     </blockquote>
                     <div className="flex items-center text-white/80 font-medium">
                         <div className="h-px w-8 bg-white/50 mr-3"></div>

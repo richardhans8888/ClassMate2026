@@ -2,7 +2,8 @@
 // Text-to-Speech using ElevenLabs free tier (10,000 chars/month)
 // Fallback: Web Speech API (browser-native, completely free)
 
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const { text, useElevenLabs } = await req.json();

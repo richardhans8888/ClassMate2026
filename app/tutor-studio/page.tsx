@@ -54,7 +54,7 @@ export default function TutorStudioPage() {
             <h3 className="text-xl font-bold mb-2">Physics Syllabus Update</h3>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
               Trending research in Quantum Mechanics suggests adding a module on
-              "Entanglement Basics". 85% of similar premium courses have updated
+              &quot;Entanglement Basics&quot;. 85% of similar premium courses have updated
               their curriculum this week.
             </p>
             <button className="text-sm font-medium text-white flex items-center gap-2 group-hover:gap-3 transition-all">

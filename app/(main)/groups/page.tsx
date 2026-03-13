@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Users,
@@ -139,8 +139,32 @@ export default function StudyGroupsPage() {
   const [query, setQuery] = useState("");
   const [activeSubject, setActiveSubject] = useState("All Subjects");
   const [activeSort, setActiveSort] = useState("Most Popular");
-  const [joinedIds, setJoinedIds] = useState<string[]>([]);
-  const [customGroups, setCustomGroups] = useState<Group[]>([]);
+  const [joinedIds, setJoinedIds] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    const name = localStorage.getItem("userName") || "";
+    let seed: string[] = [];
+    if (name === "Alex Rivera") seed = ["adv-calculus-ii", "quantum-mechanics-101"];
+    if (name === "Sarah Jenkins") seed = ["python-beginners"];
+    if (seed.length > 0) {
+      localStorage.setItem("joinedGroups", JSON.stringify(seed));
+      return seed;
+    }
+    try {
+      const stored = localStorage.getItem("joinedGroups");
+      return stored ? (JSON.parse(stored) as string[]) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [customGroups, setCustomGroups] = useState<Group[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = localStorage.getItem("customGroups");
+      return stored ? (JSON.parse(stored) as Group[]) : [];
+    } catch {
+      return [];
+    }
+  });
   const [createOpen, setCreateOpen] = useState(false);
   const [formName, setFormName] = useState("");
   const [formSubject, setFormSubject] = useState("Mathematics");
@@ -151,31 +175,6 @@ export default function StudyGroupsPage() {
   const [formDesc, setFormDesc] = useState("");
   const [formMax, setFormMax] = useState(12);
   const [formSchedule, setFormSchedule] = useState("TBD");
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = localStorage.getItem("joinedGroups");
-    const name = localStorage.getItem("userName") || "";
-    const storedCustom = localStorage.getItem("customGroups");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as string[];
-        setJoinedIds(parsed);
-      } catch { }
-    }
-    if (storedCustom) {
-      try {
-        const parsed = JSON.parse(storedCustom) as Group[];
-        setCustomGroups(parsed);
-      } catch { }
-    }
-    let seed: string[] = [];
-    if (name === "Alex Rivera")
-      seed = ["adv-calculus-ii", "quantum-mechanics-101"];
-    if (name === "Sarah Jenkins") seed = ["python-beginners"];
-    setJoinedIds(seed);
-    localStorage.setItem("joinedGroups", JSON.stringify(seed));
-  }, []);
 
   const filtered = useMemo(() => {
     const source = [...allGroups, ...customGroups];

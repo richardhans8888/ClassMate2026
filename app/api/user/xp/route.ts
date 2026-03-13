@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
 import { supabaseAdmin } from "lib/supabase-admin";
 
 // POST /api/user/xp — award XP to a user

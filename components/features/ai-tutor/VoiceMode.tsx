@@ -9,7 +9,7 @@ import {
   Maximize2,
   MicOff,
 } from "lucide-react";
-import { Message } from "../../../hooks/useChat";
+import type { Message } from "../../../hooks/useChat";
 
 interface VoiceModeProps {
   messages: Message[];
@@ -58,8 +58,8 @@ export function VoiceMode({
     .find((m) => m.role === "assistant");
   const caption = lastAiMessage
     ? lastAiMessage.content
-        .replace(/```[\s\S]*?```/g, "[code block]")
-        .slice(0, 100) + (lastAiMessage.content.length > 100 ? "..." : "")
+      .replace(/```[\s\S]*?```/g, "[code block]")
+      .slice(0, 100) + (lastAiMessage.content.length > 100 ? "..." : "")
     : "Click the mic to unmute and start speaking.";
 
   return (
@@ -123,21 +123,21 @@ export function VoiceMode({
               scale: [1, 1.1, 1],
               boxShadow: isListening
                 ? [
-                    "0 0 80px rgba(99,102,241,0.6)",
-                    "0 0 120px rgba(99,102,241,0.9)",
-                    "0 0 80px rgba(99,102,241,0.6)",
-                  ]
+                  "0 0 80px rgba(99,102,241,0.6)",
+                  "0 0 120px rgba(99,102,241,0.9)",
+                  "0 0 80px rgba(99,102,241,0.6)",
+                ]
                 : isSpeaking
                   ? [
-                      "0 0 80px rgba(34,197,94,0.5)",
-                      "0 0 120px rgba(34,197,94,0.8)",
-                      "0 0 80px rgba(34,197,94,0.5)",
-                    ]
+                    "0 0 80px rgba(34,197,94,0.5)",
+                    "0 0 120px rgba(34,197,94,0.8)",
+                    "0 0 80px rgba(34,197,94,0.5)",
+                  ]
                   : [
-                      "0 0 40px rgba(99,102,241,0.2)",
-                      "0 0 60px rgba(99,102,241,0.3)",
-                      "0 0 40px rgba(99,102,241,0.2)",
-                    ],
+                    "0 0 40px rgba(99,102,241,0.2)",
+                    "0 0 60px rgba(99,102,241,0.3)",
+                    "0 0 40px rgba(99,102,241,0.2)",
+                  ],
             }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             className="w-56 h-56 rounded-full bg-gradient-to-br from-indigo-400 via-purple-500 to-blue-500 dark:from-indigo-500 dark:via-purple-600 dark:to-blue-600 blur-xl opacity-60 dark:opacity-80 z-0"
@@ -152,7 +152,7 @@ export function VoiceMode({
         {/* Caption */}
         <div className="mt-12 text-center max-w-md px-6">
           <p className="text-gray-700 dark:text-gray-300 text-lg font-medium leading-relaxed">
-            "{caption}"
+            &quot;{caption}&quot;
           </p>
           <div className="flex justify-center gap-1 mt-4 h-4 items-end">
             {[1, 2, 3, 4, 3, 2, 1].map((h, i) => (
@@ -178,11 +178,10 @@ export function VoiceMode({
           <button
             onClick={handleMicClick}
             disabled={!isSupported}
-            className={`p-4 rounded-full text-white transition-all shadow-lg hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed ${
-              isListening
+            className={`p-4 rounded-full text-white transition-all shadow-lg hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed ${isListening
                 ? "bg-indigo-600 shadow-indigo-600/30 hover:bg-indigo-500"
                 : "bg-gray-500 shadow-gray-500/30 hover:bg-gray-400"
-            }`}
+              }`}
           >
             {isListening ? (
               <Mic className="w-6 h-6" />
@@ -199,11 +198,10 @@ export function VoiceMode({
             disabled={
               messages.filter((m) => m.role === "assistant").length === 0
             }
-            className={`p-3 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full disabled:opacity-40 disabled:cursor-not-allowed ${
-              isSpeaking
+            className={`p-3 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full disabled:opacity-40 disabled:cursor-not-allowed ${isSpeaking
                 ? "text-green-500"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-            }`}
+              }`}
           >
             <Volume2 className="w-5 h-5" />
           </button>

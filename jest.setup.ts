@@ -6,6 +6,6 @@ if (typeof global.TextEncoder === "undefined") {
 }
 
 if (typeof global.TextDecoder === "undefined") {
-  // @ts-expect-error
+  // @ts-expect-error: node TextDecoder type is not fully compatible with the DOM TextDecoder type
   global.TextDecoder = TextDecoder;
 }

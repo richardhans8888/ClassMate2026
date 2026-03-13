@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -41,31 +41,39 @@ export default function TutorStudioLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [email, setEmail] = useState<string | null>(null);
-  const [isTutor, setIsTutor] = useState<boolean>(false);
-  const [gateOpen, setGateOpen] = useState<boolean>(false);
-  const [dismissed, setDismissed] = useState<boolean>(false);
-
-  useEffect(() => {
+  const [email, setEmail] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("userEmail");
+  });
+  const [isTutor, setIsTutor] = useState<boolean>(() => {
     try {
-      const e =
-        typeof window !== "undefined"
-          ? localStorage.getItem("userEmail")
-          : null;
-      const role =
-        typeof window !== "undefined" ? localStorage.getItem("userRole") : null;
-      setEmail(e);
+      if (typeof window === "undefined") return false;
+      const e = localStorage.getItem("userEmail");
+      const role = localStorage.getItem("userRole");
       let tutor = role === "tutor";
       if (!role && e) {
         tutor = e === "alex@mit.edu";
       }
-      setIsTutor(!!tutor);
-      setGateOpen(!tutor);
+      return !!tutor;
     } catch {
-      setIsTutor(false);
-      setGateOpen(true);
+      return false;
     }
-  }, []);
+  });
+  const [gateOpen, setGateOpen] = useState<boolean>(() => {
+    try {
+      if (typeof window === "undefined") return true;
+      const e = localStorage.getItem("userEmail");
+      const role = localStorage.getItem("userRole");
+      let tutor = role === "tutor";
+      if (!role && e) {
+        tutor = e === "alex@mit.edu";
+      }
+      return !tutor;
+    } catch {
+      return true;
+    }
+  });
+  const [dismissed, setDismissed] = useState<boolean>(false);
 
   const handleDismiss = () => {
     setGateOpen(false);
@@ -147,7 +155,7 @@ export default function TutorStudioLayout({
           <div className="flex items-center justify-between gap-3 px-5 py-2.5 bg-amber-50 border-b border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20">
             <div className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
               <AlertTriangle className="w-4 h-4 shrink-0" />
-              You're browsing in preview mode.{" "}
+              You&apos;re browsing in preview mode.{" "}
               <Link
                 href="/tutor-studio/register"
                 className="underline underline-offset-2 font-medium hover:text-amber-900 dark:hover:text-amber-300"
@@ -172,7 +180,7 @@ export default function TutorStudioLayout({
         <DialogContent className="bg-white dark:bg-[#0F1117] border border-gray-200 dark:border-gray-800">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-white">
-              You're Not a Registered Tutor
+              You&apos;re Not a Registered Tutor
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3">

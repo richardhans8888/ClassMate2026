@@ -151,7 +151,7 @@ export default function RequestsPage() {
               {req.message && (
                 <div className="bg-[#1A1F26] rounded-xl p-3 mb-5 relative">
                   <div className="absolute top-3 left-2 text-blue-500 text-xl leading-none font-serif">
-                    "
+                    &quot;
                   </div>
                   <p className="text-sm text-gray-300 pl-4 relative z-10 leading-relaxed">
                     {req.message}

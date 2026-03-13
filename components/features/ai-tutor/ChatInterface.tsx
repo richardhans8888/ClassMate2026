@@ -202,7 +202,7 @@ export function ChatInterface({
           <div className="flex flex-col items-center justify-center h-full text-center gap-3 opacity-50">
             <Bot className="w-10 h-10 text-indigo-400" />
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Ask me anything — I'm here to help you learn.
+              Ask me anything — I&apos;m here to help you learn.
             </p>
           </div>
         )}

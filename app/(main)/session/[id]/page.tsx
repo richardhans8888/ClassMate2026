@@ -12,6 +12,14 @@ import {
 } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
+const participants = [
+  { id: 1, name: "You", avatar: "You", angle: -140 },
+  { id: 2, name: "Sarah J.", avatar: "SJ", center: true },
+  { id: 3, name: "Alex M.", avatar: "AM", angle: -20 },
+  { id: 4, name: "Kenji S.", avatar: "KS", angle: 40 },
+  { id: 5, name: "Elena R.", avatar: "ER", angle: 160 },
+];
+
 export default function SessionPage() {
   const router = useRouter();
   const params = useParams();
@@ -29,7 +37,11 @@ export default function SessionPage() {
   });
   const [sharingStream, setSharingStream] = useState<MediaStream | null>(null);
   const shareVideoRef = useRef<HTMLVideoElement | null>(null);
-  const [userVolumes, setUserVolumes] = useState<Record<number, number>>({});
+  const [userVolumes, setUserVolumes] = useState<Record<number, number>>(() => {
+    const init: Record<number, number> = {};
+    participants.forEach((p) => { init[p.id] = 100; });
+    return init;
+  });
   const [contextMenu, setContextMenu] = useState<{
     open: boolean;
     x: number;
@@ -39,7 +51,6 @@ export default function SessionPage() {
 
   useEffect(() => {
     if (shareVideoRef.current && sharingStream) {
-      // @ts-ignore
       shareVideoRef.current.srcObject = sharingStream;
       shareVideoRef.current.play().catch(() => {});
     }
@@ -64,21 +75,6 @@ export default function SessionPage() {
     sharingStream?.getTracks().forEach((t) => t.stop());
     setSharingStream(null);
   }
-  const participants = [
-    { id: 1, name: "You", avatar: "You", angle: -140 },
-    { id: 2, name: "Sarah J.", avatar: "SJ", center: true },
-    { id: 3, name: "Alex M.", avatar: "AM", angle: -20 },
-    { id: 4, name: "Kenji S.", avatar: "KS", angle: 40 },
-    { id: 5, name: "Elena R.", avatar: "ER", angle: 160 },
-  ];
-  useEffect(() => {
-    const init: Record<number, number> = {};
-    participants.forEach((p) => {
-      init[p.id] = init[p.id] ?? 100;
-    });
-    setUserVolumes((prev) => (Object.keys(prev).length ? prev : init));
-  }, []);
-
   return (
     <div className="min-h-[calc(100vh-64px)] bg-white dark:bg-[#06090f] text-gray-900 dark:text-white overflow-hidden relative">
       <div className="absolute inset-0 hidden dark:block">
