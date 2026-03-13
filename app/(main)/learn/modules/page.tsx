@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { useMemo, useState, type CSSProperties } from "react";
 import { LayoutGrid, List, Users, BookOpen, ChevronRight } from "lucide-react";
 

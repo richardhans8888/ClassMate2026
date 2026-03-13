@@ -139,7 +139,7 @@ export default function StudyGroupsPage() {
   const [query, setQuery] = useState("");
   const [activeSubject, setActiveSubject] = useState("All Subjects");
   const [activeSort, setActiveSort] = useState("Most Popular");
-  const [joinedIds, setJoinedIds] = useState<string[]>(() => {
+  const [joinedIds] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
     const name = localStorage.getItem("userName") || "";
     let seed: string[] = [];

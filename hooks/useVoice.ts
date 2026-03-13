@@ -41,7 +41,7 @@ export function useVoice({
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [isSupported, setIsSupported] = useState<boolean>(() => {
+  const [isSupported] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     const win = window as unknown as {
       SpeechRecognition?: new () => SpeechRecognitionInstance;

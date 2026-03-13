@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BookOpen, User, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";

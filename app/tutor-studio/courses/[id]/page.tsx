@@ -14,12 +14,10 @@ import {
   Filter,
   ArrowUpRight,
   Clock,
-  CheckCircle2,
   AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import Image from "next/image";
+
 
 // Mock Data
 const students = [
@@ -98,7 +96,7 @@ const modules = [
 ];
 
 export default function CourseDetailPage({
-  params,
+  params: _params,
 }: {
   params: { id: string };
 }) {

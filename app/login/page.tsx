@@ -59,7 +59,7 @@ export default function LoginPage() {
         router.push('/dashboard');
         router.refresh();
       }
-    } catch (err: unknown) {
+    } catch (_err: unknown) {
       setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);

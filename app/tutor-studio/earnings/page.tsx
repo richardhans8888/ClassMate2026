@@ -8,7 +8,6 @@ import {
   Clock,
   ArrowUpRight,
   ChevronRight,
-  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

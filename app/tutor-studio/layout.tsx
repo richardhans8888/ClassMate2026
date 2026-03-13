@@ -41,11 +41,11 @@ export default function TutorStudioLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [email, setEmail] = useState<string | null>(() => {
+  const [email] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("userEmail");
   });
-  const [isTutor, setIsTutor] = useState<boolean>(() => {
+  const [isTutor] = useState<boolean>(() => {
     try {
       if (typeof window === "undefined") return false;
       const e = localStorage.getItem("userEmail");
