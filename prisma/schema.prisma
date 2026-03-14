@@ -49,9 +49,13 @@ enum PointActionType {
   TUTOR_SESSION_COMPLETED
   MATERIAL_UPLOADED
   STUDY_GROUP_CREATED
+  STUDY_GROUP_JOINED
   STREAK_BONUS
   REVIEW_POSTED
   CHAT_STREAK
+  BOOKING_CREATED
+  BOOKING_SESSION_COMPLETED
+  TUTOR_SESSION_REWARDED
 }
 
 // USER & PROFILE MANAGEMENT
@@ -277,6 +281,7 @@ model ChatMessage {
   session     ChatSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
 
   content     String
+  role        String  @default("user")
   messageType String  @default("text")
   isRead      Boolean @default(false)
 
@@ -343,6 +348,7 @@ model StudyGroup {
   subject     String
   maxMembers  Int?
   isPrivate   Boolean @default(false)
+  inviteCode  String?
   memberCount Int     @default(1)
 
   members StudyGroupMember[]
@@ -383,8 +389,8 @@ model Booking {
   subject         String
   scheduledAt     DateTime
   durationMinutes Int
-  hourlyRate      Float
-  totalPrice      Float
+  hourlyRate      Float @default(0)
+  totalPrice      Float @default(0)
   status          BookingStatus @default(PENDING)
   notes           String?
 
