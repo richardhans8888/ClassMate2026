@@ -1,104 +1,113 @@
-import type { NextRequest} from "next/server";
-import { NextResponse } from "next/server";
-import { supabaseAdmin } from "lib/supabase-admin";
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
-// GET /api/study-groups?subject=Math&userId=xxx
+// GET /api/study-groups?subject=Math&userId=xxx&myGroups=true
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const subject = searchParams.get("subject");
-  const userId = searchParams.get("userId");
-  const myGroups = searchParams.get("myGroups");
+  const { searchParams } = new URL(req.url)
+  const subject = searchParams.get('subject')
+  const userId = searchParams.get('userId')
+  const myGroups = searchParams.get('myGroups')
 
-  let query = supabaseAdmin
-    .from("study_groups")
-    .select(
-      `
-      *,
-      owner:user_profiles!study_groups_owner_id_fkey (display_name, avatar_url),
-      study_group_members (count)
-    `,
-    )
-    .order("created_at", { ascending: false });
+  try {
+    let groups
 
-  if (subject) query = query.eq("subject", subject);
-  if (myGroups === "true" && userId) {
-    const { data: memberGroups } = await supabaseAdmin
-      .from("study_group_members")
-      .select("group_id")
-      .eq("user_id", userId);
-    const groupIds = memberGroups?.map((m) => m.group_id) || [];
-    query = query.in("id", groupIds);
-  } else {
-    query = query.eq("is_private", false);
+    if (myGroups === 'true' && userId) {
+      groups = await prisma.studyGroup.findMany({
+        where: {
+          members: { some: { userId } },
+          ...(subject ? { subject } : {}),
+        },
+        include: {
+          owner: { include: { profile: true } },
+          _count: { select: { members: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+    } else {
+      groups = await prisma.studyGroup.findMany({
+        where: {
+          isPrivate: false,
+          ...(subject ? { subject } : {}),
+        },
+        include: {
+          owner: { include: { profile: true } },
+          _count: { select: { members: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+    }
+
+    return NextResponse.json({ groups })
+  } catch (err) {
+    console.error('[GET /api/study-groups]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  const { data, error } = await query;
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ groups: data });
 }
 
 // POST /api/study-groups — create a group
 export async function POST(req: NextRequest) {
-  const { name, description, subject, ownerId, maxMembers, isPrivate } =
-    await req.json();
+  const { name, description, subject, ownerId, maxMembers, isPrivate } = await req.json()
   if (!name || !subject || !ownerId)
-    return NextResponse.json(
-      { error: "name, subject, ownerId required" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'name, subject, ownerId required' }, { status: 400 })
 
-  const { data: group, error } = await supabaseAdmin
-    .from("study_groups")
-    .insert({
-      name,
-      description,
-      subject,
-      owner_id: ownerId,
-      max_members: maxMembers || 10,
-      is_private: isPrivate || false,
+  try {
+    const group = await prisma.$transaction(async (tx) => {
+      const newGroup = await tx.studyGroup.create({
+        data: {
+          name,
+          description: description ?? null,
+          subject,
+          ownerId,
+          maxMembers: maxMembers || 10,
+          isPrivate: isPrivate || false,
+        },
+      })
+
+      // Auto-add owner as member with role 'owner'
+      await tx.studyGroupMember.create({
+        data: { groupId: newGroup.id, userId: ownerId, role: 'owner' },
+      })
+
+      // Award XP for creating a group
+      await tx.user.update({
+        where: { id: ownerId },
+        data: { xp: { increment: 30 } },
+      })
+      await tx.pointTransaction.create({
+        data: {
+          userId: ownerId,
+          actionType: 'STUDY_GROUP_CREATED',
+          points: 30,
+          description: 'Created a study group',
+        },
+      })
+
+      return newGroup
     })
-    .select()
-    .single();
 
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
-
-  // Auto-add owner as a member with role 'owner'
-  await supabaseAdmin.from("study_group_members").insert({
-    group_id: group.id,
-    user_id: ownerId,
-    role: "owner",
-  });
-
-  // Award XP for creating a group
-  await supabaseAdmin.rpc("award_xp", {
-    p_user_id: ownerId,
-    p_amount: 30,
-    p_reason: "Created a study group",
-  });
-
-  return NextResponse.json({ group });
+    return NextResponse.json({ group })
+  } catch (err) {
+    console.error('[POST /api/study-groups]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
 
 // DELETE /api/study-groups?groupId=xxx&userId=xxx
 export async function DELETE(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const groupId = searchParams.get("groupId");
-  const userId = searchParams.get("userId");
+  const { searchParams } = new URL(req.url)
+  const groupId = searchParams.get('groupId')
+  const userId = searchParams.get('userId')
   if (!groupId || !userId)
-    return NextResponse.json(
-      { error: "groupId and userId required" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'groupId and userId required' }, { status: 400 })
 
-  const { error } = await supabaseAdmin
-    .from("study_groups")
-    .delete()
-    .eq("id", groupId)
-    .eq("owner_id", userId);
-
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ success: true });
+  try {
+    await prisma.studyGroup.deleteMany({
+      where: { id: groupId, ownerId: userId },
+    })
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('[DELETE /api/study-groups]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }

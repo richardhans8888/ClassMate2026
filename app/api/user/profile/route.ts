@@ -1,58 +1,78 @@
-import type { NextRequest} from "next/server";
-import { NextResponse } from "next/server";
-import { supabaseAdmin } from "lib/supabase-admin";
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 // GET /api/user/profile?userId=xxx
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
-  if (!userId)
-    return NextResponse.json({ error: "userId required" }, { status: 400 });
+  const { searchParams } = new URL(req.url)
+  const userId = searchParams.get('userId')
+  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
 
-  const { data, error } = await supabaseAdmin
-    .from("user_profiles")
-    .select("*")
-    .eq("id", userId)
-    .single();
+  try {
+    const [user, profile] = await Promise.all([
+      prisma.user.findUnique({ where: { id: userId } }),
+      prisma.userProfile.findUnique({ where: { userId } }),
+    ])
 
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
-  return NextResponse.json({
-    profile: {
-      ...data,
-      xpProgress: data.xp % 500,
-      xpForNextLevel: 500,
-      progressPercent: Math.floor(((data.xp % 500) / 500) * 100),
-    },
-  });
+    const xp = user.xp
+    const xpProgress = xp % 500
+    const xpForNextLevel = 500
+    const progressPercent = Math.floor((xpProgress / xpForNextLevel) * 100)
+
+    return NextResponse.json({
+      profile: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        role: user.role,
+        xp,
+        level: user.level,
+        xpProgress,
+        xpForNextLevel,
+        progressPercent,
+        displayName: profile?.displayName ?? null,
+        bio: profile?.bio ?? null,
+        university: profile?.university ?? null,
+        major: profile?.major ?? null,
+        avatarUrl: profile?.avatarUrl ?? null,
+      },
+    })
+  } catch (err) {
+    console.error('[GET /api/user/profile]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
 
 // PATCH /api/user/profile — update profile
 export async function PATCH(req: NextRequest) {
-  const { userId, ...updates } = await req.json();
-  if (!userId)
-    return NextResponse.json({ error: "userId required" }, { status: 400 });
+  const { userId, displayName, bio, university, major, avatarUrl } = await req.json()
+  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
 
-  const allowedFields = [
-    "display_name",
-    "bio",
-    "university",
-    "major",
-    "avatar_url",
-  ];
-  const filtered = Object.fromEntries(
-    Object.entries(updates).filter(([key]) => allowedFields.includes(key)),
-  );
-
-  const { data, error } = await supabaseAdmin
-    .from("user_profiles")
-    .update(filtered)
-    .eq("id", userId)
-    .select()
-    .single();
-
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ profile: data });
+  try {
+    const profile = await prisma.userProfile.upsert({
+      where: { userId },
+      update: {
+        ...(displayName !== undefined && { displayName }),
+        ...(bio !== undefined && { bio }),
+        ...(university !== undefined && { university }),
+        ...(major !== undefined && { major }),
+        ...(avatarUrl !== undefined && { avatarUrl }),
+      },
+      create: {
+        userId,
+        displayName: displayName ?? null,
+        bio: bio ?? null,
+        university: university ?? null,
+        major: major ?? null,
+        avatarUrl: avatarUrl ?? null,
+      },
+    })
+    return NextResponse.json({ profile })
+  } catch (err) {
+    console.error('[PATCH /api/user/profile]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }

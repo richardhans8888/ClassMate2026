@@ -1,48 +1,37 @@
-// src/app/api/sessions/[sessionId]/messages/route.ts
+// app/api/sessions/[sessionId]/messages/route.ts
 // Fetch messages for a specific session
 
-import type { NextRequest} from 'next/server';
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-export async function GET(
-  req: NextRequest,
-  context: { params: Promise<{ sessionId: string }> }
-) {
-  const { sessionId } = await context.params;
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get('userId');
+export async function GET(req: NextRequest, context: { params: Promise<{ sessionId: string }> }) {
+  const { sessionId } = await context.params
+  const { searchParams } = new URL(req.url)
+  const userId = searchParams.get('userId')
 
   if (!userId) {
-    return NextResponse.json({ error: 'userId is required' }, { status: 400 });
+    return NextResponse.json({ error: 'userId is required' }, { status: 400 })
   }
 
-  // Security: Verify the session belongs to the user
-  const { data: session } = await supabase
-    .from('chat_sessions')
-    .select('id')
-    .eq('id', sessionId)
-    .eq('user_id', userId)
-    .single();
+  try {
+    const session = await prisma.chatSession.findFirst({
+      where: { id: sessionId, userId },
+    })
 
-  if (!session) {
-    return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    if (!session) {
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+    }
+
+    const messages = await prisma.chatMessage.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, role: true, content: true, createdAt: true },
+    })
+
+    return NextResponse.json({ messages })
+  } catch (err) {
+    console.error('[GET /api/sessions/[sessionId]/messages]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  const { data: messages, error } = await supabase
-    .from('chat_messages')
-    .select('id, role, content, created_at')
-    .eq('session_id', sessionId)
-    .order('created_at', { ascending: true });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ messages });
 }

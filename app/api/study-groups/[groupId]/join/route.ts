@@ -1,73 +1,87 @@
-import type { NextRequest} from 'next/server';
-import { NextResponse } from 'next/server';
-import { supabaseAdmin } from 'lib/supabase-admin';
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 // POST /api/study-groups/[groupId]/join
-export async function POST(
-  req: NextRequest,
-  context: { params: Promise<{ groupId: string }> }
-) {
-  const { groupId } = await context.params;
-  const { userId, inviteCode } = await req.json();
-  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 });
+export async function POST(req: NextRequest, context: { params: Promise<{ groupId: string }> }) {
+  const { groupId } = await context.params
+  const { userId, inviteCode } = await req.json()
+  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
 
-  // Get group info
-  const { data: group, error: groupError } = await supabaseAdmin
-    .from('study_groups').select('*').eq('id', groupId).single();
+  try {
+    const group = await prisma.studyGroup.findUnique({ where: { id: groupId } })
+    if (!group) return NextResponse.json({ error: 'Group not found' }, { status: 404 })
 
-  if (groupError || !group) return NextResponse.json({ error: 'Group not found' }, { status: 404 });
+    // Check private group invite code
+    if (group.isPrivate && group.inviteCode !== inviteCode)
+      return NextResponse.json({ error: 'Invalid invite code' }, { status: 403 })
 
-  // Check private group invite code
-  if (group.is_private && group.invite_code !== inviteCode)
-    return NextResponse.json({ error: 'Invalid invite code' }, { status: 403 });
+    // Check if already a member
+    const existing = await prisma.studyGroupMember.findUnique({
+      where: { groupId_userId: { groupId, userId } },
+    })
+    if (existing) return NextResponse.json({ error: 'Already a member' }, { status: 400 })
 
-  // Check if already a member
-  const { data: existing } = await supabaseAdmin
-    .from('study_group_members').select('id').eq('group_id', groupId).eq('user_id', userId).single();
+    // Check max members
+    if (group.maxMembers) {
+      const count = await prisma.studyGroupMember.count({ where: { groupId } })
+      if (count >= group.maxMembers)
+        return NextResponse.json({ error: 'Group is full' }, { status: 400 })
+    }
 
-  if (existing) return NextResponse.json({ error: 'Already a member' }, { status: 400 });
+    await prisma.$transaction(async (tx) => {
+      await tx.studyGroupMember.create({
+        data: { groupId, userId, role: 'member' },
+      })
 
-  // Check max members
-  const { count } = await supabaseAdmin
-    .from('study_group_members').select('*', { count: 'exact', head: true }).eq('group_id', groupId);
+      // Notify group owner
+      await tx.notification.create({
+        data: {
+          userId: group.ownerId,
+          type: 'STUDY_GROUP_MEMBER_JOINED',
+          title: 'New Member Joined',
+          message: `Someone joined your study group "${group.name}"`,
+          referenceId: groupId,
+          referenceType: 'study_group',
+        },
+      })
 
-  if (count && count >= group.max_members)
-    return NextResponse.json({ error: 'Group is full' }, { status: 400 });
+      // Award XP for joining a group
+      await tx.user.update({
+        where: { id: userId },
+        data: { xp: { increment: 20 } },
+      })
+      await tx.pointTransaction.create({
+        data: {
+          userId,
+          actionType: 'STUDY_GROUP_JOINED',
+          points: 20,
+          description: 'Joined a study group',
+        },
+      })
+    })
 
-  // Join the group
-  const { error } = await supabaseAdmin
-    .from('study_group_members').insert({ group_id: groupId, user_id: userId, role: 'member' });
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  // Notify group owner
-  await supabaseAdmin.from('notifications').insert({
-    user_id: group.owner_id,
-    title: 'New Member Joined',
-    message: `Someone joined your study group "${group.name}"`,
-    type: 'group',
-    link: `/study-groups/${groupId}`,
-  });
-
-  // Award XP for joining a group
-  await supabaseAdmin.rpc('award_xp', { p_user_id: userId, p_amount: 20, p_reason: 'Joined a study group' });
-
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('[POST /api/study-groups/[groupId]/join]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
 
 // DELETE /api/study-groups/[groupId]/join — leave group
-export async function DELETE(
-  req: NextRequest,
-  context: { params: Promise<{ groupId: string }> }
-) {
-  const { groupId } = await context.params;
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get('userId');
-  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 });
+export async function DELETE(req: NextRequest, context: { params: Promise<{ groupId: string }> }) {
+  const { groupId } = await context.params
+  const { searchParams } = new URL(req.url)
+  const userId = searchParams.get('userId')
+  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
 
-  const { error } = await supabaseAdmin
-    .from('study_group_members').delete().eq('group_id', groupId).eq('user_id', userId);
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ success: true });
+  try {
+    await prisma.studyGroupMember.deleteMany({
+      where: { groupId, userId },
+    })
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('[DELETE /api/study-groups/[groupId]/join]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }

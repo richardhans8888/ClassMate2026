@@ -1,146 +1,181 @@
-import type { NextRequest} from "next/server";
-import { NextResponse } from "next/server";
-import { supabaseAdmin } from "lib/supabase-admin";
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 // GET /api/bookings?userId=xxx&role=student|tutor
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
-  const role = searchParams.get("role") || "student";
-  if (!userId)
-    return NextResponse.json({ error: "userId required" }, { status: 400 });
+  const { searchParams } = new URL(req.url)
+  const userId = searchParams.get('userId')
+  const role = searchParams.get('role') || 'student'
+  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
 
-  let query = supabaseAdmin
-    .from("bookings")
-    .select(
-      `
-    *,
-    tutors (
-      id,
-      subjects,
-      user_profiles (display_name, avatar_url)
-    ),
-    student:user_profiles!bookings_student_id_fkey (display_name, avatar_url)
-  `,
-    )
-    .order("scheduled_at", { ascending: true });
+  try {
+    let bookings
 
-  if (role === "tutor") {
-    const { data: tutorProfile } = await supabaseAdmin
-      .from("tutors")
-      .select("id")
-      .eq("user_id", userId)
-      .single();
-    if (!tutorProfile) return NextResponse.json({ bookings: [] });
-    query = query.eq("tutor_id", tutorProfile.id);
-  } else {
-    query = query.eq("student_id", userId);
+    if (role === 'tutor') {
+      const tutorRecord = await prisma.tutor.findUnique({ where: { userId } })
+      if (!tutorRecord) return NextResponse.json({ bookings: [] })
+
+      bookings = await prisma.booking.findMany({
+        where: { tutorId: tutorRecord.id },
+        include: {
+          tutor: { include: { user: { include: { profile: true } } } },
+          student: { include: { profile: true } },
+        },
+        orderBy: { scheduledAt: 'asc' },
+      })
+    } else {
+      bookings = await prisma.booking.findMany({
+        where: { studentId: userId },
+        include: {
+          tutor: { include: { user: { include: { profile: true } } } },
+          student: { include: { profile: true } },
+        },
+        orderBy: { scheduledAt: 'asc' },
+      })
+    }
+
+    return NextResponse.json({ bookings })
+  } catch (err) {
+    console.error('[GET /api/bookings]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  const { data, error } = await query;
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ bookings: data });
 }
 
 // POST /api/bookings — create a booking
 export async function POST(req: NextRequest) {
-  const { tutorId, studentId, subject, scheduledAt, durationMinutes, notes } =
-    await req.json();
+  const { tutorId, studentId, subject, scheduledAt, durationMinutes, notes } = await req.json()
   if (!tutorId || !studentId || !subject || !scheduledAt)
     return NextResponse.json(
-      { error: "tutorId, studentId, subject, scheduledAt required" },
-      { status: 400 },
-    );
+      { error: 'tutorId, studentId, subject, scheduledAt required' },
+      { status: 400 }
+    )
 
-  const { data, error } = await supabaseAdmin
-    .from("bookings")
-    .insert({
-      tutor_id: tutorId,
-      student_id: studentId,
-      subject,
-      scheduled_at: scheduledAt,
-      duration_minutes: durationMinutes || 60,
-      notes,
+  try {
+    const tutor = await prisma.tutor.findUnique({
+      where: { id: tutorId },
+      include: { user: true },
     })
-    .select()
-    .single();
 
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!tutor) return NextResponse.json({ error: 'Tutor not found' }, { status: 404 })
 
-  // Get tutor's user_id for notification
-  const { data: tutor } = await supabaseAdmin
-    .from("tutors")
-    .select("user_id")
-    .eq("id", tutorId)
-    .single();
+    const duration = durationMinutes || 60
+    const totalPrice = (duration / 60) * tutor.hourlyRate
 
-  if (tutor) {
-    await supabaseAdmin.from("notifications").insert({
-      user_id: tutor.user_id,
-      title: "New Booking Request",
-      message: `You have a new booking request for ${subject}`,
-      type: "booking",
-      link: "/bookings",
-    });
+    const booking = await prisma.$transaction(async (tx) => {
+      const newBooking = await tx.booking.create({
+        data: {
+          tutorId,
+          studentId,
+          subject,
+          scheduledAt: new Date(scheduledAt),
+          durationMinutes: duration,
+          hourlyRate: tutor.hourlyRate,
+          totalPrice,
+          notes: notes ?? null,
+        },
+      })
+
+      // Notify tutor of new booking
+      await tx.notification.create({
+        data: {
+          userId: tutor.userId,
+          type: 'BOOKING_CONFIRMED',
+          title: 'New Booking Request',
+          message: `You have a new booking request for ${subject}`,
+          referenceId: newBooking.id,
+          referenceType: 'booking',
+        },
+      })
+
+      // Award XP to student for booking a session
+      await tx.user.update({
+        where: { id: studentId },
+        data: { xp: { increment: 50 } },
+      })
+      await tx.pointTransaction.create({
+        data: {
+          userId: studentId,
+          actionType: 'BOOKING_CREATED',
+          points: 50,
+          description: 'Booked a tutor session',
+        },
+      })
+
+      return newBooking
+    })
+
+    return NextResponse.json({ booking })
+  } catch (err) {
+    console.error('[POST /api/bookings]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  // Award XP to student for booking a session
-  await supabaseAdmin.rpc("award_xp", {
-    p_user_id: studentId,
-    p_amount: 50,
-    p_reason: "Booked a tutor session",
-  });
-
-  return NextResponse.json({ booking: data });
 }
 
 // PATCH /api/bookings — update booking status
 export async function PATCH(req: NextRequest) {
-  const { bookingId, status, userId } = await req.json();
+  const { bookingId, status, userId } = await req.json()
   if (!bookingId || !status)
-    return NextResponse.json(
-      { error: "bookingId and status required" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'bookingId and status required' }, { status: 400 })
 
-  const { data, error } = await supabaseAdmin
-    .from("bookings")
-    .update({ status })
-    .eq("id", bookingId)
-    .select()
-    .single();
+  try {
+    const booking = await prisma.$transaction(async (tx) => {
+      const updated = await tx.booking.update({
+        where: { id: bookingId },
+        data: { status },
+      })
 
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
+      // Notify student of status change
+      if (updated.studentId && status !== 'PENDING') {
+        await tx.notification.create({
+          data: {
+            userId: updated.studentId,
+            type: 'BOOKING_CONFIRMED',
+            title: `Booking ${status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}`,
+            message: `Your booking has been ${status.toLowerCase()}`,
+            referenceId: bookingId,
+            referenceType: 'booking',
+          },
+        })
+      }
 
-  // Notify student of status change
-  if (data.student_id && status !== "pending") {
-    await supabaseAdmin.from("notifications").insert({
-      user_id: data.student_id,
-      title: `Booking ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-      message: `Your booking has been ${status}`,
-      type: "booking",
-      link: "/bookings",
-    });
+      // Award XP when session is completed
+      if (status === 'COMPLETED') {
+        await tx.user.update({
+          where: { id: updated.studentId },
+          data: { xp: { increment: 100 } },
+        })
+        await tx.pointTransaction.create({
+          data: {
+            userId: updated.studentId,
+            actionType: 'BOOKING_SESSION_COMPLETED',
+            points: 100,
+            description: 'Completed a tutoring session',
+          },
+        })
+
+        if (userId) {
+          await tx.user.update({
+            where: { id: userId },
+            data: { xp: { increment: 75 } },
+          })
+          await tx.pointTransaction.create({
+            data: {
+              userId,
+              actionType: 'TUTOR_SESSION_REWARDED',
+              points: 75,
+              description: 'Completed a tutoring session as tutor',
+            },
+          })
+        }
+      }
+
+      return updated
+    })
+
+    return NextResponse.json({ booking })
+  } catch (err) {
+    console.error('[PATCH /api/bookings]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  // Award XP when session is completed
-  if (status === "completed") {
-    await supabaseAdmin.rpc("award_xp", {
-      p_user_id: data.student_id,
-      p_amount: 100,
-      p_reason: "Completed a tutoring session",
-    });
-    if (userId) {
-      await supabaseAdmin.rpc("award_xp", {
-        p_user_id: userId,
-        p_amount: 75,
-        p_reason: "Completed a tutoring session as tutor",
-      });
-    }
-  }
-
-  return NextResponse.json({ booking: data });
 }

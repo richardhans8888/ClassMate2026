@@ -1,31 +1,49 @@
-import type { NextRequest} from "next/server";
-import { NextResponse } from "next/server";
-import { supabaseAdmin } from "lib/supabase-admin";
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 // POST /api/user/xp — award XP to a user
 export async function POST(req: NextRequest) {
-  const { userId, amount, reason } = await req.json();
-  if (!userId || !amount || !reason)
-    return NextResponse.json(
-      { error: "userId, amount, reason required" },
-      { status: 400 },
-    );
+  const { userId, amount, actionType, description } = await req.json()
+  if (!userId || !amount || !actionType)
+    return NextResponse.json({ error: 'userId, amount, actionType required' }, { status: 400 })
 
-  const { error } = await supabaseAdmin.rpc("award_xp", {
-    p_user_id: userId,
-    p_amount: amount,
-    p_reason: reason,
-  });
+  try {
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.update({
+        where: { id: userId },
+        data: { xp: { increment: amount } },
+      })
 
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
+      const newLevel = Math.floor(user.xp / 500) + 1
+      if (newLevel !== user.level) {
+        await tx.user.update({
+          where: { id: userId },
+          data: { level: newLevel },
+        })
+      }
 
-  // Return updated profile
-  const { data: profile } = await supabaseAdmin
-    .from("user_profiles")
-    .select("xp, level")
-    .eq("id", userId)
-    .single();
+      await tx.pointTransaction.create({
+        data: {
+          userId,
+          actionType,
+          points: amount,
+          description: description ?? null,
+        },
+      })
 
-  return NextResponse.json({ success: true, profile });
+      return user
+    })
+
+    return NextResponse.json({
+      success: true,
+      profile: {
+        xp: updatedUser.xp,
+        level: Math.floor(updatedUser.xp / 500) + 1,
+      },
+    })
+  } catch (err) {
+    console.error('[POST /api/user/xp]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
