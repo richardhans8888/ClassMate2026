@@ -7,7 +7,6 @@ import { ArrowRight, Star, Flame, Search, Play, Check, Bot, Zap } from 'lucide-r
 import { motion } from 'framer-motion'
 
 import { ResearchFeed } from 'components/features/research/ResearchFeed'
-import LogoutButton from './logout-button'
 
 // Mock Data
 const container = {
@@ -236,7 +235,6 @@ export default function Dashboard() {
       >
         <ResearchFeed />
       </Suspense>
-      <LogoutButton />
     </div>
   )
 }
