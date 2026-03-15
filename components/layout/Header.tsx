@@ -34,6 +34,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from 'components/ui/dialog'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 interface HeaderProps {
   onLogout?: () => void
@@ -72,6 +73,7 @@ export function Header({ onLogout }: HeaderProps) {
   const name = session?.user?.name ?? session?.user?.email?.split('@')[0] ?? 'User'
   const email = session?.user?.email ?? ''
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [level, setLevel] = useState<number>(1)
@@ -155,8 +157,7 @@ export function Header({ onLogout }: HeaderProps) {
         {/* Logo */}
         <div className="flex items-center gap-8 md:gap-16">
           <Link href="/" className="flex items-center gap-2">
-            <div className="rounded-lg bg-blue-600 p-1.5">
-              <BookOpen className="h-5 w-5 text-white" />
+            <div className="flex items-center justify-center rounded-lg bg-blue-600 p-1.5">
               <BookOpen className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -391,13 +392,63 @@ export function Header({ onLogout }: HeaderProps) {
             </DialogContent>
           </Dialog>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-lg text-gray-500 md:hidden dark:text-gray-400"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-lg text-gray-500 md:hidden dark:text-gray-400"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 dark:bg-[#0F172A]">
+              <nav className="flex flex-col gap-4 pt-8 text-sm font-medium">
+                <Link
+                  href="/"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/tutors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
+                >
+                  Find Tutor
+                </Link>
+                <Link
+                  href="/learn/modules"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
+                >
+                  Your Modules
+                </Link>
+                <Link
+                  href="/forums"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
+                >
+                  Study Rooms
+                </Link>
+                <Link
+                  href="/groups"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
+                >
+                  Study Groups
+                </Link>
+                <Link
+                  href="/ai-tutor"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
+                >
+                  Learn with AI
+                </Link>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

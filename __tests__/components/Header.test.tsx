@@ -25,6 +25,14 @@ jest.mock('@/components/mode-toggle', () => ({
   ModeToggle: () => <button aria-label="Toggle theme">Theme</button>,
 }))
 
+// Mock the Sheet component — Radix UI portals don't work well in jsdom
+jest.mock('@/components/ui/sheet', () => ({
+  Sheet: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SheetTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SheetContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SheetClose: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
+
 describe('Header component', () => {
   afterEach(() => {
     jest.clearAllMocks()
@@ -61,10 +69,10 @@ describe('Header component', () => {
   it('renders navigation links for core pages', () => {
     render(<Header />)
 
-    // Main navigation items that are always rendered
-    expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /study room/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /learn with ai/i })).toBeInTheDocument()
+    // Main navigation items — appear in both desktop nav and mobile drawer
+    expect(screen.getAllByRole('link', { name: /home/i })[0]).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /study room/i })[0]).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /learn with ai/i })[0]).toBeInTheDocument()
   })
 
   it('shows the level badge', () => {
