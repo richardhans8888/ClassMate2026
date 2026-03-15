@@ -21,19 +21,6 @@ enum UserRole {
   ADMIN
 }
 
-enum NotificationType {
-  FORUM_REPLY
-  FORUM_UPVOTE
-  CHAT_MESSAGE
-  BOOKING_CONFIRMED
-  BOOKING_CANCELLED
-  BOOKING_COMPLETED
-  TUTOR_REVIEW
-  STUDY_GROUP_INVITE
-  STUDY_GROUP_MEMBER_JOINED
-  SYSTEM_MESSAGE
-}
-
 enum BookingStatus {
   PENDING
   CONFIRMED
@@ -84,7 +71,6 @@ model User {
   studyGroupMembers    StudyGroupMember[]
   pointTransactions    PointTransaction[]
   tutorReviewsGiven    TutorReview[]      @relation("reviewer")
-  notifications        Notification[]
   upvotedForumPosts    ForumPost[]        @relation("upvoters")
   upvotedReplies       ForumReply[]       @relation("upvoters")
   streakRecords        StreakRecord[]
@@ -441,24 +427,3 @@ model StreakRecord {
   @@index([streakDate])
 }
 
-// NOTIFICATIONS
-
-model Notification {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  type          NotificationType
-  title         String
-  message       String
-  isRead        Boolean @default(false)
-  referenceId   String?
-  referenceType String?
-
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([createdAt])
-  @@index([isRead])
-  @@index([type])
-}

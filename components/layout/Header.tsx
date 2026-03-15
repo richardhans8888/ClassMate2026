@@ -1,10 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   User,
-  Bell,
   Menu,
   BookOpen,
   Trophy,
@@ -40,33 +39,6 @@ interface HeaderProps {
   onLogout?: () => void
 }
 
-type NotificationItem = {
-  id: string
-  title: string
-  desc?: string
-  time: string
-  read?: boolean
-  href?: string
-}
-
-type ApiNotification = {
-  id: string
-  title: string
-  message: string | null
-  isRead: boolean
-  createdAt: string
-}
-
-function formatRelativeTime(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return 'Just now'
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  return `${Math.floor(hours / 24)}d ago`
-}
-
 export function Header({ onLogout }: HeaderProps) {
   const { data: session } = authClient.useSession()
   const userId = session?.user?.id
@@ -75,28 +47,7 @@ export function Header({ onLogout }: HeaderProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [level, setLevel] = useState<number>(1)
-
-  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications])
-
-  // Fetch notifications from API
-  useEffect(() => {
-    if (!userId) return
-    fetch(`/api/notifications?userId=${userId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        const mapped: NotificationItem[] = (data.notifications ?? []).map((n: ApiNotification) => ({
-          id: n.id,
-          title: n.title,
-          desc: n.message ?? undefined,
-          time: formatRelativeTime(n.createdAt),
-          read: n.isRead,
-        }))
-        setNotifications(mapped)
-      })
-      .catch(console.error)
-  }, [userId])
 
   // Fetch level from profile
   useEffect(() => {
@@ -119,35 +70,6 @@ export function Header({ onLogout }: HeaderProps) {
       console.error('Logout error:', error)
     } finally {
       setIsLoggingOut(false)
-    }
-  }
-
-  async function markAllRead() {
-    if (!userId) return
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-    try {
-      await fetch('/api/notifications', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, markAllRead: true }),
-      })
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  async function clearNotifications() {
-    if (!userId) return
-    const toDelete = [...notifications]
-    setNotifications([])
-    try {
-      await Promise.allSettled(
-        toDelete.map((n) =>
-          fetch(`/api/notifications?notificationId=${n.id}&userId=${userId}`, { method: 'DELETE' })
-        )
-      )
-    } catch (err) {
-      console.error(err)
     }
   }
 
@@ -221,62 +143,6 @@ export function Header({ onLogout }: HeaderProps) {
             <Trophy className="h-4 w-4 text-yellow-500" />
             <span className="text-xs font-bold text-gray-700 dark:text-white">Lvl {level}</span>
           </div>
-
-          {/* Notifications */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="relative rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white">
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 inline-flex h-2 w-2 rounded-full bg-red-500" />
-                )}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80" align="end" forceMount>
-              <DropdownMenuLabel className="flex items-center justify-between font-medium">
-                <span>Notifications</span>
-                <span className="text-xs text-gray-500">
-                  {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
-                </span>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <div className="max-h-80 overflow-auto">
-                {notifications.length === 0 ? (
-                  <div className="p-3 text-sm text-gray-500">No notifications</div>
-                ) : (
-                  notifications.map((n) => (
-                    <DropdownMenuItem key={n.id} asChild>
-                      <Link href={n.href || '#'} className="flex items-start gap-2 px-2 py-2">
-                        <div
-                          className={`mt-1 h-2 w-2 rounded-full ${n.read ? 'bg-gray-300' : 'bg-blue-500'}`}
-                        />
-                        <div className="flex-1">
-                          <div className="text-sm font-medium">{n.title}</div>
-                          {n.desc && <div className="truncate text-xs text-gray-400">{n.desc}</div>}
-                          <div className="text-xs text-gray-500">{n.time}</div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                  ))
-                )}
-              </div>
-              <DropdownMenuSeparator />
-              <div className="flex items-center justify-end gap-2 px-2 pb-2">
-                <button
-                  onClick={markAllRead}
-                  className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300"
-                >
-                  Mark all read
-                </button>
-                <button
-                  onClick={clearNotifications}
-                  className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300"
-                >
-                  Clear
-                </button>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
 
           {/* User Menu */}
           <Dialog>

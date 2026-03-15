@@ -30,17 +30,17 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#0F172A] dark:text-white">
       {/* Hero Section */}
-      <section className="border-b border-gray-200 px-5 pt-10 pb-10 sm:px-6 md:px-12 md:pt-14 md:pb-12 dark:border-gray-800">
+      <section className="border-b border-gray-200 px-5 pt-12 pb-12 sm:px-6 sm:pt-14 sm:pb-14 md:px-12 md:pt-16 md:pb-14 dark:border-gray-800">
         <div className="mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl md:text-4xl lg:text-5xl dark:from-blue-400 dark:to-purple-400">
+            <h1 className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl leading-tight font-bold text-transparent sm:text-3xl md:text-4xl lg:text-5xl dark:from-blue-400 dark:to-purple-400">
               Find Your Perfect Academic Mentor
             </h1>
-            <p className="mb-8 max-w-2xl text-base text-gray-600 md:text-lg dark:text-gray-400">
+            <p className="mb-8 max-w-2xl text-base leading-relaxed text-gray-600 md:text-lg dark:text-gray-400">
               Connect with verified experts and AI-enhanced tutors for 1-on-1 sessions or join
               collaborative group workshops.
             </p>
@@ -76,7 +76,7 @@ export default function Dashboard() {
           </motion.div>
 
           {/* Featured & Trending Header */}
-          <div className="mb-4 flex items-end justify-between md:mb-6">
+          <div className="mb-5 flex items-end justify-between md:mb-6">
             <div className="flex items-center gap-2">
               <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
                 <Flame className="h-5 w-5 animate-pulse fill-blue-600 text-blue-600 md:h-6 md:w-6 dark:fill-blue-400 dark:text-blue-400" />
@@ -94,7 +94,7 @@ export default function Dashboard() {
 
           {/* Featured Cards Grid */}
           <motion.div
-            className="mb-8 grid grid-cols-1 gap-4 sm:gap-6 md:mb-12 md:grid-cols-3"
+            className="mb-8 grid grid-cols-1 gap-5 sm:gap-6 md:mb-12 md:grid-cols-3"
             variants={container}
             initial="hidden"
             animate="show"

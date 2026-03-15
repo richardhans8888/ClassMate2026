@@ -34,18 +34,6 @@ export async function POST(req: NextRequest, context: { params: Promise<{ groupI
         data: { groupId, userId, role: 'member' },
       })
 
-      // Notify group owner
-      await tx.notification.create({
-        data: {
-          userId: group.ownerId,
-          type: 'STUDY_GROUP_MEMBER_JOINED',
-          title: 'New Member Joined',
-          message: `Someone joined your study group "${group.name}"`,
-          referenceId: groupId,
-          referenceType: 'study_group',
-        },
-      })
-
       // Award XP for joining a group
       await tx.user.update({
         where: { id: userId },

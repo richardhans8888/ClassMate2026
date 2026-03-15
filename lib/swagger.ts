@@ -18,7 +18,6 @@ export const swaggerSpec = {
     { name: 'study-groups', description: 'Study group management' },
     { name: 'sessions', description: 'AI tutor chat sessions' },
     { name: 'user', description: 'User profile and XP' },
-    { name: 'notifications', description: 'In-app notifications' },
   ],
   // Authentication is handled by Firebase client-side; no OpenAPI security scheme applies.
   security: [],
@@ -83,7 +82,7 @@ export const swaggerSpec = {
       post: {
         tags: ['bookings'],
         summary: 'Create a booking',
-        description: 'Awards 50 XP to the student. Sends a notification to the tutor.',
+        description: 'Awards 50 XP to the student.',
         requestBody: {
           required: true,
           content: {
@@ -95,7 +94,11 @@ export const swaggerSpec = {
                   tutorId: { type: 'string' },
                   studentId: { type: 'string' },
                   subject: { type: 'string' },
-                  scheduledAt: { type: 'string', format: 'date-time', description: 'ISO 8601 date-time string' },
+                  scheduledAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'ISO 8601 date-time string',
+                  },
                   durationMinutes: { type: 'number', description: 'Defaults to 60' },
                   notes: { type: 'string' },
                 },
@@ -139,7 +142,7 @@ export const swaggerSpec = {
         tags: ['bookings'],
         summary: 'Update booking status',
         description:
-          'Sends a status-change notification to the student. When status becomes "completed": awards 100 XP to the student and 75 XP to the tutor (if userId is provided).',
+          'When status becomes "completed": awards 100 XP to the student and 75 XP to the tutor (if userId is provided).',
         requestBody: {
           required: true,
           content: {
@@ -155,7 +158,8 @@ export const swaggerSpec = {
                   },
                   userId: {
                     type: 'string',
-                    description: "Tutor's user ID. Required when status=completed to award tutor XP.",
+                    description:
+                      "Tutor's user ID. Required when status=completed to award tutor XP.",
                   },
                 },
               },
@@ -200,7 +204,8 @@ export const swaggerSpec = {
       get: {
         tags: ['tutors'],
         summary: 'List tutors',
-        description: 'All parameters are optional filters. Results are ordered by rating descending.',
+        description:
+          'All parameters are optional filters. Results are ordered by rating descending.',
         parameters: [
           {
             name: 'subject',
@@ -367,7 +372,8 @@ export const swaggerSpec = {
       post: {
         tags: ['study-groups'],
         summary: 'Create a study group',
-        description: 'Auto-adds the owner as a member with role "owner". Awards 30 XP to the owner.',
+        description:
+          'Auto-adds the owner as a member with role "owner". Awards 30 XP to the owner.',
         requestBody: {
           required: true,
           content: {
@@ -383,7 +389,8 @@ export const swaggerSpec = {
                   maxMembers: { type: 'number', description: 'Defaults to 10' },
                   isPrivate: {
                     type: 'boolean',
-                    description: 'When true, the group requires an invite code to join. Defaults to false.',
+                    description:
+                      'When true, the group requires an invite code to join. Defaults to false.',
                   },
                 },
               },
@@ -617,7 +624,7 @@ export const swaggerSpec = {
         tags: ['study-groups'],
         summary: 'Get group messages',
         description:
-          'Returns the most recent 100 messages ordered by created_at ascending. Each message includes the sender\'s display_name and avatar_url via a nested user_profiles join.',
+          "Returns the most recent 100 messages ordered by created_at ascending. Each message includes the sender's display_name and avatar_url via a nested user_profiles join.",
         parameters: [
           {
             name: 'groupId',
@@ -1150,151 +1157,6 @@ export const swaggerSpec = {
         },
       },
     },
-
-    '/api/notifications': {
-      get: {
-        tags: ['notifications'],
-        summary: 'List notifications for a user',
-        description: 'Returns up to 30 notifications ordered by created_at descending.',
-        parameters: [
-          {
-            name: 'userId',
-            in: 'query',
-            required: true,
-            description: 'UUID of the user',
-            schema: { type: 'string' },
-          },
-        ],
-        responses: {
-          200: {
-            description: 'Notifications retrieved successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    notifications: {
-                      type: 'array',
-                      items: { $ref: '#/components/schemas/Notification' },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: 'Missing required query parameter',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-        },
-      },
-      patch: {
-        tags: ['notifications'],
-        summary: 'Mark notifications as read',
-        description:
-          'Supports marking a single notification (via notificationId) or all notifications (via markAllRead: true). If markAllRead is true, notificationId is ignored.',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['userId'],
-                properties: {
-                  userId: { type: 'string' },
-                  notificationId: {
-                    type: 'string',
-                    description: 'UUID of a specific notification to mark as read. Ignored if markAllRead is true.',
-                  },
-                  markAllRead: {
-                    type: 'boolean',
-                    description: "Pass true to mark all of the user's notifications as read.",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: 'Notifications marked as read',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean', example: true },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: 'Missing required fields',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-        },
-      },
-      delete: {
-        tags: ['notifications'],
-        summary: 'Delete a notification',
-        parameters: [
-          {
-            name: 'notificationId',
-            in: 'query',
-            required: true,
-            description: 'UUID of the notification to delete',
-            schema: { type: 'string' },
-          },
-          {
-            name: 'userId',
-            in: 'query',
-            required: true,
-            description: 'UUID of the owning user',
-            schema: { type: 'string' },
-          },
-        ],
-        responses: {
-          200: {
-            description: 'Notification deleted successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean', example: true },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: 'Missing required query parameters',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-        },
-      },
-    },
   },
   components: {
     schemas: {
@@ -1339,11 +1201,13 @@ export const swaggerSpec = {
           },
           xpForNextLevel: {
             type: 'number',
-            description: 'Computed field — total XP required to reach the next level (not stored in DB)',
+            description:
+              'Computed field — total XP required to reach the next level (not stored in DB)',
           },
           progressPercent: {
             type: 'number',
-            description: 'Computed field — percentage progress toward the next level (not stored in DB)',
+            description:
+              'Computed field — percentage progress toward the next level (not stored in DB)',
           },
           bio: { type: 'string', nullable: true },
           university: { type: 'string', nullable: true },
@@ -1519,24 +1383,6 @@ export const swaggerSpec = {
           },
           content: { type: 'string' },
           created_at: { type: 'string', format: 'date-time' },
-        },
-      },
-
-      Notification: {
-        type: 'object',
-        required: ['id', 'user_id', 'title', 'message', 'type', 'is_read', 'created_at'],
-        properties: {
-          id: { type: 'string' },
-          user_id: { type: 'string' },
-          title: { type: 'string' },
-          message: { type: 'string' },
-          type: {
-            type: 'string',
-            enum: ['booking', 'group', 'general'],
-          },
-          is_read: { type: 'boolean' },
-          created_at: { type: 'string', format: 'date-time' },
-          link: { type: 'string', nullable: true },
         },
       },
     },

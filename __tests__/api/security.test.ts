@@ -14,7 +14,6 @@ import { NextRequest } from 'next/server'
 import { PATCH } from '@/app/api/user/profile/route'
 import { POST as chatPOST } from '@/app/api/chat/route'
 import { POST as firebasePOST } from '@/app/api/auth/firebase/route'
-import { GET as notificationsGET } from '@/app/api/notifications/route'
 import { POST as bookingsPOST } from '@/app/api/bookings/route'
 import { prisma } from '@/lib/prisma'
 
@@ -83,35 +82,6 @@ describe('XSS payload handling', () => {
         create: expect.objectContaining({ bio: htmlPayload }),
       })
     )
-  })
-})
-
-// ─── SQL / Injection String Handling ─────────────────────────────────────────
-
-describe('injection string handling', () => {
-  it('returns 400 (not 500) when userId contains an SQL injection string', async () => {
-    // Route validates presence of userId and forwards to Prisma; Prisma parameterizes it.
-    // The key test: no unhandled exception — server returns a structured response.
-    const req = new NextRequest("http://localhost/api/notifications?userId='; DROP TABLE users; --")
-    const res = await notificationsGET(req)
-    // Could return 200 (Prisma rejects with no results) or 400 if route validates format.
-    // Either way it must NOT be a 500 uncaught error.
-    expect(res.status).not.toBe(500)
-  })
-
-  it('returns 400 (not 500) when userId param is an empty string', async () => {
-    const req = new NextRequest('http://localhost/api/notifications?userId=')
-    const res = await notificationsGET(req)
-    expect(res.status).toBe(400)
-  })
-
-  it('does not expose stack traces in error responses', async () => {
-    const req = new NextRequest('http://localhost/api/notifications')
-    const res = await notificationsGET(req)
-    const body = await res.json()
-    // The error field should be a user-facing message, not a raw JS stack trace
-    expect(body.error).not.toMatch(/at Object\.<anonymous>/)
-    expect(body.error).not.toMatch(/node_modules/)
   })
 })
 

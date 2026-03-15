@@ -48,16 +48,6 @@ describe('Header component', () => {
     expect(screen.getAllByText('ClassMate')[0]).toBeInTheDocument()
   })
 
-  it('renders the notification bell button', () => {
-    render(<Header />)
-
-    // The Bell icon is inside a button — the button has no aria-label but is
-    // identifiable by its position in the header or by querying all buttons
-    const buttons = screen.getAllByRole('button')
-    // Buttons present: Theme toggle, Notification bell, User avatar, Menu (mobile)
-    expect(buttons.length).toBeGreaterThanOrEqual(2)
-  })
-
   it('renders the user menu trigger button', () => {
     render(<Header />)
 

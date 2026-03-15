@@ -76,18 +76,6 @@ export async function POST(req: NextRequest) {
         },
       })
 
-      // Notify tutor of new booking
-      await tx.notification.create({
-        data: {
-          userId: tutor.userId,
-          type: 'BOOKING_CONFIRMED',
-          title: 'New Booking Request',
-          message: `You have a new booking request for ${subject}`,
-          referenceId: newBooking.id,
-          referenceType: 'booking',
-        },
-      })
-
       // Award XP to student for booking a session
       await tx.user.update({
         where: { id: studentId },
@@ -124,20 +112,6 @@ export async function PATCH(req: NextRequest) {
         where: { id: bookingId },
         data: { status },
       })
-
-      // Notify student of status change
-      if (updated.studentId && status !== 'PENDING') {
-        await tx.notification.create({
-          data: {
-            userId: updated.studentId,
-            type: 'BOOKING_CONFIRMED',
-            title: `Booking ${status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}`,
-            message: `Your booking has been ${status.toLowerCase()}`,
-            referenceId: bookingId,
-            referenceType: 'booking',
-          },
-        })
-      }
 
       // Award XP when session is completed
       if (status === 'COMPLETED') {

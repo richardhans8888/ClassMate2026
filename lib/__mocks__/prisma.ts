@@ -24,7 +24,6 @@ export const prisma = {
   studyGroupMember: modelMethods(),
   chatSession: modelMethods(),
   chatMessage: modelMethods(),
-  notification: modelMethods(),
   pointTransaction: modelMethods(),
   forumPost: modelMethods(),
   studyMaterial: modelMethods(),
