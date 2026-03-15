@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Star, Flame, Search, Play, Check, Bot, Zap } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -231,7 +231,11 @@ export default function Dashboard() {
       </section>
 
       {/* Featured Research & Insights Section */}
-      <ResearchFeed />
+      <Suspense
+        fallback={<div className="py-12 text-center text-gray-500">Loading research feed...</div>}
+      >
+        <ResearchFeed />
+      </Suspense>
       <LogoutButton />
     </div>
   )
