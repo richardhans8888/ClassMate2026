@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import {
   User,
   Menu,
@@ -39,6 +41,7 @@ interface HeaderProps {
 }
 
 export function Header({ onLogout }: HeaderProps) {
+  const router = useRouter()
   const { data: session } = authClient.useSession()
   const userId = session?.user?.id
   const name = session?.user?.name ?? session?.user?.email?.split('@')[0] ?? 'User'
@@ -63,10 +66,17 @@ export function Header({ onLogout }: HeaderProps) {
     setIsLoggingOut(true)
     try {
       await authClient.signOut()
+
+      const res = await fetch('/api/logout', { method: 'POST' })
+      if (!res.ok) throw new Error('Failed to clear session')
+
       onLogout?.()
-      window.location.href = '/'
+      toast.success('Successfully signed out')
+      router.push('/login')
+      router.refresh()
     } catch (error) {
       console.error('Logout error:', error)
+      toast.error(error instanceof Error ? error.message : 'Something went wrong')
     } finally {
       setIsLoggingOut(false)
     }

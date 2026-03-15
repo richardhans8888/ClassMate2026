@@ -1,9 +1,21 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, BookOpen, DollarSign, Calendar, LogOut, Home } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  DollarSign,
+  Calendar,
+  LogOut,
+  Home,
+  Loader2,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { authClient } from '@/lib/auth-client'
+import { toast } from 'sonner'
 
 const navigation = [
   { name: 'Dashboard', href: '/tutor-studio', icon: LayoutDashboard },
@@ -20,6 +32,27 @@ const navigation = [
 
 export function TutorSidebarClient() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    setIsLoggingOut(true)
+    try {
+      await authClient.signOut()
+
+      const res = await fetch('/api/logout', { method: 'POST' })
+      if (!res.ok) throw new Error('Failed to clear session')
+
+      toast.success('Successfully signed out')
+      router.push('/login')
+      router.refresh()
+    } catch (error) {
+      console.error('Logout error:', error)
+      toast.error(error instanceof Error ? error.message : 'Something went wrong')
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
 
   return (
     <aside className="flex w-64 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0F1115]">
@@ -74,9 +107,15 @@ export function TutorSidebarClient() {
         <Button
           variant="ghost"
           className="w-full justify-start rounded-lg pl-3 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/10 dark:hover:text-red-300"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
         >
-          <LogOut className="mr-3 h-5 w-5" />
-          Logout
+          {isLoggingOut ? (
+            <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+          ) : (
+            <LogOut className="mr-3 h-5 w-5" />
+          )}
+          {isLoggingOut ? 'Signing out...' : 'Logout'}
         </Button>
       </div>
     </aside>
