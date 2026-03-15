@@ -54,7 +54,6 @@ model User {
   image         String?
   emailVerified Boolean  @default(false)
   role          UserRole @default(STUDENT)
-  isPremium     Boolean  @default(false)
   xp            Int      @default(0)
   level         Int      @default(1)
 
