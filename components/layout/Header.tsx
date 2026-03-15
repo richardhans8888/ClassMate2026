@@ -8,7 +8,6 @@ import {
   BookOpen,
   Trophy,
   LogOut,
-  CreditCard,
   Users,
   Plus,
   Calendar as CalendarIcon,
@@ -202,12 +201,6 @@ export function Header({ onLogout }: HeaderProps) {
                   <Link href="/tutor-studio" className="cursor-pointer">
                     <BookOpen className="mr-2 h-4 w-4" />
                     <span>Tutor Studio</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/purchases" className="cursor-pointer">
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    <span>Purchase &amp; Memberships</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
