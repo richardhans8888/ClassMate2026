@@ -45,7 +45,7 @@ describe('Header component', () => {
   it('displays the ClassMate brand name', () => {
     render(<Header />)
 
-    expect(screen.getByText('ClassMate')).toBeInTheDocument()
+    expect(screen.getAllByText('ClassMate')[0]).toBeInTheDocument()
   })
 
   it('renders the notification bell button', () => {

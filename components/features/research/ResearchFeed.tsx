@@ -44,7 +44,7 @@ function FilterDropdown({ label, value, options, onChange }: FilterDropdownProps
   return (
     <div className="relative" ref={dropdownRef}>
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-gray-400">{label}:</span>
+        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}:</span>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex min-w-[160px] items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-800 transition-all hover:bg-gray-100 focus:ring-2 focus:ring-blue-500/50 focus:outline-none dark:border-gray-700 dark:bg-[#1F2937] dark:text-gray-200 dark:hover:bg-[#374151]"
@@ -121,7 +121,7 @@ export function ResearchFeed() {
   })
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-8 md:px-12">
+    <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-6 md:px-12">
       <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h2 className="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white">
@@ -145,13 +145,13 @@ export function ResearchFeed() {
       </div>
 
       {/* Filters Bar */}
-      <div className="mb-8 flex flex-col items-center gap-6 rounded-2xl border border-gray-200 bg-gray-100 p-3 shadow-lg md:flex-row dark:border-gray-800 dark:bg-[#111827]">
+      <div className="mb-8 flex flex-col items-start gap-4 rounded-2xl border border-gray-200 bg-gray-100 p-3 shadow-lg md:flex-row md:items-center md:gap-6 dark:border-gray-800 dark:bg-[#111827]">
         <div className="flex items-center gap-2 pl-2 text-sm font-medium text-gray-600 dark:text-gray-400">
           <Filter className="h-4 w-4" />
           <span>Filters:</span>
         </div>
 
-        <div className="flex flex-1 flex-wrap gap-6">
+        <div className="flex w-full flex-wrap gap-4 md:flex-1 md:gap-6">
           {/* Subject Filter */}
           <FilterDropdown
             label="Subject"

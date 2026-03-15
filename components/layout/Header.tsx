@@ -402,51 +402,64 @@ export function Header({ onLogout }: HeaderProps) {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64 dark:bg-[#0F172A]">
-              <nav className="flex flex-col gap-4 pt-8 text-sm font-medium">
-                <Link
-                  href="/"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/tutors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
-                >
-                  Find Tutor
-                </Link>
-                <Link
-                  href="/learn/modules"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
-                >
-                  Your Modules
-                </Link>
-                <Link
-                  href="/forums"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
-                >
-                  Study Rooms
-                </Link>
-                <Link
-                  href="/groups"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
-                >
-                  Study Groups
-                </Link>
-                <Link
-                  href="/ai-tutor"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
-                >
-                  Learn with AI
-                </Link>
-              </nav>
+            <SheetContent side="left" className="w-72 bg-white p-0 dark:bg-[#0F172A]">
+              <div className="flex h-full flex-col">
+                {/* Brand header */}
+                <div className="flex items-center gap-3 border-b border-gray-100 px-5 py-4 pr-12 dark:border-gray-800">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600">
+                    <BookOpen className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-base font-bold text-gray-900 dark:text-white">
+                    ClassMate
+                  </span>
+                </div>
+
+                {/* Nav links */}
+                <nav className="flex flex-col gap-1 px-3 py-4">
+                  <Link
+                    href="/"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                  >
+                    Home
+                  </Link>
+                  <Link
+                    href="/tutors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                  >
+                    Find Tutor
+                  </Link>
+                  <Link
+                    href="/learn/modules"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                  >
+                    Your Modules
+                  </Link>
+                  <Link
+                    href="/forums"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                  >
+                    Study Rooms
+                  </Link>
+                  <Link
+                    href="/groups"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                  >
+                    Study Groups
+                  </Link>
+                  <Link
+                    href="/ai-tutor"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                  >
+                    Learn with AI
+                  </Link>
+                </nav>
+              </div>
             </SheetContent>
           </Sheet>
         </div>

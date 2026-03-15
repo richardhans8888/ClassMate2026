@@ -30,17 +30,17 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#0F172A] dark:text-white">
       {/* Hero Section */}
-      <section className="border-b border-gray-200 px-6 pt-12 pb-8 md:px-12 dark:border-gray-800">
+      <section className="border-b border-gray-200 px-5 pt-10 pb-10 sm:px-6 md:px-12 md:pt-14 md:pb-12 dark:border-gray-800">
         <div className="mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent md:text-5xl dark:from-blue-400 dark:to-purple-400">
+            <h1 className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl md:text-4xl lg:text-5xl dark:from-blue-400 dark:to-purple-400">
               Find Your Perfect Academic Mentor
             </h1>
-            <p className="mb-8 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
+            <p className="mb-8 max-w-2xl text-base text-gray-600 md:text-lg dark:text-gray-400">
               Connect with verified experts and AI-enhanced tutors for 1-on-1 sessions or join
               collaborative group workshops.
             </p>
@@ -48,41 +48,40 @@ export default function Dashboard() {
 
           {/* Search Bar */}
           <motion.div
-            className="relative mb-12 max-w-3xl"
+            className="relative mb-8 max-w-3xl md:mb-12"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              className="w-full rounded-full border border-gray-200 bg-gray-100 py-4 pr-40 pl-12 text-gray-900 placeholder-gray-500 shadow-sm transition-all hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-[#1E293B] dark:text-gray-200"
-              placeholder="Search by tutor name or subject..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <div className="absolute inset-y-0 right-2 flex items-center">
+            <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-100 px-4 shadow-sm transition-all focus-within:ring-2 focus-within:ring-blue-500 hover:shadow-md dark:border-gray-700 dark:bg-[#1E293B]">
+              <Search className="h-5 w-5 shrink-0 text-gray-400" />
+              <input
+                type="text"
+                className="min-w-0 flex-1 bg-transparent py-4 text-sm text-gray-900 placeholder-gray-500 focus:outline-none sm:text-base dark:text-gray-200"
+                placeholder="Search by tutor name or subject..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
               <button
-                className="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-all hover:scale-105 hover:bg-blue-700 active:scale-95"
+                className="shrink-0 rounded-full bg-blue-600 px-3 py-2 text-xs font-medium text-white transition-all hover:scale-105 hover:bg-blue-700 active:scale-95 sm:px-4 sm:text-sm"
                 onClick={() => {
                   const q = query.trim()
                   router.push(q ? `/tutors?subject=${encodeURIComponent(q)}` : '/tutors')
                 }}
               >
-                Search Tutors
+                <span className="sm:hidden">Search</span>
+                <span className="hidden sm:inline">Search Tutors</span>
               </button>
             </div>
           </motion.div>
 
           {/* Featured & Trending Header */}
-          <div className="mb-6 flex items-end justify-between">
+          <div className="mb-4 flex items-end justify-between md:mb-6">
             <div className="flex items-center gap-2">
               <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-                <Flame className="h-6 w-6 animate-pulse fill-blue-600 text-blue-600 dark:fill-blue-400 dark:text-blue-400" />
+                <Flame className="h-5 w-5 animate-pulse fill-blue-600 text-blue-600 md:h-6 md:w-6 dark:fill-blue-400 dark:text-blue-400" />
               </div>
-              <h2 className="text-2xl font-bold">Featured & Trending</h2>
+              <h2 className="text-xl font-bold md:text-2xl">Featured & Trending</h2>
             </div>
             <Link
               href="/tutors"
@@ -95,7 +94,7 @@ export default function Dashboard() {
 
           {/* Featured Cards Grid */}
           <motion.div
-            className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3"
+            className="mb-8 grid grid-cols-1 gap-4 sm:gap-6 md:mb-12 md:grid-cols-3"
             variants={container}
             initial="hidden"
             animate="show"
