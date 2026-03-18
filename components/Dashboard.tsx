@@ -1,12 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Flame, Play, Bot, Zap, Users } from 'lucide-react'
 import { motion } from 'framer-motion'
-
-import { ResearchFeed } from 'components/features/research/ResearchFeed'
 
 // Mock Data
 const container = {
@@ -197,13 +194,6 @@ export default function Dashboard() {
           </motion.div>
         </div>
       </section>
-
-      {/* Featured Research & Insights Section */}
-      <Suspense
-        fallback={<div className="py-12 text-center text-gray-500">Loading research feed...</div>}
-      >
-        <ResearchFeed />
-      </Suspense>
     </div>
   )
 }
