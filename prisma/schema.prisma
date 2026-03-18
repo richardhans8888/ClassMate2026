@@ -324,4 +324,22 @@ model PointTransaction {
   @@index([createdAt])
 }
 
+model FlaggedContent {
+  id          String   @id @default(cuid())
+  reporterId  String
+  contentType String
+  contentId   String
+  reason      String
+  status      String   @default("pending")
+  resolvedBy  String?
+  resolution  String?
+  createdAt   DateTime @default(now())
+  resolvedAt  DateTime?
+
+  @@index([reporterId])
+  @@index([contentType, contentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
 
