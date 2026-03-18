@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { sanitizeMarkdown } from '@/lib/sanitize'
 
 // GET /api/study-groups/[groupId]/messages
 export async function GET(req: NextRequest, context: { params: Promise<{ groupId: string }> }) {
@@ -31,6 +32,10 @@ export async function POST(req: NextRequest, context: { params: Promise<{ groupI
   if (!userId || !content)
     return NextResponse.json({ error: 'userId and content required' }, { status: 400 })
 
+  const sanitizedContent = sanitizeMarkdown(content)
+  if (!sanitizedContent)
+    return NextResponse.json({ error: 'content must contain valid text' }, { status: 400 })
+
   try {
     const member = await prisma.studyGroupMember.findFirst({
       where: { groupId, userId },
@@ -44,7 +49,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ groupI
         data: {
           senderId: userId,
           recipientId: userId,
-          content,
+          content: sanitizedContent,
           messageType: `group:${groupId}`,
           role: 'user',
         },

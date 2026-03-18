@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { sanitizeText, sanitizeMarkdown, containsXSSPatterns } from '@/lib/sanitize'
 
 interface ModerationResult {
   safe: boolean
@@ -109,8 +110,27 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const sanitizedTitle = sanitizeText(title)
+    const sanitizedContent = sanitizeMarkdown(content)
+    const sanitizedCategory = sanitizeText(category)
+
+    // Log suspicious payloads for monitoring while still allowing moderation to decide action.
+    if (containsXSSPatterns(String(title)) || containsXSSPatterns(String(content))) {
+      console.warn('XSS pattern detected in forum post submission', {
+        userId: user.id,
+        timestamp: new Date().toISOString(),
+      })
+    }
+
+    if (!sanitizedTitle || !sanitizedContent || !sanitizedCategory) {
+      return NextResponse.json(
+        { error: 'title, content, and category must contain valid text' },
+        { status: 400 }
+      )
+    }
+
     // Moderate the content
-    const moderationResult = await moderateContent(`${title}\n\n${content}`)
+    const moderationResult = await moderateContent(`${sanitizedTitle}\n\n${sanitizedContent}`)
 
     // Block if content is unsafe
     if (moderationResult.action === 'block') {
@@ -130,9 +150,9 @@ export async function POST(req: NextRequest) {
     // Create the post
     const post = await prisma.forumPost.create({
       data: {
-        title,
-        content,
-        category,
+        title: sanitizedTitle,
+        content: sanitizedContent,
+        category: sanitizedCategory,
         userId: user.id,
         tags: tags
           ? {

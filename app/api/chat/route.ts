@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { sanitizeMarkdown } from '@/lib/sanitize'
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
           },
           ...messages.map((m: { role: string; content: string }) => ({
             role: m.role === 'assistant' ? 'assistant' : 'user',
-            content: m.content,
+            content: sanitizeMarkdown(m.content),
           })),
         ],
       }),

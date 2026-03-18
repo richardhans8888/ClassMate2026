@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { sanitizeMarkdown } from '@/lib/sanitize'
 
 interface ModerationResult {
   safe: boolean
@@ -101,6 +102,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'postId and content are required' }, { status: 400 })
     }
 
+    const sanitizedContent = sanitizeMarkdown(content)
+    if (!sanitizedContent) {
+      return NextResponse.json({ error: 'content must contain valid text' }, { status: 400 })
+    }
+
     // Verify post exists
     const post = await prisma.forumPost.findUnique({ where: { id: postId } })
     if (!post) {
@@ -108,7 +114,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Moderate the content
-    const moderationResult = await moderateContent(content)
+    const moderationResult = await moderateContent(sanitizedContent)
 
     // Block if content is unsafe
     if (moderationResult.action === 'block') {
@@ -128,7 +134,7 @@ export async function POST(req: NextRequest) {
     // Create the reply
     const reply = await prisma.forumReply.create({
       data: {
-        content,
+        content: sanitizedContent,
         postId,
         userId: user.id,
       },
