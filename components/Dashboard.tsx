@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, Suspense } from 'react'
+import { Suspense } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowRight, Star, Flame, Search, Play, Check, Bot, Zap } from 'lucide-react'
+import { ArrowRight, Flame, Play, Bot, Zap, Users } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 import { ResearchFeed } from 'components/features/research/ResearchFeed'
@@ -25,7 +25,6 @@ const item = {
 }
 
 export default function Dashboard() {
-  const [query, setQuery] = useState('')
   const router = useRouter()
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#0F172A] dark:text-white">
@@ -38,41 +37,12 @@ export default function Dashboard() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl leading-tight font-bold text-transparent sm:text-3xl md:text-4xl lg:text-5xl dark:from-blue-400 dark:to-purple-400">
-              Find Your Perfect Academic Mentor
+              Your Academic Community Hub
             </h1>
             <p className="mb-8 max-w-2xl text-base leading-relaxed text-gray-600 md:text-lg dark:text-gray-400">
-              Connect with verified experts and AI-enhanced tutors for 1-on-1 sessions or join
-              collaborative group workshops.
+              Connect with fellow students, join study groups, share materials, and collaborate in
+              forums powered by AI moderation.
             </p>
-          </motion.div>
-
-          {/* Search Bar */}
-          <motion.div
-            className="relative mb-8 max-w-3xl md:mb-12"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-100 px-4 shadow-sm transition-all focus-within:ring-2 focus-within:ring-blue-500 hover:shadow-md dark:border-gray-700 dark:bg-[#1E293B]">
-              <Search className="h-5 w-5 shrink-0 text-gray-400" />
-              <input
-                type="text"
-                className="min-w-0 flex-1 bg-transparent py-4 text-sm text-gray-900 placeholder-gray-500 focus:outline-none sm:text-base dark:text-gray-200"
-                placeholder="Search by tutor name or subject..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <button
-                className="shrink-0 rounded-full bg-blue-600 px-3 py-2 text-xs font-medium text-white transition-all hover:scale-105 hover:bg-blue-700 active:scale-95 sm:px-4 sm:text-sm"
-                onClick={() => {
-                  const q = query.trim()
-                  router.push(q ? `/tutors?subject=${encodeURIComponent(q)}` : '/tutors')
-                }}
-              >
-                <span className="sm:hidden">Search</span>
-                <span className="hidden sm:inline">Search Tutors</span>
-              </button>
-            </div>
           </motion.div>
 
           {/* Featured & Trending Header */}
@@ -84,10 +54,10 @@ export default function Dashboard() {
               <h2 className="text-xl font-bold md:text-2xl">Featured & Trending</h2>
             </div>
             <Link
-              href="/tutors"
+              href="/groups"
               className="group flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
             >
-              View all
+              View all groups
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
@@ -99,13 +69,13 @@ export default function Dashboard() {
             initial="hidden"
             animate="show"
           >
-            {/* Workshop Card */}
+            {/* Forums Card */}
             <motion.div
               variants={item}
               className="group relative h-64 cursor-pointer overflow-hidden rounded-2xl shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
-              onClick={() => router.push('/learn/modules')}
+              onClick={() => router.push('/forums')}
               role="button"
-              aria-label="Open Workshops"
+              aria-label="Open Forums"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
 
@@ -115,7 +85,7 @@ export default function Dashboard() {
 
               <div className="absolute top-4 left-4">
                 <span className="rounded-full border border-white/10 bg-white/20 px-3 py-1 text-xs font-bold tracking-wider text-white uppercase backdrop-blur-md">
-                  Workshop
+                  Forums
                 </span>
               </div>
 
@@ -127,76 +97,76 @@ export default function Dashboard() {
 
               <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/60 to-transparent p-5">
                 <h3 className="mb-1 text-xl leading-tight font-bold text-white">
-                  Mastering Linear Algebra with AI
+                  Discussion Forums
                 </h3>
                 <div className="flex items-end justify-between">
                   <p className="flex items-center gap-1 text-sm text-gray-200">
                     <Zap className="h-3 w-3 fill-yellow-300 text-yellow-300" />
-                    Starts in 2 hours
+                    Ask questions & share knowledge
                   </p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Featured Tutor Card */}
+            {/* Study Groups Card */}
             <motion.div
               variants={item}
               className="group relative cursor-pointer rounded-2xl border border-gray-200 bg-white p-5 shadow-md transition-all hover:-translate-y-1 hover:border-blue-500 hover:shadow-lg dark:border-gray-800 dark:bg-[#1E293B] dark:hover:border-blue-500"
-              onClick={() => router.push('/tutors')}
+              onClick={() => router.push('/groups')}
               role="button"
-              aria-label="Open Tutor Profile"
+              aria-label="View Study Groups"
             >
               <div className="absolute top-5 right-5 flex flex-col items-end gap-1">
                 <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-100 px-2 py-1 dark:border-gray-700 dark:bg-[#0F172A]">
-                  <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                  <span className="text-xs font-bold text-gray-900 dark:text-white">5.0</span>
+                  <Users className="h-3 w-3 text-blue-500" />
+                  <span className="text-xs font-bold text-gray-900 dark:text-white">12</span>
                 </div>
                 <span className="text-[10px] font-medium text-blue-600 dark:text-blue-300">
-                  Top Rated
+                  Active Now
                 </span>
               </div>
 
               <div className="mb-3 flex items-start gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-lg font-bold text-white shadow-inner">
-                  AG
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-lg font-bold text-white shadow-inner">
+                  <Users className="h-6 w-6" />
                 </div>
                 <div>
                   <h3 className="flex items-center gap-1 text-lg font-bold text-gray-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                    Dr. Alan Grant
-                    <span className="rounded-full bg-blue-500 p-[2px]">
-                      <Check className="h-2 w-2 text-white" />
-                    </span>
+                    Study Groups
                   </h3>
-                  <p className="text-sm text-blue-600 dark:text-blue-400">Paleontology & Biology</p>
+                  <p className="text-sm text-blue-600 dark:text-blue-400">Collaborate & Learn</p>
                 </div>
               </div>
 
               <div className="mb-3 flex flex-wrap gap-2">
                 <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:border-gray-700 dark:bg-[#0F172A] dark:text-gray-300">
-                  Genetics
+                  Calculus
                 </span>
                 <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:border-gray-700 dark:bg-[#0F172A] dark:text-gray-300">
-                  Evolutionary Bio
+                  Physics
+                </span>
+                <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:border-gray-700 dark:bg-[#0F172A] dark:text-gray-300">
+                  Chemistry
                 </span>
               </div>
 
               <p className="mb-4 line-clamp-2 text-xs text-gray-600 dark:text-gray-400">
-                Specializing in complex biological systems. I use 3D modeling tools to explain
-                structures.
+                Join study groups to collaborate with peers, share notes, and prepare for exams
+                together.
               </p>
 
               <div className="mt-auto flex items-center justify-between">
-                <span className="text-lg font-bold text-gray-900 dark:text-white">
-                  $60<span className="text-sm font-normal text-gray-500">/hr</span>
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  5 groups available
                 </span>
                 <button
                   className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition-all hover:bg-blue-700 hover:shadow-md active:scale-95"
                   onClick={(e) => {
                     e.stopPropagation()
-                    router.push('/schedule')
+                    router.push('/groups')
                   }}
                 >
-                  Book Session
+                  Browse Groups
                 </button>
               </div>
             </motion.div>

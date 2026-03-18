@@ -21,28 +21,16 @@ enum UserRole {
   ADMIN
 }
 
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  COMPLETED
-  CANCELLED
-  RESCHEDULED
-}
-
 enum PointActionType {
   FORUM_POST_CREATED
   FORUM_REPLY_CREATED
   FORUM_UPVOTE_RECEIVED
-  TUTOR_SESSION_COMPLETED
   MATERIAL_UPLOADED
   STUDY_GROUP_CREATED
   STUDY_GROUP_JOINED
   STREAK_BONUS
   REVIEW_POSTED
   CHAT_STREAK
-  BOOKING_CREATED
-  BOOKING_SESSION_COMPLETED
-  TUTOR_SESSION_REWARDED
 }
 
 // USER & PROFILE MANAGEMENT
@@ -58,18 +46,15 @@ model User {
   level         Int      @default(1)
 
   profile              UserProfile?
-  tutor                Tutor?
   forumPosts           ForumPost[]
   forumReplies         ForumReply[]
   chatMessagesSent     ChatMessage[]      @relation("sender")
   chatMessagesReceived ChatMessage[]      @relation("recipient")
   chatSessions         ChatSession[]
   studyMaterials       StudyMaterial[]
-  bookingsAsStudent    Booking[]          @relation("student")
   studyGroupsOwned     StudyGroup[]       @relation("owner")
   studyGroupMembers    StudyGroupMember[]
   pointTransactions    PointTransaction[]
-  tutorReviewsGiven    TutorReview[]      @relation("reviewer")
   upvotedForumPosts    ForumPost[]        @relation("upvoters")
   upvotedReplies       ForumReply[]       @relation("upvoters")
   streakRecords        StreakRecord[]
@@ -146,50 +131,6 @@ model Verification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-}
-
-// TUTOR MANAGEMENT
-
-model Tutor {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  subjects    String[]
-  hourlyRate  Float
-  bio         String?
-  rating      Float   @default(0)
-  reviewCount Int     @default(0)
-  isAvailable Boolean @default(true)
-
-  reviews  TutorReview[]
-  bookings Booking[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([rating])
-  @@index([isAvailable])
-}
-
-model TutorReview {
-  id         String @id @default(cuid())
-  tutorId    String
-  tutor      Tutor  @relation(fields: [tutorId], references: [id], onDelete: Cascade)
-  reviewerId String
-  reviewer   User   @relation("reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
-
-  rating  Int
-  comment String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([tutorId, reviewerId])
-  @@index([tutorId])
-  @@index([reviewerId])
-  @@index([rating])
 }
 
 // FORUM & DISCUSSIONS
@@ -360,32 +301,6 @@ model StudyGroupMember {
   @@unique([groupId, userId])
   @@index([groupId])
   @@index([userId])
-}
-
-// TUTOR BOOKINGS
-
-model Booking {
-  id        String @id @default(cuid())
-  tutorId   String
-  tutor     Tutor  @relation(fields: [tutorId], references: [id], onDelete: Restrict)
-  studentId String
-  student   User   @relation("student", fields: [studentId], references: [id], onDelete: Cascade)
-
-  subject         String
-  scheduledAt     DateTime
-  durationMinutes Int
-  hourlyRate      Float @default(0)
-  totalPrice      Float @default(0)
-  status          BookingStatus @default(PENDING)
-  notes           String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tutorId])
-  @@index([studentId])
-  @@index([scheduledAt])
-  @@index([status])
 }
 
 // GAMIFICATION & POINTS

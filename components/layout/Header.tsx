@@ -105,25 +105,12 @@ export function Header({ onLogout }: HeaderProps) {
           >
             Home
           </Link>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="rounded px-2 py-1 text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                Learn
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem asChild>
-                <Link href="/tutors" className="cursor-pointer">
-                  Find your tutor
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/learn/modules" className="cursor-pointer">
-                  Your modules
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Link
+            href="/materials"
+            className="text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+          >
+            Materials
+          </Link>
           <Link
             href="/forums"
             className="text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
@@ -205,14 +192,6 @@ export function Header({ onLogout }: HeaderProps) {
                   )}
                   <span>{isLoggingOut ? 'Signing out...' : 'Sign Out'}</span>
                 </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/tutor-studio" className="cursor-pointer">
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    <span>Tutor Studio</span>
-                  </Link>
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -293,18 +272,11 @@ export function Header({ onLogout }: HeaderProps) {
                     Home
                   </Link>
                   <Link
-                    href="/tutors"
+                    href="/materials"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
                   >
-                    Find Tutor
-                  </Link>
-                  <Link
-                    href="/learn/modules"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
-                  >
-                    Your Modules
+                    Materials
                   </Link>
                   <Link
                     href="/forums"

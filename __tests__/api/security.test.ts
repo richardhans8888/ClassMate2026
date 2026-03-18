@@ -14,7 +14,6 @@ import { NextRequest } from 'next/server'
 import { PATCH } from '@/app/api/user/profile/route'
 import { POST as chatPOST } from '@/app/api/chat/route'
 import { POST as firebasePOST } from '@/app/api/auth/firebase/route'
-import { POST as bookingsPOST } from '@/app/api/bookings/route'
 import { prisma } from '@/lib/prisma'
 
 jest.mock('@/lib/prisma')
@@ -115,35 +114,16 @@ describe('authentication enforcement', () => {
 // ─── Authorization Enforcement ────────────────────────────────────────────────
 
 describe('authorization enforcement', () => {
-  it('returns 400 when POST /api/bookings is missing tutorId', async () => {
-    const req = new NextRequest('http://localhost/api/bookings', {
-      method: 'POST',
+  it('returns 400 when PATCH /api/user/profile is missing userId', async () => {
+    const req = new NextRequest('http://localhost/api/user/profile', {
+      method: 'PATCH',
       body: JSON.stringify({
-        studentId: 'user-1',
-        subject: 'Mathematics',
-        scheduledAt: '2026-04-01T10:00:00.000Z',
-        // tutorId intentionally omitted
+        displayName: 'New Name',
+        // userId intentionally omitted
       }),
       headers: { 'Content-Type': 'application/json' },
     })
-    const res = await bookingsPOST(req)
-    expect(res.status).toBe(400)
-    const body = await res.json()
-    expect(body).toHaveProperty('error')
-  })
-
-  it('returns 400 when POST /api/bookings is missing studentId', async () => {
-    const req = new NextRequest('http://localhost/api/bookings', {
-      method: 'POST',
-      body: JSON.stringify({
-        tutorId: 'tutor-1',
-        subject: 'Physics',
-        scheduledAt: '2026-04-01T10:00:00.000Z',
-        // studentId intentionally omitted
-      }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-    const res = await bookingsPOST(req)
+    const res = await PATCH(req)
     expect(res.status).toBe(400)
     const body = await res.json()
     expect(body).toHaveProperty('error')
