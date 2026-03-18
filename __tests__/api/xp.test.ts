@@ -14,7 +14,7 @@ describe('POST /api/user/xp', () => {
   it('returns 400 when userId is missing', async () => {
     const req = new NextRequest('http://localhost/api/user/xp', {
       method: 'POST',
-      body: JSON.stringify({ amount: 50, actionType: 'BOOKING_CREATED' }),
+      body: JSON.stringify({ amount: 50, actionType: 'STUDY_GROUP_CREATED' }),
       headers: { 'Content-Type': 'application/json' },
     })
     const res = await POST(req)
@@ -26,7 +26,7 @@ describe('POST /api/user/xp', () => {
   it('returns 400 when amount is missing', async () => {
     const req = new NextRequest('http://localhost/api/user/xp', {
       method: 'POST',
-      body: JSON.stringify({ userId: 'user-1', actionType: 'BOOKING_CREATED' }),
+      body: JSON.stringify({ userId: 'user-1', actionType: 'STUDY_GROUP_CREATED' }),
       headers: { 'Content-Type': 'application/json' },
     })
     const res = await POST(req)
@@ -70,7 +70,7 @@ describe('POST /api/user/xp', () => {
       body: JSON.stringify({
         userId: 'user-1',
         amount: 50,
-        actionType: 'BOOKING_CREATED',
+        actionType: 'STUDY_GROUP_CREATED',
         description: 'Booking reward',
       }),
       headers: { 'Content-Type': 'application/json' },

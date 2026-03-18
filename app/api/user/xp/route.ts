@@ -15,14 +15,6 @@ export async function POST(req: NextRequest) {
         data: { xp: { increment: amount } },
       })
 
-      const newLevel = Math.floor(user.xp / 500) + 1
-      if (newLevel !== user.level) {
-        await tx.user.update({
-          where: { id: userId },
-          data: { level: newLevel },
-        })
-      }
-
       await tx.pointTransaction.create({
         data: {
           userId,
@@ -39,7 +31,7 @@ export async function POST(req: NextRequest) {
       success: true,
       profile: {
         xp: updatedUser.xp,
-        level: Math.floor(updatedUser.xp / 500) + 1,
+        level: updatedUser.level,
       },
     })
   } catch (err) {

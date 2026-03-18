@@ -60,7 +60,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ groupI
       await tx.pointTransaction.create({
         data: {
           userId,
-          actionType: 'CHAT_STREAK',
+          actionType: 'STUDY_GROUP_MESSAGE_SENT',
           points: 5,
           description: 'Sent a message in study group',
         },

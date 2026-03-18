@@ -1,19 +1,18 @@
-import Link from "next/link";
+import Link from 'next/link'
 
 export function Footer() {
   return (
-    <footer className="bg-white dark:bg-[#0F172A] border-t dark:border-gray-800 py-8 mt-auto">
+    <footer className="mt-auto border-t bg-white py-8 dark:border-gray-800 dark:bg-[#0F172A]">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
-            <h3 className="text-lg font-bold text-blue-600 mb-4">ClassMate</h3>
+            <h3 className="mb-4 text-lg font-bold text-blue-600">ClassMate</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Connecting students to learn together, share knowledge, and
-              succeed.
+              Connecting students to learn together, share knowledge, and succeed.
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Platform</h4>
+            <h4 className="mb-4 font-semibold">Platform</h4>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li>
                 <Link href="/forums" className="hover:text-blue-600">
@@ -21,14 +20,14 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/tutors" className="hover:text-blue-600">
-                  Find Tutors
+                <Link href="/groups" className="hover:text-blue-600">
+                  Study Groups
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Support</h4>
+            <h4 className="mb-4 font-semibold">Support</h4>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li>
                 <Link href="/help" className="hover:text-blue-600">
@@ -48,7 +47,7 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Legal</h4>
+            <h4 className="mb-4 font-semibold">Legal</h4>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li>
                 <Link href="/privacy" className="hover:text-blue-600">
@@ -63,10 +62,10 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t dark:border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-8 border-t pt-8 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
           © {new Date().getFullYear()} ClassMate. All rights reserved.
         </div>
       </div>
     </footer>
-  );
+  )
 }

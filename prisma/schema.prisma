@@ -28,9 +28,8 @@ enum PointActionType {
   MATERIAL_UPLOADED
   STUDY_GROUP_CREATED
   STUDY_GROUP_JOINED
-  STREAK_BONUS
   REVIEW_POSTED
-  CHAT_STREAK
+  STUDY_GROUP_MESSAGE_SENT
 }
 
 // USER & PROFILE MANAGEMENT
@@ -57,7 +56,6 @@ model User {
   pointTransactions    PointTransaction[]
   upvotedForumPosts    ForumPost[]        @relation("upvoters")
   upvotedReplies       ForumReply[]       @relation("upvoters")
-  streakRecords        StreakRecord[]
   sessions             Session[]
   accounts             Account[]
 
@@ -326,18 +324,4 @@ model PointTransaction {
   @@index([createdAt])
 }
 
-model StreakRecord {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  streakDate DateTime @db.Date
-  isBroken   Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([userId, streakDate])
-  @@index([userId])
-  @@index([streakDate])
-}
 
