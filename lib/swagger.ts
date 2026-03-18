@@ -2,349 +2,371 @@ export const swaggerSpec = {
   openapi: '3.0.3',
   info: {
     title: 'ClassMate2026 API',
-    version: '1.0.0',
-    description:
-      'ClassMate2026 REST API. Phase 1 covers 10 routes (23 operations). ' +
-      '6 deferred routes are documented in docs/swagger-openapi-prd.md Section 4.2.',
+    version: '1.0.1',
+    description: 'ClassMate2026 REST API - Student Community Platform. ',
   },
-  servers: [
-    { url: 'http://localhost:3000', description: 'Local development' },
-    { url: 'https://classmate2026.vercel.app', description: 'Production' },
-  ],
+  servers: [{ url: 'http://localhost:3000', description: 'Local development' }],
   tags: [
-    { name: 'bookings', description: 'Booking management' },
-    { name: 'tutors', description: 'Tutor discovery and registration' },
-    { name: 'reviews', description: 'Tutor reviews' },
-    { name: 'study-groups', description: 'Study group management' },
+    { name: 'forums', description: 'Forum posts and replies with AI moderation' },
+    { name: 'study-groups', description: 'Study group management and messaging' },
+    { name: 'ai', description: 'AI features: chat, moderation, summarization' },
     { name: 'sessions', description: 'AI tutor chat sessions' },
-    { name: 'user', description: 'User profile and XP' },
+    { name: 'user', description: 'User profile and XP management' },
   ],
-  // Authentication is handled by Firebase client-side; no OpenAPI security scheme applies.
   security: [],
   paths: {
-    '/api/bookings': {
+    // ==================== FORUMS ====================
+    '/api/forums/posts': {
       get: {
-        tags: ['bookings'],
-        summary: 'List bookings for a user',
+        tags: ['forums'],
+        summary: 'List forum posts',
         description:
-          'Returns bookings for the given user. When role=tutor, if no tutor profile exists for the user, returns { bookings: [] } with 200 (not a 404).',
+          'Returns all forum posts, optionally filtered by category. Posts are ordered by creation date descending.',
         parameters: [
           {
-            name: 'userId',
+            name: 'category',
+            in: 'query',
+            required: false,
+            description: 'Filter posts by category (e.g., math, cs, physics)',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Array of forum posts',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/ForumPost' },
+                },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['forums'],
+        summary: 'Create a forum post',
+        description:
+          'Creates a new forum post. Content is automatically moderated using AI. ' +
+          'Posts with toxic or spam content may be blocked or flagged with warnings.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['title', 'content', 'category'],
+                properties: {
+                  title: { type: 'string', description: 'Post title' },
+                  content: { type: 'string', description: 'Post content (markdown supported)' },
+                  category: { type: 'string', description: 'Category (e.g., math, cs, physics)' },
+                  tags: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Optional tags for the post',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Post created successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  oneOf: [
+                    { $ref: '#/components/schemas/ForumPost' },
+                    {
+                      type: 'object',
+                      properties: {
+                        post: { $ref: '#/components/schemas/ForumPost' },
+                        warning: { $ref: '#/components/schemas/ModerationWarning' },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Validation error or content blocked by moderation',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    error: { type: 'string' },
+                    moderation: { $ref: '#/components/schemas/ModerationBlock' },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            description: 'Unauthorized - user not authenticated',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/forums/replies': {
+      get: {
+        tags: ['forums'],
+        summary: 'List replies for a post',
+        description:
+          'Returns all replies for a specific forum post, ordered by creation date ascending.',
+        parameters: [
+          {
+            name: 'postId',
             in: 'query',
             required: true,
-            description: 'ID of the requesting user',
+            description: 'ID of the forum post',
             schema: { type: 'string' },
-          },
-          {
-            name: 'role',
-            in: 'query',
-            required: false,
-            description: "Filter bookings by the user's role in the booking. Defaults to student.",
-            schema: { type: 'string', enum: ['student', 'tutor'] },
           },
         ],
         responses: {
-          200: {
-            description: 'Bookings retrieved successfully',
+          '200': {
+            description: 'Array of forum replies',
             content: {
               'application/json': {
                 schema: {
-                  type: 'object',
-                  properties: {
-                    bookings: {
-                      type: 'array',
-                      items: { $ref: '#/components/schemas/Booking' },
-                    },
-                  },
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/ForumReply' },
                 },
               },
             },
           },
-          400: {
-            description: 'Missing required query parameter',
+          '400': {
+            description: 'Missing postId parameter',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                schema: { $ref: '#/components/schemas/Error' },
               },
             },
           },
         },
       },
       post: {
-        tags: ['bookings'],
-        summary: 'Create a booking',
-        description: 'Awards 50 XP to the student.',
+        tags: ['forums'],
+        summary: 'Create a reply to a post',
+        description:
+          'Creates a new reply on a forum post. Content is automatically moderated using AI. ' +
+          'Increments the reply count on the parent post.',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['tutorId', 'studentId', 'subject', 'scheduledAt'],
+                required: ['postId', 'content'],
                 properties: {
-                  tutorId: { type: 'string' },
-                  studentId: { type: 'string' },
-                  subject: { type: 'string' },
-                  scheduledAt: {
-                    type: 'string',
-                    format: 'date-time',
-                    description: 'ISO 8601 date-time string',
-                  },
-                  durationMinutes: { type: 'number', description: 'Defaults to 60' },
-                  notes: { type: 'string' },
+                  postId: { type: 'string', description: 'ID of the post to reply to' },
+                  content: { type: 'string', description: 'Reply content' },
                 },
               },
             },
           },
         },
         responses: {
-          200: {
-            description: 'Booking created successfully',
+          '201': {
+            description: 'Reply created successfully',
             content: {
               'application/json': {
                 schema: {
-                  type: 'object',
-                  properties: {
-                    booking: { $ref: '#/components/schemas/Booking' },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: 'Missing required fields',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-        },
-      },
-      patch: {
-        tags: ['bookings'],
-        summary: 'Update booking status',
-        description:
-          'When status becomes "completed": awards 100 XP to the student and 75 XP to the tutor (if userId is provided).',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['bookingId', 'status'],
-                properties: {
-                  bookingId: { type: 'string' },
-                  status: {
-                    type: 'string',
-                    enum: ['pending', 'confirmed', 'completed', 'cancelled'],
-                  },
-                  userId: {
-                    type: 'string',
-                    description:
-                      "Tutor's user ID. Required when status=completed to award tutor XP.",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: 'Booking updated successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    booking: { $ref: '#/components/schemas/Booking' },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: 'Missing required fields',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-        },
-      },
-    },
-
-    '/api/tutors': {
-      get: {
-        tags: ['tutors'],
-        summary: 'List tutors',
-        description:
-          'All parameters are optional filters. Results are ordered by rating descending.',
-        parameters: [
-          {
-            name: 'subject',
-            in: 'query',
-            required: false,
-            description: 'Filter to tutors who teach this subject',
-            schema: { type: 'string' },
-          },
-          {
-            name: 'search',
-            in: 'query',
-            required: false,
-            description: 'Case-insensitive name filter applied after the database query',
-            schema: { type: 'string' },
-          },
-          {
-            name: 'available',
-            in: 'query',
-            required: false,
-            description: 'Pass "true" to filter to available tutors only (is_available = true)',
-            schema: { type: 'string' },
-          },
-        ],
-        responses: {
-          200: {
-            description: 'Tutors retrieved successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    tutors: {
-                      type: 'array',
-                      items: { $ref: '#/components/schemas/Tutor' },
+                  oneOf: [
+                    { $ref: '#/components/schemas/ForumReply' },
+                    {
+                      type: 'object',
+                      properties: {
+                        reply: { $ref: '#/components/schemas/ForumReply' },
+                        warning: { $ref: '#/components/schemas/ModerationWarning' },
+                      },
                     },
-                  },
+                  ],
                 },
               },
             },
           },
-          500: {
-            description: 'Internal server error',
+          '400': {
+            description: 'Validation error or content blocked by moderation',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                schema: { $ref: '#/components/schemas/Error' },
               },
             },
           },
+          '401': { description: 'Unauthorized' },
+          '404': { description: 'Post not found' },
         },
       },
+    },
+
+    // ==================== AI FEATURES ====================
+    '/api/moderation': {
       post: {
-        tags: ['tutors'],
-        summary: 'Register or update a tutor profile',
+        tags: ['ai'],
+        summary: 'Moderate content using AI',
         description:
-          'Upserts the tutor record. If the user already has a tutor record it is updated; otherwise a new record is created and the user\'s role in user_profiles is set to "tutor".',
+          'Analyzes content for toxicity, spam, and inappropriate material using Groq AI. ' +
+          'Returns moderation scores and recommended action (approve, warn, or block).',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['userId', 'subjects'],
+                required: ['content'],
                 properties: {
-                  userId: { type: 'string' },
-                  subjects: { type: 'array', items: { type: 'string' } },
-                  hourlyRate: { type: 'number' },
-                  bio: { type: 'string' },
-                  availability: { type: 'object', description: 'Free-form availability schedule' },
+                  content: { type: 'string', description: 'Content to analyze' },
                 },
               },
             },
           },
         },
         responses: {
-          200: {
-            description: 'Tutor profile upserted successfully',
+          '200': {
+            description: 'Moderation result',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ModerationResult' },
+              },
+            },
+          },
+          '400': {
+            description: 'Missing content',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '500': { description: 'AI service error' },
+        },
+      },
+    },
+
+    '/api/summarize': {
+      post: {
+        tags: ['ai'],
+        summary: 'Summarize a discussion thread',
+        description:
+          'Generates a concise 2-3 sentence summary of a discussion thread using Groq AI. ' +
+          'Useful for quickly understanding long forum threads.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['thread'],
+                properties: {
+                  thread: { type: 'string', description: 'Thread content to summarize' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Summary result',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    tutor: { $ref: '#/components/schemas/Tutor' },
+                    summary: { type: 'string', description: '2-3 sentence summary' },
                   },
                 },
               },
             },
           },
-          400: {
-            description: 'Missing required fields',
+          '400': {
+            description: 'Missing thread content',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                schema: { $ref: '#/components/schemas/Error' },
               },
             },
           },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '401': { description: 'Unauthorized' },
+          '500': { description: 'AI service error' },
         },
       },
     },
 
+    '/api/chat': {
+      post: {
+        tags: ['ai'],
+        summary: 'AI tutor chat (streaming)',
+        description:
+          'Sends messages to the AI tutor and receives streaming responses. ' +
+          'Uses Groq LLaMA 3.3 70B model for intelligent tutoring assistance.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['messages'],
+                properties: {
+                  messages: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        role: { type: 'string', enum: ['user', 'assistant'] },
+                        content: { type: 'string' },
+                      },
+                    },
+                    description: 'Conversation history',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Streaming response (text/event-stream)',
+            content: {
+              'text/event-stream': {
+                schema: { type: 'string' },
+              },
+            },
+          },
+          '400': { description: 'Invalid messages format' },
+          '500': { description: 'AI service error' },
+        },
+      },
+    },
+
+    // ==================== STUDY GROUPS ====================
     '/api/study-groups': {
       get: {
         tags: ['study-groups'],
         summary: 'List study groups',
-        description:
-          'Returns public groups by default. When myGroups=true, returns all groups the user belongs to including private ones they are a member of.',
-        parameters: [
-          {
-            name: 'subject',
-            in: 'query',
-            required: false,
-            description: 'Exact-match filter on subject',
-            schema: { type: 'string' },
-          },
-          {
-            name: 'userId',
-            in: 'query',
-            required: false,
-            description: 'Required when myGroups=true',
-            schema: { type: 'string' },
-          },
-          {
-            name: 'myGroups',
-            in: 'query',
-            required: false,
-            description: 'Pass "true" to return only groups the requesting user belongs to',
-            schema: { type: 'string' },
-          },
-        ],
+        description: 'Returns all public study groups or groups the user is a member of.',
         responses: {
-          200: {
-            description: 'Study groups retrieved successfully',
+          '200': {
+            description: 'Array of study groups',
             content: {
               'application/json': {
                 schema: {
@@ -359,127 +381,60 @@ export const swaggerSpec = {
               },
             },
           },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
         },
       },
       post: {
         tags: ['study-groups'],
         summary: 'Create a study group',
-        description:
-          'Auto-adds the owner as a member with role "owner". Awards 30 XP to the owner.',
+        description: 'Creates a new study group. Awards XP to the creator.',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['name', 'subject', 'ownerId'],
+                required: ['name', 'subject'],
                 properties: {
                   name: { type: 'string' },
-                  subject: { type: 'string' },
-                  ownerId: { type: 'string' },
                   description: { type: 'string' },
-                  maxMembers: { type: 'number', description: 'Defaults to 10' },
-                  isPrivate: {
-                    type: 'boolean',
-                    description:
-                      'When true, the group requires an invite code to join. Defaults to false.',
-                  },
+                  subject: { type: 'string' },
+                  maxMembers: { type: 'integer' },
+                  isPrivate: { type: 'boolean', default: false },
                 },
               },
             },
           },
         },
         responses: {
-          200: {
-            description: 'Study group created successfully',
+          '201': {
+            description: 'Group created',
             content: {
               'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    group: { $ref: '#/components/schemas/StudyGroup' },
-                  },
-                },
+                schema: { $ref: '#/components/schemas/StudyGroup' },
               },
             },
           },
-          400: {
-            description: 'Missing required fields',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '400': { description: 'Validation error' },
+          '401': { description: 'Unauthorized' },
         },
       },
       delete: {
         tags: ['study-groups'],
         summary: 'Delete a study group',
-        description:
-          'Only succeeds if the requesting user is the group owner (enforced by owner_id = userId check in the database query).',
+        description: 'Deletes a study group. Only the owner can delete.',
         parameters: [
           {
             name: 'groupId',
             in: 'query',
             required: true,
-            description: 'UUID of the study group',
-            schema: { type: 'string' },
-          },
-          {
-            name: 'userId',
-            in: 'query',
-            required: true,
-            description: 'Must be the group owner',
             schema: { type: 'string' },
           },
         ],
         responses: {
-          200: {
-            description: 'Study group deleted successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean', example: true },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: 'Missing required query parameters',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '200': { description: 'Group deleted' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Not the group owner' },
+          '404': { description: 'Group not found' },
         },
       },
     },
@@ -488,133 +443,38 @@ export const swaggerSpec = {
       post: {
         tags: ['study-groups'],
         summary: 'Join a study group',
-        description:
-          'Handles both public and private (invite-code-gated) groups. Awards 20 XP to the joining user. Notifies the group owner.',
+        description: 'Adds the current user as a member. Awards XP for joining.',
         parameters: [
           {
             name: 'groupId',
             in: 'path',
             required: true,
-            description: 'UUID of the study group',
             schema: { type: 'string' },
           },
         ],
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['userId'],
-                properties: {
-                  userId: { type: 'string' },
-                  inviteCode: {
-                    type: 'string',
-                    description: 'Required only if the group is private',
-                  },
-                },
-              },
-            },
-          },
-        },
         responses: {
-          200: {
-            description: 'Joined successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean', example: true },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description:
-              'Bad request — (1) missing userId ("userId required"); (2) already a member ("Already a member"); (3) group at capacity ("Group is full")',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          403: {
-            description: 'Invalid invite code',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          404: {
-            description: 'Group not found',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '200': { description: 'Successfully joined' },
+          '400': { description: 'Already a member or group full' },
+          '401': { description: 'Unauthorized' },
+          '404': { description: 'Group not found' },
         },
       },
       delete: {
         tags: ['study-groups'],
         summary: 'Leave a study group',
+        description: 'Removes the current user from the group.',
         parameters: [
           {
             name: 'groupId',
             in: 'path',
             required: true,
-            description: 'UUID of the study group',
-            schema: { type: 'string' },
-          },
-          {
-            name: 'userId',
-            in: 'query',
-            required: true,
-            description: 'UUID of the user leaving the group',
             schema: { type: 'string' },
           },
         ],
         responses: {
-          200: {
-            description: 'Left successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean', example: true },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: 'Missing required query parameter',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '200': { description: 'Successfully left' },
+          '400': { description: 'Not a member or is owner' },
+          '401': { description: 'Unauthorized' },
         },
       },
     },
@@ -623,20 +483,18 @@ export const swaggerSpec = {
       get: {
         tags: ['study-groups'],
         summary: 'Get group messages',
-        description:
-          "Returns the most recent 100 messages ordered by created_at ascending. Each message includes the sender's display_name and avatar_url via a nested user_profiles join.",
+        description: 'Returns the message history for a study group.',
         parameters: [
           {
             name: 'groupId',
             in: 'path',
             required: true,
-            description: 'UUID of the study group',
             schema: { type: 'string' },
           },
         ],
         responses: {
-          200: {
-            description: 'Messages retrieved successfully',
+          '200': {
+            description: 'Array of messages',
             content: {
               'application/json': {
                 schema: {
@@ -644,33 +502,26 @@ export const swaggerSpec = {
                   properties: {
                     messages: {
                       type: 'array',
-                      items: { $ref: '#/components/schemas/StudyGroupMessage' },
+                      items: { $ref: '#/components/schemas/GroupMessage' },
                     },
                   },
                 },
               },
             },
           },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Not a group member' },
         },
       },
       post: {
         tags: ['study-groups'],
         summary: 'Send a group message',
-        description: 'Membership is verified before insertion. Awards 5 XP to the sender.',
+        description: 'Posts a message to the study group. Awards XP for participation.',
         parameters: [
           {
             name: 'groupId',
             in: 'path',
             required: true,
-            description: 'UUID of the study group',
             schema: { type: 'string' },
           },
         ],
@@ -680,9 +531,8 @@ export const swaggerSpec = {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['userId', 'content'],
+                required: ['content'],
                 properties: {
-                  userId: { type: 'string' },
                   content: { type: 'string' },
                 },
               },
@@ -690,172 +540,29 @@ export const swaggerSpec = {
           },
         },
         responses: {
-          200: {
-            description: 'Message sent successfully',
+          '201': {
+            description: 'Message sent',
             content: {
               'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    message: { $ref: '#/components/schemas/StudyGroupMessage' },
-                  },
-                },
+                schema: { $ref: '#/components/schemas/GroupMessage' },
               },
             },
           },
-          400: {
-            description: 'Missing required fields',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          403: {
-            description: 'You are not a member of this group',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Not a group member' },
         },
       },
     },
 
-    '/api/tutors/reviews': {
-      get: {
-        tags: ['reviews'],
-        summary: 'Get reviews for a tutor',
-        description: 'Returns all reviews ordered by created_at descending.',
-        parameters: [
-          {
-            name: 'tutorId',
-            in: 'query',
-            required: true,
-            description: 'ID of the tutor',
-            schema: { type: 'string' },
-          },
-        ],
-        responses: {
-          200: {
-            description: 'Reviews retrieved successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    reviews: {
-                      type: 'array',
-                      items: { $ref: '#/components/schemas/TutorReview' },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: 'Missing required query parameter',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-        },
-      },
-      post: {
-        tags: ['reviews'],
-        summary: 'Submit a tutor review',
-        description:
-          'One review per student per tutor is enforced. Awards 25 XP to the student. ' +
-          '400 errors: (1) missing fields — "tutorId, studentId, rating required"; (2) duplicate review — "You have already reviewed this tutor".',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['tutorId', 'studentId', 'rating'],
-                properties: {
-                  tutorId: { type: 'string' },
-                  studentId: { type: 'string' },
-                  rating: { type: 'number', description: 'Numeric rating 1–5' },
-                  comment: { type: 'string' },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: 'Review submitted successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    review: { $ref: '#/components/schemas/TutorReview' },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description:
-              'Bad request — missing required fields ("tutorId, studentId, rating required") or duplicate review ("You have already reviewed this tutor")',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-        },
-      },
-    },
-
+    // ==================== SESSIONS ====================
     '/api/sessions': {
       get: {
         tags: ['sessions'],
-        summary: 'List AI chat sessions for a user',
-        description:
-          'Returns up to 20 sessions ordered by updated_at descending. Each session includes a message count via a nested chat_messages aggregate.',
-        parameters: [
-          {
-            name: 'userId',
-            in: 'query',
-            required: true,
-            description: 'UUID of the user',
-            schema: { type: 'string' },
-          },
-        ],
+        summary: 'List AI chat sessions',
+        description: 'Returns all chat sessions for the authenticated user.',
         responses: {
-          200: {
-            description: 'Sessions retrieved successfully',
+          '200': {
+            description: 'Array of sessions',
             content: {
               'application/json': {
                 schema: {
@@ -870,117 +577,56 @@ export const swaggerSpec = {
               },
             },
           },
-          400: {
-            description: 'Missing required query parameter',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '401': { description: 'Unauthorized' },
         },
       },
       post: {
         tags: ['sessions'],
-        summary: 'Create a new AI chat session',
+        summary: 'Create a chat session',
+        description: 'Creates a new AI tutor chat session.',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['userId'],
                 properties: {
-                  userId: { type: 'string' },
-                  title: { type: 'string', description: 'Defaults to "New Session"' },
-                  subject: { type: 'string', description: 'Defaults to "General"' },
+                  title: { type: 'string', default: 'Chat Session' },
+                  subject: { type: 'string', default: 'General' },
+                  description: { type: 'string' },
                 },
               },
             },
           },
         },
         responses: {
-          200: {
-            description: 'Session created successfully',
+          '201': {
+            description: 'Session created',
             content: {
               'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    session: { $ref: '#/components/schemas/ChatSession' },
-                  },
-                },
+                schema: { $ref: '#/components/schemas/ChatSession' },
               },
             },
           },
-          400: {
-            description: 'Missing required fields',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '401': { description: 'Unauthorized' },
         },
       },
       delete: {
         tags: ['sessions'],
-        summary: 'Delete a session and its messages',
-        description: 'Deletes the session record and all associated chat messages.',
+        summary: 'Delete a chat session',
+        description: 'Deletes a chat session and all its messages.',
         parameters: [
           {
             name: 'sessionId',
             in: 'query',
             required: true,
-            description: 'UUID of the session to delete',
-            schema: { type: 'string' },
-          },
-          {
-            name: 'userId',
-            in: 'query',
-            required: true,
-            description: 'UUID of the session owner',
             schema: { type: 'string' },
           },
         ],
         responses: {
-          200: {
-            description: 'Session deleted successfully',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean', example: true },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: 'Missing required query parameters',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '200': { description: 'Session deleted' },
+          '401': { description: 'Unauthorized' },
+          '404': { description: 'Session not found' },
         },
       },
     },
@@ -988,28 +634,19 @@ export const swaggerSpec = {
     '/api/sessions/{sessionId}/messages': {
       get: {
         tags: ['sessions'],
-        summary: 'Get messages for a session',
-        description:
-          'Returns all messages in chronological order. Ownership is verified: the session must belong to the requesting user. Returns 404 if the session does not exist or belongs to a different user.',
+        summary: 'Get session messages',
+        description: 'Returns all messages in a chat session.',
         parameters: [
           {
             name: 'sessionId',
             in: 'path',
             required: true,
-            description: 'UUID of the chat session',
-            schema: { type: 'string' },
-          },
-          {
-            name: 'userId',
-            in: 'query',
-            required: true,
-            description: 'UUID of the session owner',
             schema: { type: 'string' },
           },
         ],
         responses: {
-          200: {
-            description: 'Messages retrieved successfully',
+          '200': {
+            description: 'Array of messages',
             content: {
               'application/json': {
                 schema: {
@@ -1024,133 +661,133 @@ export const swaggerSpec = {
               },
             },
           },
-          400: {
-            description: 'Missing required query parameter',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          404: {
-            description:
-              'Session not found — returned both when the session does not exist and when it belongs to a different user (PRD AC19)',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '401': { description: 'Unauthorized' },
+          '404': { description: 'Session not found' },
         },
       },
     },
 
+    // ==================== USER ====================
     '/api/user/profile': {
       get: {
         tags: ['user'],
-        summary: 'Get a user profile',
+        summary: 'Get user profile',
         description:
-          'Augments the raw database record with three computed XP progress fields: xpProgress (xp % 500), xpForNextLevel (always 500), and progressPercent (integer percentage toward next level).',
-        parameters: [
-          {
-            name: 'userId',
-            in: 'query',
-            required: true,
-            description: 'UUID of the user',
-            schema: { type: 'string' },
-          },
-        ],
+          'Returns the profile for the authenticated user, including XP and level progress.',
         responses: {
-          200: {
-            description: 'Profile retrieved successfully',
+          '200': {
+            description: 'User profile with XP progress',
             content: {
               'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    profile: { $ref: '#/components/schemas/UserProfile' },
-                  },
-                },
+                schema: { $ref: '#/components/schemas/UserProfile' },
               },
             },
           },
-          400: {
-            description: 'Missing required query parameter',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
+          '401': { description: 'Unauthorized' },
         },
       },
       patch: {
         tags: ['user'],
-        summary: 'Update a user profile',
-        description:
-          'Only the following fields are updated: display_name, bio, university, major, avatar_url. Any other fields in the request body are silently ignored by an allow-list filter in the route handler.',
+        summary: 'Update user profile',
+        description: 'Updates profile fields for the authenticated user.',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['userId'],
                 properties: {
-                  userId: { type: 'string' },
-                  display_name: { type: 'string', description: 'Allow-listed field' },
-                  bio: { type: 'string', description: 'Allow-listed field' },
-                  university: { type: 'string', description: 'Allow-listed field' },
-                  major: { type: 'string', description: 'Allow-listed field' },
-                  avatar_url: { type: 'string', description: 'Allow-listed field' },
+                  displayName: { type: 'string' },
+                  bio: { type: 'string' },
+                  avatarUrl: { type: 'string' },
+                  university: { type: 'string' },
+                  major: { type: 'string' },
                 },
               },
             },
           },
         },
         responses: {
-          200: {
-            description: 'Profile updated successfully',
+          '200': {
+            description: 'Profile updated',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/UserProfile' },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+        },
+      },
+    },
+
+    '/api/user/xp': {
+      post: {
+        tags: ['user'],
+        summary: 'Award XP to user',
+        description: 'Awards XP points to the authenticated user for a specific action.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['actionType', 'points'],
+                properties: {
+                  actionType: {
+                    type: 'string',
+                    enum: [
+                      'FORUM_POST_CREATED',
+                      'FORUM_REPLY_CREATED',
+                      'FORUM_UPVOTE_RECEIVED',
+                      'MATERIAL_UPLOADED',
+                      'STUDY_GROUP_CREATED',
+                      'STUDY_GROUP_JOINED',
+                      'STUDY_GROUP_MESSAGE_SENT',
+                      'REVIEW_POSTED',
+                    ],
+                  },
+                  points: { type: 'integer', minimum: 1 },
+                  description: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'XP awarded',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    profile: { $ref: '#/components/schemas/UserProfile' },
+                    xp: { type: 'integer', description: 'New total XP' },
+                    level: { type: 'integer', description: 'Current level' },
+                    transaction: { $ref: '#/components/schemas/PointTransaction' },
                   },
                 },
               },
             },
           },
-          400: {
-            description: 'Missing required fields',
+          '400': { description: 'Invalid action type or points' },
+          '401': { description: 'Unauthorized' },
+        },
+      },
+    },
+
+    // ==================== DOCS ====================
+    '/api/docs': {
+      get: {
+        tags: ['docs'],
+        summary: 'OpenAPI specification',
+        description: 'Returns the OpenAPI JSON specification for this API.',
+        responses: {
+          '200': {
+            description: 'OpenAPI spec',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
-              },
-            },
-          },
-          500: {
-            description: 'Internal server error',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                schema: { type: 'object' },
               },
             },
           },
@@ -1158,234 +795,246 @@ export const swaggerSpec = {
       },
     },
   },
+
   components: {
     schemas: {
-      ErrorResponse: {
+      Error: {
         type: 'object',
-        required: ['error'],
         properties: {
           error: { type: 'string' },
         },
       },
 
-      UserProfileBasic: {
+      // Forum Schemas
+      ForumPost: {
         type: 'object',
-        required: ['display_name'],
         properties: {
-          display_name: { type: 'string' },
-          avatar_url: { type: 'string', nullable: true },
+          id: { type: 'string' },
+          userId: { type: 'string' },
+          title: { type: 'string' },
+          content: { type: 'string' },
+          category: { type: 'string' },
+          upvotes: { type: 'integer', default: 0 },
+          views: { type: 'integer', default: 0 },
+          isAnswered: { type: 'boolean', default: false },
+          repliesCount: { type: 'integer', default: 0 },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+          user: { $ref: '#/components/schemas/UserSummary' },
+          tags: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/ForumTag' },
+          },
         },
       },
 
-      UserProfile: {
+      ForumReply: {
         type: 'object',
-        required: [
-          'id',
-          'display_name',
-          'role',
-          'xp',
-          'level',
-          'xpProgress',
-          'xpForNextLevel',
-          'progressPercent',
-        ],
         properties: {
           id: { type: 'string' },
-          display_name: { type: 'string' },
-          role: { type: 'string' },
-          xp: { type: 'number' },
-          level: { type: 'number' },
-          xpProgress: {
-            type: 'number',
-            description: 'Computed field — XP earned within the current level (not stored in DB)',
-          },
-          xpForNextLevel: {
-            type: 'number',
-            description:
-              'Computed field — total XP required to reach the next level (not stored in DB)',
-          },
-          progressPercent: {
-            type: 'number',
-            description:
-              'Computed field — percentage progress toward the next level (not stored in DB)',
-          },
-          bio: { type: 'string', nullable: true },
-          university: { type: 'string', nullable: true },
-          major: { type: 'string', nullable: true },
-          avatar_url: { type: 'string', nullable: true },
+          postId: { type: 'string' },
+          userId: { type: 'string' },
+          content: { type: 'string' },
+          upvotes: { type: 'integer', default: 0 },
+          isAccepted: { type: 'boolean', default: false },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+          user: { $ref: '#/components/schemas/UserSummary' },
         },
       },
 
-      Tutor: {
+      ForumTag: {
         type: 'object',
-        required: ['id', 'user_id', 'subjects', 'is_available', 'created_at'],
         properties: {
           id: { type: 'string' },
-          user_id: { type: 'string' },
-          subjects: {
+          name: { type: 'string' },
+        },
+      },
+
+      // Moderation Schemas
+      ModerationResult: {
+        type: 'object',
+        properties: {
+          safe: { type: 'boolean', description: 'Whether content is safe' },
+          toxicity_score: { type: 'integer', minimum: 0, maximum: 100 },
+          spam_score: { type: 'integer', minimum: 0, maximum: 100 },
+          categories: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Detected categories (harassment, hate_speech, spam, etc.)',
+          },
+          action: {
+            type: 'string',
+            enum: ['approve', 'warn', 'block'],
+            description: 'Recommended action',
+          },
+          reason: { type: 'string', description: 'Explanation of the decision' },
+        },
+      },
+
+      ModerationWarning: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          reason: { type: 'string' },
+          categories: {
             type: 'array',
             items: { type: 'string' },
           },
-          is_available: { type: 'boolean' },
-          created_at: { type: 'string', format: 'date-time' },
-          hourly_rate: { type: 'number', nullable: true },
+        },
+      },
+
+      ModerationBlock: {
+        type: 'object',
+        properties: {
+          action: { type: 'string', enum: ['block'] },
+          reason: { type: 'string' },
+          categories: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+        },
+      },
+
+      // Study Group Schemas
+      StudyGroup: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          ownerId: { type: 'string' },
+          name: { type: 'string' },
+          description: { type: 'string', nullable: true },
+          subject: { type: 'string' },
+          maxMembers: { type: 'integer', nullable: true },
+          isPrivate: { type: 'boolean', default: false },
+          inviteCode: { type: 'string', nullable: true },
+          memberCount: { type: 'integer', default: 1 },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+          owner: { $ref: '#/components/schemas/UserSummary' },
+          members: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/StudyGroupMember' },
+          },
+        },
+      },
+
+      StudyGroupMember: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          groupId: { type: 'string' },
+          userId: { type: 'string' },
+          role: { type: 'string', default: 'member' },
+          joinedAt: { type: 'string', format: 'date-time' },
+          user: { $ref: '#/components/schemas/UserSummary' },
+        },
+      },
+
+      GroupMessage: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          groupId: { type: 'string' },
+          userId: { type: 'string' },
+          content: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+          user: { $ref: '#/components/schemas/UserSummary' },
+        },
+      },
+
+      // Chat/Session Schemas
+      ChatSession: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          userId: { type: 'string' },
+          title: { type: 'string', default: 'Chat Session' },
+          subject: { type: 'string', default: 'General' },
+          description: { type: 'string', nullable: true },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+        },
+      },
+
+      ChatMessage: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          sessionId: { type: 'string' },
+          senderId: { type: 'string' },
+          content: { type: 'string' },
+          role: { type: 'string', enum: ['user', 'assistant'] },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+      },
+
+      // User Schemas
+      UserProfile: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          userId: { type: 'string' },
+          displayName: { type: 'string', nullable: true },
           bio: { type: 'string', nullable: true },
-          availability: { type: 'object', nullable: true },
-          rating: { type: 'number', nullable: true },
-          user_profiles: {
+          avatarUrl: { type: 'string', nullable: true },
+          university: { type: 'string', nullable: true },
+          major: { type: 'string', nullable: true },
+          reputation: { type: 'integer', default: 0 },
+          xp: { type: 'integer', description: 'Total XP from user record' },
+          level: { type: 'integer', description: 'Current level' },
+          xpProgress: {
             type: 'object',
             properties: {
-              display_name: { type: 'string' },
-              avatar_url: { type: 'string', nullable: true },
-              university: { type: 'string', nullable: true },
+              current: { type: 'integer' },
+              required: { type: 'integer' },
+              percentage: { type: 'number' },
+            },
+          },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+        },
+      },
+
+      UserSummary: {
+        type: 'object',
+        description: 'Minimal user info for embedding in other objects',
+        properties: {
+          id: { type: 'string' },
+          email: { type: 'string' },
+          profile: {
+            type: 'object',
+            properties: {
+              displayName: { type: 'string', nullable: true },
               major: { type: 'string', nullable: true },
             },
           },
         },
       },
 
-      TutorReview: {
+      PointTransaction: {
         type: 'object',
-        required: ['id', 'tutor_id', 'student_id', 'rating', 'created_at'],
         properties: {
           id: { type: 'string' },
-          tutor_id: { type: 'string' },
-          student_id: { type: 'string' },
-          rating: { type: 'number' },
-          created_at: { type: 'string', format: 'date-time' },
-          comment: { type: 'string', nullable: true },
-          user_profiles: {
-            type: 'object',
-            properties: {
-              display_name: { type: 'string' },
-              avatar_url: { type: 'string', nullable: true },
-            },
-          },
-        },
-      },
-
-      Booking: {
-        type: 'object',
-        required: [
-          'id',
-          'tutor_id',
-          'student_id',
-          'subject',
-          'scheduled_at',
-          'duration_minutes',
-          'status',
-          'created_at',
-        ],
-        properties: {
-          id: { type: 'string' },
-          tutor_id: { type: 'string' },
-          student_id: { type: 'string' },
-          subject: { type: 'string' },
-          scheduled_at: { type: 'string', format: 'date-time' },
-          duration_minutes: { type: 'number' },
-          status: {
+          userId: { type: 'string' },
+          actionType: {
             type: 'string',
-            enum: ['pending', 'confirmed', 'completed', 'cancelled'],
+            enum: [
+              'FORUM_POST_CREATED',
+              'FORUM_REPLY_CREATED',
+              'FORUM_UPVOTE_RECEIVED',
+              'MATERIAL_UPLOADED',
+              'STUDY_GROUP_CREATED',
+              'STUDY_GROUP_JOINED',
+              'STUDY_GROUP_MESSAGE_SENT',
+              'REVIEW_POSTED',
+            ],
           },
-          created_at: { type: 'string', format: 'date-time' },
-          notes: { type: 'string', nullable: true },
-          tutors: {
-            type: 'object',
-            description: 'Joined tutor record — present on GET responses',
-            allOf: [{ $ref: '#/components/schemas/Tutor' }],
-          },
-          student: {
-            type: 'object',
-            description: 'Joined student profile — present on GET responses',
-            allOf: [{ $ref: '#/components/schemas/UserProfileBasic' }],
-          },
-        },
-      },
-
-      StudyGroup: {
-        type: 'object',
-        required: ['id', 'name', 'subject', 'owner_id', 'max_members', 'is_private', 'created_at'],
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          subject: { type: 'string' },
-          owner_id: { type: 'string' },
-          max_members: { type: 'number' },
-          is_private: { type: 'boolean' },
-          created_at: { type: 'string', format: 'date-time' },
+          points: { type: 'integer' },
           description: { type: 'string', nullable: true },
-          invite_code: { type: 'string', nullable: true },
-          owner: {
-            type: 'object',
-            allOf: [{ $ref: '#/components/schemas/UserProfileBasic' }],
-          },
-          study_group_members: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                count: { type: 'number' },
-              },
-            },
-          },
-        },
-      },
-
-      StudyGroupMessage: {
-        type: 'object',
-        required: ['id', 'group_id', 'user_id', 'content', 'created_at'],
-        properties: {
-          id: { type: 'string' },
-          group_id: { type: 'string' },
-          user_id: { type: 'string' },
-          content: { type: 'string' },
-          created_at: { type: 'string', format: 'date-time' },
-          user_profiles: {
-            type: 'object',
-            properties: {
-              display_name: { type: 'string' },
-              avatar_url: { type: 'string', nullable: true },
-            },
-          },
-        },
-      },
-
-      ChatSession: {
-        type: 'object',
-        required: ['id', 'user_id', 'title', 'subject', 'created_at', 'updated_at'],
-        properties: {
-          id: { type: 'string' },
-          user_id: { type: 'string' },
-          title: { type: 'string' },
-          subject: { type: 'string' },
-          created_at: { type: 'string', format: 'date-time' },
-          updated_at: { type: 'string', format: 'date-time' },
-          chat_messages: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                count: { type: 'number' },
-              },
-            },
-          },
-        },
-      },
-
-      ChatMessage: {
-        type: 'object',
-        required: ['id', 'role', 'content', 'created_at'],
-        properties: {
-          id: { type: 'string' },
-          role: {
-            type: 'string',
-            enum: ['user', 'assistant'],
-          },
-          content: { type: 'string' },
-          created_at: { type: 'string', format: 'date-time' },
+          createdAt: { type: 'string', format: 'date-time' },
         },
       },
     },
-    parameters: {},
   },
 }
