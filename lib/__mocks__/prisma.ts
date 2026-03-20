@@ -28,6 +28,7 @@ export const prisma = {
   forumPost: modelMethods(),
   forumReply: modelMethods(),
   studyMaterial: modelMethods(),
+  event: modelMethods(),
   flaggedContent: modelMethods(),
   $transaction: jest.fn(),
   $connect: jest.fn(),

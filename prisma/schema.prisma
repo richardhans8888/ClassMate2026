@@ -58,6 +58,7 @@ model User {
   upvotedReplies       ForumReply[]       @relation("upvoters")
   sessions             Session[]
   accounts             Account[]
+  events               Event[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -339,6 +340,26 @@ model FlaggedContent {
   @@index([reporterId])
   @@index([contentType, contentId])
   @@index([status])
+  @@index([createdAt])
+}
+
+model Event {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  date        DateTime
+  startTime   String?
+  endTime     String?
+  category    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([date])
   @@index([createdAt])
 }
 
