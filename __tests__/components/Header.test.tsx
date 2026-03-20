@@ -61,7 +61,7 @@ describe('Header component', () => {
 
     // Main navigation items — appear in both desktop nav and mobile drawer
     expect(screen.getAllByRole('link', { name: /home/i })[0]).toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: /study room/i })[0]).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /forums/i })[0]).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /chat/i })[0]).toBeInTheDocument()
   })
 
