@@ -10,6 +10,7 @@ export const swaggerSpec = {
     { name: 'forums', description: 'Forum posts and replies with AI moderation' },
     { name: 'study-groups', description: 'Study group management and messaging' },
     { name: 'ai', description: 'AI features: chat, moderation, summarization' },
+    { name: 'messages', description: 'Direct user-to-user messaging' },
     { name: 'sessions', description: 'AI tutor chat sessions' },
     { name: 'user', description: 'User profile and XP management' },
   ],
@@ -667,6 +668,185 @@ export const swaggerSpec = {
       },
     },
 
+    // ==================== DIRECT MESSAGES ====================
+    '/api/messages/conversations': {
+      get: {
+        tags: ['messages'],
+        summary: 'List direct-message conversations',
+        description:
+          'Returns conversation summaries for the authenticated user, including participant info, last message preview, and unread count.',
+        responses: {
+          '200': {
+            description: 'Conversation list',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    conversations: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/ConversationSummary' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/messages/conversations/{userId}': {
+      get: {
+        tags: ['messages'],
+        summary: 'Get direct-message thread',
+        description:
+          'Returns paginated direct messages between authenticated user and target participant.',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            description: 'Page size (default 50, max 100)',
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+          {
+            name: 'cursor',
+            in: 'query',
+            required: false,
+            description: 'ISO timestamp cursor for older messages',
+            schema: { type: 'string', format: 'date-time' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Thread and participant metadata',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    participant: { $ref: '#/components/schemas/DirectMessageParticipant' },
+                    messages: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/DirectMessage' },
+                    },
+                    pagination: {
+                      type: 'object',
+                      properties: {
+                        limit: { type: 'integer' },
+                        nextCursor: { type: 'string', format: 'date-time', nullable: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Invalid userId or cursor value' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Target user not found' },
+        },
+      },
+      post: {
+        tags: ['messages'],
+        summary: 'Send a direct message',
+        description: 'Creates a new direct message to the target user.',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['content'],
+                properties: {
+                  content: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Message created',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { $ref: '#/components/schemas/DirectMessage' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Missing/invalid content' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Target user not found' },
+        },
+      },
+    },
+
+    '/api/messages/conversations/{userId}/read': {
+      post: {
+        tags: ['messages'],
+        summary: 'Mark direct messages as read',
+        description:
+          'Marks unread incoming messages from target user as read for the authenticated user.',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Updated read state',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    updatedCount: { type: 'integer' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Invalid userId' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Target user not found' },
+        },
+      },
+    },
+
     // ==================== USER ====================
     '/api/user/profile': {
       get: {
@@ -966,6 +1146,46 @@ export const swaggerSpec = {
           content: { type: 'string' },
           role: { type: 'string', enum: ['user', 'assistant'] },
           createdAt: { type: 'string', format: 'date-time' },
+        },
+      },
+
+      DirectMessageParticipant: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          email: { type: 'string' },
+          displayName: { type: 'string', nullable: true },
+          avatarUrl: { type: 'string', nullable: true },
+        },
+      },
+
+      DirectMessage: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          senderId: { type: 'string' },
+          recipientId: { type: 'string' },
+          content: { type: 'string' },
+          isRead: { type: 'boolean' },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+      },
+
+      ConversationSummary: {
+        type: 'object',
+        properties: {
+          userId: { type: 'string' },
+          participant: { $ref: '#/components/schemas/DirectMessageParticipant' },
+          lastMessage: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              content: { type: 'string' },
+              createdAt: { type: 'string', format: 'date-time' },
+              senderId: { type: 'string' },
+            },
+          },
+          unreadCount: { type: 'integer' },
         },
       },
 
