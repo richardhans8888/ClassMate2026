@@ -28,6 +28,13 @@ interface ForumPost {
   }
 }
 
+interface RecommendedThread {
+  id: string
+  title: string
+  category: string
+  reason: string
+}
+
 interface ForumListProps {
   initialCategory?: string
 }
@@ -61,6 +68,9 @@ function formatDate(dateString: string): string {
 
 export function ForumList({ initialCategory = 'all' }: ForumListProps) {
   const [posts, setPosts] = useState<ForumPost[]>([])
+  const [recommendations, setRecommendations] = useState<RecommendedThread[]>([])
+  const [recommendationsLoading, setRecommendationsLoading] = useState(true)
+  const [recommendationsError, setRecommendationsError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [category, setCategory] = useState(initialCategory)
@@ -94,6 +104,33 @@ export function ForumList({ initialCategory = 'all' }: ForumListProps) {
 
     fetchPosts()
   }, [category])
+
+  useEffect(() => {
+    async function fetchRecommendations() {
+      setRecommendationsLoading(true)
+      setRecommendationsError(null)
+      try {
+        const response = await fetch('/api/recommendations/threads')
+        const data = (await response.json()) as {
+          recommendations?: RecommendedThread[]
+          error?: string
+        }
+
+        if (!response.ok) {
+          throw new Error(data.error ?? 'Failed to load recommendations')
+        }
+
+        setRecommendations(data.recommendations ?? [])
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to load recommendations'
+        setRecommendationsError(message)
+      } finally {
+        setRecommendationsLoading(false)
+      }
+    }
+
+    fetchRecommendations()
+  }, [])
 
   const filteredPosts = posts.filter((post) => {
     if (!searchQuery) return true
@@ -150,6 +187,44 @@ export function ForumList({ initialCategory = 'all' }: ForumListProps) {
             {cat.label}
           </button>
         ))}
+      </div>
+
+      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Recommended Threads</h3>
+        {recommendationsLoading && (
+          <div className="mt-3 flex items-center text-sm text-gray-500 dark:text-gray-400">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading recommendations...
+          </div>
+        )}
+
+        {!recommendationsLoading && recommendationsError && (
+          <p className="mt-3 text-sm text-red-600 dark:text-red-400">{recommendationsError}</p>
+        )}
+
+        {!recommendationsLoading && !recommendationsError && recommendations.length === 0 && (
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            No recommendations yet. Start posting to personalize this list.
+          </p>
+        )}
+
+        {!recommendationsLoading && !recommendationsError && recommendations.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {recommendations.slice(0, 5).map((recommendation) => (
+              <Link
+                key={recommendation.id}
+                href={`/forums/${recommendation.id}`}
+                className="block rounded-lg border border-gray-200 px-3 py-2 transition-colors hover:border-blue-500 dark:border-gray-700"
+              >
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {recommendation.title}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {recommendation.category} • {recommendation.reason}
+                </p>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Loading State */}
