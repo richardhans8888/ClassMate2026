@@ -135,40 +135,55 @@ export default function ChatConversationPage({ params }: { params: { userId: str
   }, [messages])
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-white dark:bg-gray-900">
       {/* Chat Header */}
-      <div className="z-10 flex items-center justify-between border-b bg-white p-4">
+      <div className="z-10 flex items-center justify-between border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
         <div className="flex items-center gap-3">
           <Link href="/chat" className="md:hidden">
             <Button variant="ghost" size="icon" className="rounded-lg">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
             {participantInitial}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">{participantName}</h3>
-            <span className="text-xs text-gray-500">Direct messages</span>
+            <h3 className="font-semibold text-gray-900 dark:text-white">{participantName}</h3>
+            <span className="text-xs text-gray-500 dark:text-gray-400">Direct messages</span>
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="rounded-lg text-gray-500">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-lg text-gray-500 dark:text-gray-400"
+          >
             <Phone className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="rounded-lg text-gray-500">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-lg text-gray-500 dark:text-gray-400"
+          >
             <Video className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="rounded-lg text-gray-500">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-lg text-gray-500 dark:text-gray-400"
+          >
             <MoreVertical className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
       {/* Chat Messages */}
-      <div ref={messagesContainerRef} className="flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4">
+      <div
+        ref={messagesContainerRef}
+        className="flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4 dark:bg-gray-800"
+      >
         {loading && (
-          <div className="flex h-full items-center justify-center text-gray-500">
+          <div className="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             Loading messages...
           </div>
@@ -181,7 +196,7 @@ export default function ChatConversationPage({ params }: { params: { userId: str
         )}
 
         {!loading && !error && messages.length === 0 && (
-          <div className="flex h-full items-center justify-center text-sm text-gray-500">
+          <div className="flex h-full items-center justify-center text-sm text-gray-500 dark:text-gray-400">
             No messages yet. Start the conversation.
           </div>
         )}
@@ -195,13 +210,13 @@ export default function ChatConversationPage({ params }: { params: { userId: str
                   className={`max-w-[70%] rounded-2xl px-4 py-2 shadow-sm ${
                     isMe
                       ? 'rounded-br-none bg-blue-600 text-white'
-                      : 'rounded-bl-none border border-gray-100 bg-white text-gray-800'
+                      : 'rounded-bl-none border border-gray-200 bg-white text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200'
                   }`}
                 >
                   <p className="text-sm break-words whitespace-pre-wrap">{msg.content}</p>
                   <p
                     className={`mt-1 text-right text-[10px] ${
-                      isMe ? 'text-blue-100' : 'text-gray-400'
+                      isMe ? 'text-blue-100' : 'text-gray-400 dark:text-gray-500'
                     }`}
                   >
                     {formatMessageTime(msg.createdAt)}
@@ -213,7 +228,7 @@ export default function ChatConversationPage({ params }: { params: { userId: str
       </div>
 
       {/* Chat Input */}
-      <div className="border-t bg-white p-4">
+      <div className="border-t border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <input
@@ -227,7 +242,7 @@ export default function ChatConversationPage({ params }: { params: { userId: str
                   void handleSendMessage()
                 }
               }}
-              className="w-full rounded-full border border-transparent bg-gray-50 py-3 pr-10 pl-4 text-sm transition-colors focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded-full border border-transparent bg-gray-50 py-3 pr-10 pl-4 text-sm text-gray-900 transition-colors focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-gray-900"
             />
           </div>
           <Button

@@ -11,14 +11,13 @@ export interface NavigationItem {
 
 export const navigationItems: NavigationItem[] = [
   { href: '/', label: 'Home', group: 'core' },
-  { href: '/forums', label: 'Study Rooms', group: 'core' },
+  { href: '/forums', label: 'Forums', group: 'core' },
   { href: '/materials', label: 'Materials', group: 'core' },
   { href: '/chat', label: 'Chat', group: 'core' },
   { href: '/groups', label: 'Study Groups', group: 'core' },
 
   { href: '/schedule', label: 'Schedule', group: 'more' },
   { href: '/ai-tutor', label: 'Learn with AI', group: 'more' },
-  { href: '/dashboard', label: 'Dashboard', group: 'more' },
   { href: '/premium', label: 'Premium', group: 'more' },
   { href: '/purchases', label: 'Purchases', group: 'more' },
   { href: '/help', label: 'Help', group: 'more' },

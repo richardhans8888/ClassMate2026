@@ -119,8 +119,10 @@ export default function MaterialsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 flex flex-col items-center justify-between gap-4 md:flex-row">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Study Materials</h1>
-          <p className="mt-1 text-gray-600">Share and discover resources to boost your learning.</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Study Materials</h1>
+          <p className="mt-1 text-gray-600 dark:text-gray-400">
+            Share and discover resources to boost your learning.
+          </p>
         </div>
         <Link href="/materials/upload">
           <Button className="rounded-lg bg-blue-600 text-white hover:bg-blue-700">
@@ -133,13 +135,13 @@ export default function MaterialsPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
         {/* Sidebar Filters */}
         <div className="space-y-6 lg:col-span-1">
-          <div className="rounded-xl border bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div className="relative mb-4">
               <Search className="absolute top-2.5 left-3 h-4 w-4 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search resources..."
-                className="w-full rounded-lg border py-2 pr-4 pl-9 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-white py-2 pr-4 pl-9 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
@@ -147,7 +149,7 @@ export default function MaterialsPage() {
 
             <div className="space-y-4">
               <div>
-                <h3 className="mb-3 flex items-center font-semibold text-gray-900">
+                <h3 className="mb-3 flex items-center font-semibold text-gray-900 dark:text-white">
                   <Filter className="mr-2 h-4 w-4" />
                   Subject
                 </h3>
@@ -164,7 +166,7 @@ export default function MaterialsPage() {
                       />
                       <label
                         htmlFor={`subject-${subject}`}
-                        className="cursor-pointer text-sm text-gray-700 select-none"
+                        className="cursor-pointer text-sm text-gray-700 select-none dark:text-gray-300"
                       >
                         {subject}
                       </label>
@@ -174,7 +176,7 @@ export default function MaterialsPage() {
               </div>
 
               <div>
-                <h3 className="mb-3 font-semibold text-gray-900">File Type</h3>
+                <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">File Type</h3>
                 <div className="space-y-2">
                   {['All Types', ...dynamicTypes].map((type) => (
                     <div key={type} className="flex items-center space-x-2">
@@ -188,7 +190,7 @@ export default function MaterialsPage() {
                       />
                       <label
                         htmlFor={`type-${type}`}
-                        className="cursor-pointer text-sm text-gray-700 select-none"
+                        className="cursor-pointer text-sm text-gray-700 select-none dark:text-gray-300"
                       >
                         {type}
                       </label>
@@ -225,13 +227,16 @@ export default function MaterialsPage() {
 
         {/* Materials Grid */}
         <div className="lg:col-span-3">
-          <div className="mb-6 flex items-center justify-between rounded-lg border bg-white p-4 shadow-sm">
-            <div className="text-sm text-gray-500">
-              Showing <span className="font-medium text-gray-900">{filteredMaterials.length}</span>{' '}
+          <div className="mb-6 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              Showing{' '}
+              <span className="font-medium text-gray-900 dark:text-white">
+                {filteredMaterials.length}
+              </span>{' '}
               resources
             </div>
             <select
-              className="rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+              className="rounded-md border-gray-300 bg-white text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
               value={sortBy}
               onChange={(event) => setSortBy(event.target.value as SortOption)}
             >
@@ -244,7 +249,7 @@ export default function MaterialsPage() {
           </div>
 
           {loading && (
-            <div className="rounded-lg border bg-white p-6 text-sm text-gray-600">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
               Loading materials...
             </div>
           )}
@@ -256,7 +261,7 @@ export default function MaterialsPage() {
           )}
 
           {!loading && !error && filteredMaterials.length === 0 && (
-            <div className="rounded-lg border bg-white p-6 text-sm text-gray-600">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
               No materials found for the current filters.
             </div>
           )}

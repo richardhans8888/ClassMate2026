@@ -231,7 +231,7 @@ export function ForumList({ initialCategory = 'all' }: ForumListProps) {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <span className="ml-3 text-gray-500">Loading discussions...</span>
+          <span className="ml-3 text-gray-500 dark:text-gray-400">Loading discussions...</span>
         </div>
       )}
 
@@ -257,7 +257,7 @@ export function ForumList({ initialCategory = 'all' }: ForumListProps) {
           <p className="mt-4 text-lg font-medium text-gray-700 dark:text-gray-300">
             {searchQuery ? 'No discussions match your search' : 'No discussions yet'}
           </p>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {searchQuery ? 'Try a different search term' : 'Be the first to start a discussion!'}
           </p>
           {!searchQuery && (

@@ -25,12 +25,12 @@ export function MaterialCard({
   onDownload,
 }: MaterialCardProps) {
   return (
-    <div className="flex h-full flex-col rounded-xl border bg-white p-6 transition-shadow hover:shadow-md">
+    <div className="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
       <div className="mb-4 flex items-start justify-between">
-        <div className="rounded-lg bg-blue-100 p-3 text-blue-600">
+        <div className="rounded-lg bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
           <FileText className="h-6 w-6" />
         </div>
-        <div className="flex items-center rounded bg-yellow-50 px-2 py-1 text-xs font-bold text-yellow-700">
+        <div className="flex items-center rounded bg-yellow-50 px-2 py-1 text-xs font-bold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
           <Star className="mr-1 h-3 w-3 fill-current" />
           {rating}
         </div>
@@ -38,21 +38,21 @@ export function MaterialCard({
 
       <div className="mb-4 flex-1">
         <div className="mb-2 flex items-center gap-2">
-          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold tracking-wide text-gray-600 uppercase">
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold tracking-wide text-gray-600 uppercase dark:bg-gray-700 dark:text-gray-300">
             {type}
           </span>
-          <span className="text-xs text-gray-400">• {subject}</span>
+          <span className="text-xs text-gray-400 dark:text-gray-500">• {subject}</span>
         </div>
-        <h3 className="mb-1 line-clamp-2 font-bold text-gray-900" title={title}>
+        <h3 className="mb-1 line-clamp-2 font-bold text-gray-900 dark:text-white" title={title}>
           {title}
         </h3>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
           By {author} • {uploadedAt}
         </p>
       </div>
 
-      <div className="mt-auto border-t pt-4">
-        <div className="mb-3 flex items-center justify-between text-sm text-gray-500">
+      <div className="mt-auto border-t border-gray-200 pt-4 dark:border-gray-700">
+        <div className="mb-3 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <span>{downloads} downloads</span>
         </div>
         <Button

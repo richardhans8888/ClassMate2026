@@ -61,6 +61,20 @@ describe('Chat pages integration', () => {
     expect(await screen.findByText('Unable to load conversations.')).toBeInTheDocument()
   })
 
+  it('keeps dark-mode classes on chat list shell', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ conversations: [] }),
+    })
+
+    const { container } = render(<ChatPage />)
+
+    await screen.findByText('No conversations yet.')
+
+    expect(container.firstChild).toHaveClass('h-full')
+    expect(container.innerHTML).toContain('dark:bg-gray-900')
+  })
+
   it('sends a message and renders it in the thread', async () => {
     ;(global.fetch as jest.Mock)
       .mockResolvedValueOnce({
@@ -108,5 +122,32 @@ describe('Chat pages integration', () => {
         expect.objectContaining({ method: 'POST' })
       )
     })
+  })
+
+  it('keeps dark-mode classes on conversation thread shell', async () => {
+    ;(global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          participant: {
+            id: 'user-2',
+            email: 'bob@example.com',
+            displayName: 'Bob',
+            avatarUrl: null,
+          },
+          messages: [],
+          pagination: { limit: 50, nextCursor: null },
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ updatedCount: 0 }),
+      })
+
+    const { container } = render(<ChatConversationPage params={{ userId: 'user-2' }} />)
+
+    await screen.findByText('Bob')
+    expect(container.innerHTML).toContain('dark:bg-gray-900')
+    expect(container.innerHTML).toContain('dark:bg-gray-800')
   })
 })

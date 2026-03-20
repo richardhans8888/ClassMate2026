@@ -65,14 +65,17 @@ export function ReplyForm({ postId, onReplyCreated }: ReplyFormProps) {
 
   return (
     <div className="mb-8">
-      <h3 className="mb-4 text-lg font-bold text-gray-900">Post a Reply</h3>
-      <form onSubmit={handleSubmit} className="rounded-xl border bg-white p-6 shadow-sm">
+      <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">Post a Reply</h3>
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      >
         <textarea
           rows={4}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="What are your thoughts? Add to the discussion..."
-          className="mb-4 w-full rounded-lg border px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="mb-4 w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500"
           disabled={loading}
         />
         <div className="flex justify-end">
