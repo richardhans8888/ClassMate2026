@@ -10,11 +10,14 @@ export const swaggerSpec = {
     { name: 'forums', description: 'Forum posts and replies with AI moderation' },
     { name: 'events', description: 'User event scheduling and persistence' },
     { name: 'recommendations', description: 'Personalized forum thread recommendations' },
+    { name: 'materials', description: 'Study materials upload, listing, and download tracking' },
+    { name: 'moderation', description: 'Moderation flagging and admin resolution workflows' },
     { name: 'study-groups', description: 'Study group management and messaging' },
     { name: 'ai', description: 'AI features: chat, moderation, summarization' },
     { name: 'messages', description: 'Direct user-to-user messaging' },
     { name: 'sessions', description: 'AI tutor chat sessions' },
     { name: 'user', description: 'User profile and XP management' },
+    { name: 'docs', description: 'API documentation and specification endpoints' },
   ],
   security: [],
   paths: {
@@ -217,6 +220,234 @@ export const swaggerSpec = {
           },
           '401': { description: 'Unauthorized' },
           '404': { description: 'Post not found' },
+        },
+      },
+    },
+
+    '/api/forums/posts/{id}': {
+      get: {
+        tags: ['forums'],
+        summary: 'Get forum post detail',
+        description: 'Returns a single forum post by id and increments its view count.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Forum post detail',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ForumPost' },
+              },
+            },
+          },
+          '404': { description: 'Post not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+      delete: {
+        tags: ['forums'],
+        summary: 'Delete forum post',
+        description: 'Deletes a forum post. Only owner or admin can delete.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Post deleted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Post not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/forums/replies/{id}': {
+      delete: {
+        tags: ['forums'],
+        summary: 'Delete forum reply',
+        description: 'Deletes a forum reply. Only owner or admin can delete.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Reply deleted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Reply not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    // ==================== MATERIALS ====================
+    '/api/materials': {
+      get: {
+        tags: ['materials'],
+        summary: 'List study materials',
+        description: 'Returns study materials with optional subject/user filters and sorting.',
+        parameters: [
+          {
+            name: 'subject',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+          },
+          {
+            name: 'userId',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+          },
+          {
+            name: 'sortBy',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', enum: ['createdAt', 'downloads', 'rating'] },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Materials fetched successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    materials: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/StudyMaterial' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['materials'],
+        summary: 'Upload material metadata',
+        description:
+          'Creates a study material record with validation, sanitization, and XP awarding for authenticated users.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['title', 'fileUrl', 'subject', 'fileType'],
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string', nullable: true },
+                  fileUrl: { type: 'string' },
+                  subject: { type: 'string' },
+                  fileType: { type: 'string' },
+                  fileSize: { type: 'number', nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Material created',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    material: { $ref: '#/components/schemas/StudyMaterial' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Validation error' },
+          '401': { description: 'Unauthorized' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/materials/{id}/download': {
+      post: {
+        tags: ['materials'],
+        summary: 'Track material download',
+        description: 'Increments download count and returns material download URL.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Download tracked',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    downloadUrl: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '404': { description: 'Material not found' },
+          '500': { description: 'Internal server error' },
         },
       },
     },
@@ -586,6 +817,133 @@ export const swaggerSpec = {
               },
             },
           },
+        },
+      },
+    },
+
+    // ==================== MODERATION WORKFLOW ====================
+    '/api/moderation/flag': {
+      post: {
+        tags: ['moderation'],
+        summary: 'Flag content for moderation',
+        description: 'Allows authenticated users to flag posts, replies, or materials for review.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['contentType', 'contentId', 'reason'],
+                properties: {
+                  contentType: { type: 'string', enum: ['post', 'reply', 'material'] },
+                  contentId: { type: 'string' },
+                  reason: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Content flagged',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    flag: { $ref: '#/components/schemas/FlaggedContent' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Validation error' },
+          '401': { description: 'Unauthorized' },
+          '404': { description: 'Content not found' },
+          '409': { description: 'Already flagged by user' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/moderation/flagged': {
+      get: {
+        tags: ['moderation'],
+        summary: 'List flagged content (admin)',
+        description: 'Returns flagged content queue for moderation admin review.',
+        parameters: [
+          {
+            name: 'status',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', enum: ['pending', 'resolved', 'dismissed'] },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Flags fetched',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    flags: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/FlaggedContent' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/moderation/resolve': {
+      post: {
+        tags: ['moderation'],
+        summary: 'Resolve moderation flag (admin)',
+        description: 'Allows admin to dismiss, remove, or warn on a flagged content record.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['flagId', 'action'],
+                properties: {
+                  flagId: { type: 'string' },
+                  action: { type: 'string', enum: ['dismiss', 'remove', 'warn'] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Flag resolved',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    flag: { $ref: '#/components/schemas/FlaggedContent' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Validation error' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Flag not found' },
+          '409': { description: 'Flag already resolved' },
+          '500': { description: 'Internal server error' },
         },
       },
     },
@@ -1260,6 +1618,25 @@ export const swaggerSpec = {
           id: { type: 'string' },
           name: { type: 'string' },
         },
+
+        StudyMaterial: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            userId: { type: 'string' },
+            title: { type: 'string' },
+            description: { type: 'string', nullable: true },
+            fileUrl: { type: 'string' },
+            subject: { type: 'string' },
+            fileType: { type: 'string' },
+            downloads: { type: 'integer' },
+            rating: { type: 'number' },
+            reviewCount: { type: 'integer' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+            user: { $ref: '#/components/schemas/UserSummary' },
+          },
+        },
       },
 
       Event: {
@@ -1345,6 +1722,23 @@ export const swaggerSpec = {
           categories: {
             type: 'array',
             items: { type: 'string' },
+          },
+        },
+
+        FlaggedContent: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            reporterId: { type: 'string' },
+            contentType: { type: 'string', enum: ['post', 'reply', 'material'] },
+            contentId: { type: 'string' },
+            reason: { type: 'string' },
+            status: { type: 'string', enum: ['pending', 'resolved', 'dismissed'] },
+            resolvedBy: { type: 'string', nullable: true },
+            resolution: { type: 'string', nullable: true },
+            resolvedAt: { type: 'string', format: 'date-time', nullable: true },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
           },
         },
       },
