@@ -8,6 +8,8 @@ export const swaggerSpec = {
   servers: [{ url: 'http://localhost:3000', description: 'Local development' }],
   tags: [
     { name: 'forums', description: 'Forum posts and replies with AI moderation' },
+    { name: 'events', description: 'User event scheduling and persistence' },
+    { name: 'recommendations', description: 'Personalized forum thread recommendations' },
     { name: 'study-groups', description: 'Study group management and messaging' },
     { name: 'ai', description: 'AI features: chat, moderation, summarization' },
     { name: 'messages', description: 'Direct user-to-user messaging' },
@@ -355,6 +357,235 @@ export const swaggerSpec = {
           },
           '400': { description: 'Invalid messages format' },
           '500': { description: 'AI service error' },
+        },
+      },
+    },
+
+    // ==================== EVENTS ====================
+    '/api/events': {
+      get: {
+        tags: ['events'],
+        summary: 'List current user events',
+        description: 'Returns events for the authenticated user ordered by date and creation time.',
+        responses: {
+          '200': {
+            description: 'Events fetched successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    events: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Event' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['events'],
+        summary: 'Create an event',
+        description:
+          'Creates a new event for the authenticated user with input validation and sanitization.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['title', 'date'],
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string', nullable: true },
+                  date: { type: 'string', format: 'date-time' },
+                  startTime: { type: 'string', nullable: true },
+                  endTime: { type: 'string', nullable: true },
+                  category: { type: 'string', nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Event created successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    event: { $ref: '#/components/schemas/Event' },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Invalid payload',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+          '401': {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/api/events/{id}': {
+      patch: {
+        tags: ['events'],
+        summary: 'Update an event',
+        description: 'Updates an existing event. Only owner or admin can update.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string', nullable: true },
+                  date: { type: 'string', format: 'date-time' },
+                  startTime: { type: 'string', nullable: true },
+                  endTime: { type: 'string', nullable: true },
+                  category: { type: 'string', nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Event updated successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    event: { $ref: '#/components/schemas/Event' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Invalid payload' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Event not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+      delete: {
+        tags: ['events'],
+        summary: 'Delete an event',
+        description: 'Deletes an event. Only owner or admin can delete.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Event deleted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Event not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    // ==================== RECOMMENDATIONS ====================
+    '/api/recommendations/threads': {
+      get: {
+        tags: ['recommendations'],
+        summary: 'Get recommended forum threads',
+        description:
+          'Returns top recommended forum threads for the authenticated user with explainable reason labels and fallback mode when history is sparse.',
+        responses: {
+          '200': {
+            description: 'Recommendations fetched successfully',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ThreadRecommendationsResponse' },
+              },
+            },
+          },
+          '401': {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
         },
       },
     },
@@ -1028,6 +1259,48 @@ export const swaggerSpec = {
         properties: {
           id: { type: 'string' },
           name: { type: 'string' },
+        },
+      },
+
+      Event: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          userId: { type: 'string' },
+          title: { type: 'string' },
+          description: { type: 'string', nullable: true },
+          date: { type: 'string', format: 'date-time' },
+          startTime: { type: 'string', nullable: true },
+          endTime: { type: 'string', nullable: true },
+          category: { type: 'string', nullable: true },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+        },
+      },
+
+      ThreadRecommendation: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          title: { type: 'string' },
+          category: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+          upvotes: { type: 'integer' },
+          views: { type: 'integer' },
+          repliesCount: { type: 'integer' },
+          reason: { type: 'string' },
+          score: { type: 'number' },
+        },
+      },
+
+      ThreadRecommendationsResponse: {
+        type: 'object',
+        properties: {
+          recommendations: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/ThreadRecommendation' },
+          },
+          fallbackUsed: { type: 'boolean' },
         },
       },
 
