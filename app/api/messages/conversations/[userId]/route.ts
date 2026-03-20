@@ -27,7 +27,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
     }
 
     if (userId === session.id) {
-      return NextResponse.json({ error: 'Cannot open a thread with yourself' }, { status: 400 })
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const targetUser = await prisma.user.findUnique({
@@ -120,7 +120,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ use
     }
 
     if (userId === session.id) {
-      return NextResponse.json({ error: 'Cannot send a message to yourself' }, { status: 400 })
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const targetUser = await prisma.user.findUnique({

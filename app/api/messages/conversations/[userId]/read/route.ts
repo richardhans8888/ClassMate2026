@@ -16,7 +16,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ us
     }
 
     if (userId === session.id) {
-      return NextResponse.json({ error: 'Cannot mark self-thread as read' }, { status: 400 })
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const targetUser = await prisma.user.findUnique({
