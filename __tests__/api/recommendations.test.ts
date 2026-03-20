@@ -91,4 +91,37 @@ describe('GET /api/recommendations/threads', () => {
     expect(data.recommendations).toHaveLength(1)
     expect(data.recommendations[0].reason).toContain('discussion')
   })
+
+  it('excludes blocked or flagged-ineligible posts', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-3', email: 'u3@test.com' })
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ forumPosts: [] })
+    ;(prisma.flaggedContent.findMany as jest.Mock).mockResolvedValue([
+      { contentId: 'post-blocked-1' },
+      { contentId: 'post-blocked-2' },
+    ])
+    ;(prisma.forumPost.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'post-safe-1',
+        title: 'Allowed thread',
+        category: 'science',
+        createdAt: new Date('2026-03-19T10:00:00.000Z'),
+        upvotes: 2,
+        views: 50,
+        repliesCount: 3,
+        tags: [{ name: 'biology' }],
+      },
+    ])
+
+    const res = await GET()
+    const data = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(data.recommendations).toHaveLength(1)
+    expect(data.recommendations[0].id).toBe('post-safe-1')
+    expect(prisma.forumPost.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: { notIn: ['post-blocked-1', 'post-blocked-2'] } },
+      })
+    )
+  })
 })
