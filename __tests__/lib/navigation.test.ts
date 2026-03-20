@@ -1,0 +1,31 @@
+import { getNavigationByGroup, isNavigationItemVisible, navigationItems } from '@/lib/navigation'
+
+describe('navigation config', () => {
+  it('groups visible items into core and more', () => {
+    const { core, more } = getNavigationByGroup(null)
+
+    expect(core.map((item) => item.href)).toEqual([
+      '/',
+      '/forums',
+      '/materials',
+      '/chat',
+      '/groups',
+    ])
+    expect(more.some((item) => item.href === '/schedule')).toBe(true)
+  })
+
+  it('hides role-protected items when role is missing', () => {
+    const moderationItem = navigationItems.find((item) => item.href === '/admin/moderation')
+    if (!moderationItem) {
+      throw new Error('Expected moderation route to exist in navigation config')
+    }
+
+    expect(isNavigationItemVisible(moderationItem, null)).toBe(false)
+  })
+
+  it('shows role-protected items for allowed role', () => {
+    const { more } = getNavigationByGroup('ADMIN')
+
+    expect(more.some((item) => item.href === '/admin/moderation')).toBe(true)
+  })
+})

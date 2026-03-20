@@ -62,7 +62,13 @@ describe('Header component', () => {
     // Main navigation items — appear in both desktop nav and mobile drawer
     expect(screen.getAllByRole('link', { name: /home/i })[0]).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /study room/i })[0]).toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: /learn with ai/i })[0]).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /chat/i })[0]).toBeInTheDocument()
+  })
+
+  it('renders a more menu trigger for secondary routes', () => {
+    render(<Header />)
+
+    expect(screen.getAllByRole('button', { name: /more/i })[0]).toBeInTheDocument()
   })
 
   it('shows the level badge', () => {

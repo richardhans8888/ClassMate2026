@@ -14,10 +14,12 @@ import {
   Plus,
   Calendar as CalendarIcon,
   Loader2,
+  ChevronDown,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from 'components/mode-toggle'
 import { authClient } from '@/lib/auth-client'
+import { getNavigationByGroup, type UserRole } from '@/lib/navigation'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,6 +52,8 @@ export function Header({ onLogout }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const [level, setLevel] = useState<number>(1)
+  const [userRole, setUserRole] = useState<UserRole | null>(null)
+  const { core: coreNavItems, more: moreNavItems } = getNavigationByGroup(userRole)
 
   // Fetch level from profile
   useEffect(() => {
@@ -57,6 +61,7 @@ export function Header({ onLogout }: HeaderProps) {
     fetch(`/api/user/profile?userId=${userId}`)
       .then((r) => r.json())
       .then((data) => {
+        if (data.profile?.role) setUserRole(data.profile.role as UserRole)
         if (data.profile?.level) setLevel(data.profile.level as number)
       })
       .catch(console.error)
@@ -99,36 +104,38 @@ export function Header({ onLogout }: HeaderProps) {
 
         {/* Nav */}
         <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
-          <Link
-            href="/"
-            className="text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-          >
-            Home
-          </Link>
-          <Link
-            href="/materials"
-            className="text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-          >
-            Materials
-          </Link>
-          <Link
-            href="/forums"
-            className="text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-          >
-            Study Rooms
-          </Link>
-          <Link
-            href="/groups"
-            className="text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-          >
-            Study Group
-          </Link>
-          <Link
-            href="/ai-tutor"
-            className="text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-          >
-            Learn with AI
-          </Link>
+          {coreNavItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+            >
+              {item.label}
+            </Link>
+          ))}
+
+          {moreNavItems.length > 0 ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="h-auto px-0 text-sm font-medium text-gray-500 transition-colors hover:bg-transparent hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+                >
+                  More
+                  <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                {moreNavItems.map((item) => (
+                  <DropdownMenuItem asChild key={item.href}>
+                    <Link href={item.href} className="cursor-pointer">
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : null}
         </nav>
 
         {/* Right */}
@@ -264,41 +271,36 @@ export function Header({ onLogout }: HeaderProps) {
 
                 {/* Nav links */}
                 <nav className="flex flex-col gap-1 px-3 py-4">
-                  <Link
-                    href="/"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
-                  >
-                    Home
-                  </Link>
-                  <Link
-                    href="/materials"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
-                  >
-                    Materials
-                  </Link>
-                  <Link
-                    href="/forums"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
-                  >
-                    Study Rooms
-                  </Link>
-                  <Link
-                    href="/groups"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
-                  >
-                    Study Groups
-                  </Link>
-                  <Link
-                    href="/ai-tutor"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
-                  >
-                    Learn with AI
-                  </Link>
+                  {coreNavItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+
+                  {moreNavItems.length > 0 ? (
+                    <div className="mt-3 px-2">
+                      <p className="mb-2 px-2 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                        More
+                      </p>
+                      <div className="flex flex-col gap-1">
+                        {moreNavItems.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </nav>
               </div>
             </SheetContent>
