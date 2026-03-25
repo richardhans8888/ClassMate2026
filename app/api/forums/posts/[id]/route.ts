@@ -47,8 +47,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json(post, { status: 200 })
   } catch (error: unknown) {
     console.error('Get post error:', error)
-    const message = error instanceof Error ? error.message : 'Failed to fetch post'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 })
   }
 }
 
@@ -116,8 +115,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ post: updated }, { status: 200 })
   } catch (error: unknown) {
     console.error('Patch post error:', error)
-    const message = error instanceof Error ? error.message : 'Failed to update post'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to update post' }, { status: 500 })
   }
 }
 
@@ -152,7 +150,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error: unknown) {
     console.error('Delete post error:', error)
-    const message = error instanceof Error ? error.message : 'Failed to delete post'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 })
   }
 }

@@ -26,9 +26,8 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     }
 
     return NextResponse.json({ material }, { status: 200 })
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Failed to fetch material'
-    return NextResponse.json({ error: message }, { status: 500 })
+  } catch {
+    return NextResponse.json({ error: 'Failed to fetch material' }, { status: 500 })
   }
 }
 
@@ -88,9 +87,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     })
 
     return NextResponse.json({ material: updated }, { status: 200 })
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Failed to update material'
-    return NextResponse.json({ error: message }, { status: 500 })
+  } catch {
+    return NextResponse.json({ error: 'Failed to update material' }, { status: 500 })
   }
 }
 
@@ -120,8 +118,7 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
     await prisma.studyMaterial.delete({ where: { id } })
 
     return NextResponse.json({ success: true }, { status: 200 })
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Failed to delete material'
-    return NextResponse.json({ error: message }, { status: 500 })
+  } catch {
+    return NextResponse.json({ error: 'Failed to delete material' }, { status: 500 })
   }
 }

@@ -50,8 +50,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     return NextResponse.json({ reply: updated }, { status: 200 })
   } catch (error: unknown) {
     console.error('Patch reply error:', error)
-    const message = error instanceof Error ? error.message : 'Failed to update reply'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to update reply' }, { status: 500 })
   }
 }
 
@@ -89,7 +88,6 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error: unknown) {
     console.error('Delete reply error:', error)
-    const message = error instanceof Error ? error.message : 'Failed to delete reply'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to delete reply' }, { status: 500 })
   }
 }
