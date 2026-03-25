@@ -18,8 +18,6 @@ export const navigationItems: NavigationItem[] = [
 
   { href: '/schedule', label: 'Schedule', group: 'more' },
   { href: '/ai-tutor', label: 'Learn with AI', group: 'more' },
-  { href: '/premium', label: 'Premium', group: 'more' },
-  { href: '/purchases', label: 'Purchases', group: 'more' },
   { href: '/help', label: 'Help', group: 'more' },
   { href: '/guidelines', label: 'Guidelines', group: 'more' },
   { href: '/contact', label: 'Contact', group: 'more' },

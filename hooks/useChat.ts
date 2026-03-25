@@ -1,55 +1,55 @@
-"use client";
+'use client'
 
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react'
 
 export interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: Date
 }
 
 interface UseChatOptions {
-  sessionId?: string;
-  userId?: string;
+  sessionId?: string
+  userId?: string
 }
 
 export function useChat({ sessionId, userId }: UseChatOptions = {}) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!content.trim() || isLoading) return;
+      if (!content.trim() || isLoading) return
 
       const userMessage: Message = {
         id: crypto.randomUUID(),
-        role: "user",
+        role: 'user',
         content,
         timestamp: new Date(),
-      };
+      }
 
-      setMessages((prev) => [...prev, userMessage]);
-      setIsLoading(true);
-      setError(null);
+      setMessages((prev) => [...prev, userMessage])
+      setIsLoading(true)
+      setError(null)
 
-      const assistantMessageId = crypto.randomUUID();
+      const assistantMessageId = crypto.randomUUID()
 
       setMessages((prev) => [
         ...prev,
         {
           id: assistantMessageId,
-          role: "assistant",
-          content: "",
+          role: 'assistant',
+          content: '',
           timestamp: new Date(),
         },
-      ]);
+      ])
 
       try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             messages: [...messages, userMessage].map((m) => ({
               role: m.role,
@@ -58,52 +58,48 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
             sessionId,
             userId,
           }),
-        });
+        })
 
         if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error || "Failed to get response");
+          const errData = await response.json().catch(() => ({}))
+          throw new Error(errData.error || 'Failed to get response')
         }
 
-        if (!response.body) throw new Error("No response body");
+        if (!response.body) throw new Error('No response body')
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
 
         while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+          const { done, value } = await reader.read()
+          if (done) break
 
-          buffer += decoder.decode(value, { stream: true });
-          console.error("RAW CHUNK:", buffer);
-          const lines = buffer.split("\n");
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
 
           // Keep the last incomplete line in the buffer
-          buffer = lines.pop() || "";
+          buffer = lines.pop() || ''
 
           for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || !trimmed.startsWith("data: ")) continue;
+            const trimmed = line.trim()
+            if (!trimmed || !trimmed.startsWith('data: ')) continue
 
-            const data = trimmed.slice(6);
-            if (data === "[DONE]") continue;
+            const data = trimmed.slice(6)
+            if (data === '[DONE]') continue
 
             try {
-              const parsed = JSON.parse(data);
+              const parsed = JSON.parse(data)
 
               // OpenRouter / OpenAI format: choices[0].delta.content
-              const text =
-                parsed.choices?.[0]?.delta?.content || parsed.text || "";
+              const text = parsed.choices?.[0]?.delta?.content || parsed.text || ''
 
               if (text) {
                 setMessages((prev) =>
                   prev.map((msg) =>
-                    msg.id === assistantMessageId
-                      ? { ...msg, content: msg.content + text }
-                      : msg,
-                  ),
-                );
+                    msg.id === assistantMessageId ? { ...msg, content: msg.content + text } : msg
+                  )
+                )
               }
             } catch {
               // Skip malformed chunks
@@ -111,19 +107,19 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong");
-        setMessages((prev) => prev.filter((m) => m.id !== assistantMessageId));
+        setError(err instanceof Error ? err.message : 'Something went wrong')
+        setMessages((prev) => prev.filter((m) => m.id !== assistantMessageId))
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     },
-    [messages, sessionId, userId, isLoading],
-  );
+    [messages, sessionId, userId, isLoading]
+  )
 
   const clearMessages = useCallback(() => {
-    setMessages([]);
-    setError(null);
-  }, []);
+    setMessages([])
+    setError(null)
+  }, [])
 
   return {
     messages,
@@ -131,5 +127,5 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
     error,
     sendMessage,
     clearMessages,
-  };
+  }
 }
