@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { ForumCard } from './ForumCard'
 import { Loader2, AlertCircle, MessageSquarePlus, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { formatDate } from '@/lib/format'
+import { FORUM_CATEGORIES } from '@/lib/constants/forum'
 
 interface ForumPost {
   id: string
@@ -37,33 +39,6 @@ interface RecommendedThread {
 
 interface ForumListProps {
   initialCategory?: string
-}
-
-const categories = [
-  { value: 'all', label: 'All Topics' },
-  { value: 'math', label: 'Mathematics' },
-  { value: 'cs', label: 'Computer Science' },
-  { value: 'physics', label: 'Physics' },
-  { value: 'chemistry', label: 'Chemistry' },
-  { value: 'biology', label: 'Biology' },
-  { value: 'history', label: 'History' },
-  { value: 'literature', label: 'Literature' },
-  { value: 'languages', label: 'Languages' },
-]
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-
-  if (diffMins < 1) return 'Just now'
-  if (diffMins < 60) return `${diffMins} min ago`
-  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
-  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
-  return date.toLocaleDateString()
 }
 
 export function ForumList({ initialCategory = 'all' }: ForumListProps) {
@@ -174,7 +149,7 @@ export function ForumList({ initialCategory = 'all' }: ForumListProps) {
 
       {/* Category Tabs */}
       <div className="scrollbar-hide mb-6 flex items-center gap-2 overflow-x-auto pb-2">
-        {categories.map((cat) => (
+        {FORUM_CATEGORIES.map((cat) => (
           <button
             key={cat.value}
             onClick={() => setCategory(cat.value)}
