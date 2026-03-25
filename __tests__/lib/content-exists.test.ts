@@ -88,6 +88,17 @@ describe('contentExists', () => {
     })
   })
 
+  describe('unknown content type (runtime cast)', () => {
+    it('returns false without querying any table', async () => {
+      const result = await contentExists('unknown' as AllowedContentType, 'any-id')
+
+      expect(result).toBe(false)
+      expect(prisma.forumPost.findUnique).not.toHaveBeenCalled()
+      expect(prisma.forumReply.findUnique).not.toHaveBeenCalled()
+      expect(prisma.studyMaterial.findUnique).not.toHaveBeenCalled()
+    })
+  })
+
   describe('content type: material', () => {
     it('returns true when a material with the given id exists', async () => {
       ;(prisma.studyMaterial.findUnique as jest.Mock).mockResolvedValue({ id: 'material-1' })

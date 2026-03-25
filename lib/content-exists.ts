@@ -24,9 +24,13 @@ export async function contentExists(
     return Boolean(reply)
   }
 
-  const material = await prisma.studyMaterial.findUnique({
-    where: { id: contentId },
-    select: { id: true },
-  })
-  return Boolean(material)
+  if (contentType === 'material') {
+    const material = await prisma.studyMaterial.findUnique({
+      where: { id: contentId },
+      select: { id: true },
+    })
+    return Boolean(material)
+  }
+
+  return false
 }
