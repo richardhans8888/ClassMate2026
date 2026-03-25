@@ -59,6 +59,7 @@ model User {
   sessions             Session[]
   accounts             Account[]
   events               Event[]
+  flaggedContents      FlaggedContent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -79,6 +80,7 @@ model UserProfile {
   avatarUrl   String?
   university  String?
   major       String?
+  /// @deprecated Not used — gamification is tracked via User.xp, User.level, and PointTransaction
   reputation  Int     @default(0)
 
   createdAt DateTime @default(now())
@@ -328,6 +330,7 @@ model PointTransaction {
 model FlaggedContent {
   id          String   @id @default(cuid())
   reporterId  String
+  reporter    User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
   contentType String
   contentId   String
   reason      String
