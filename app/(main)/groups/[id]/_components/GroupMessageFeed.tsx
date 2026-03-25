@@ -6,7 +6,7 @@ import type { ChatMessage } from './types'
 
 interface GroupMessageFeedProps {
   messages: ChatMessage[]
-  scrollRef: RefObject<HTMLDivElement>
+  scrollRef: RefObject<HTMLDivElement | null>
 }
 
 export function GroupMessageFeed({ messages, scrollRef }: GroupMessageFeedProps) {

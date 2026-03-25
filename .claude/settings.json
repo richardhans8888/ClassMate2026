@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"from ''@/lib/authorize''\\\\|from \"\"@/lib/authorize\"\"\" /home/kenny/personal/github-clones/ClassMate2026/app --include=\"*.ts\" --include=\"*.tsx\")",
+      "Bash(grep -rn \"generative-ai\\\\|GoogleGenerativeAI\\\\|genkit\\\\|openai\\\\|OpenAI\\\\|dompurify\\\\|DOMPurify\" /home/kenny/personal/github-clones/ClassMate2026/app /home/kenny/personal/github-clones/ClassMate2026/lib --include=*.ts --include=*.tsx)",
+      "Bash(grep -rn \"components/ui/sonner\\\\|from.*sonner\" /home/kenny/personal/github-clones/ClassMate2026/app /home/kenny/personal/github-clones/ClassMate2026/components --include=*.ts --include=*.tsx)",
+      "Bash(grep -rn \"components/ui/alert-dialog\\\\|AlertDialog\" /home/kenny/personal/github-clones/ClassMate2026/app /home/kenny/personal/github-clones/ClassMate2026/components --include=*.ts --include=*.tsx)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm install:*)"
+    ]
+  }
+}

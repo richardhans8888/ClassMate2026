@@ -10,7 +10,7 @@ interface SessionUser {
 /**
  * Get user role from database
  */
-export async function getUserRole(userId: string): Promise<UserRole | null> {
+async function getUserRole(userId: string): Promise<UserRole | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { role: true },
@@ -34,13 +34,6 @@ export async function requireRole(
  */
 export async function requireAdmin(session: SessionUser): Promise<boolean> {
   return requireRole(session, ['ADMIN'])
-}
-
-/**
- * Check if user is a tutor or admin
- */
-export async function requireTutorOrAdmin(session: SessionUser): Promise<boolean> {
-  return requireRole(session, ['TUTOR', 'ADMIN'])
 }
 
 /**

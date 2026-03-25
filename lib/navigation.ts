@@ -1,8 +1,8 @@
 export type UserRole = 'STUDENT' | 'TUTOR' | 'ADMIN'
 
-export type NavigationGroup = 'core' | 'more'
+type NavigationGroup = 'core' | 'more'
 
-export interface NavigationItem {
+interface NavigationItem {
   href: string
   label: string
   group: NavigationGroup

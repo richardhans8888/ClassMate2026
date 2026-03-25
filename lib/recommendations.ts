@@ -1,4 +1,4 @@
-export type RecommendationItem = {
+type RecommendationItem = {
   id: string
   title: string
   category: string

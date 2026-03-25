@@ -19,7 +19,7 @@ export type ApiEvent = {
   category: string | null
 }
 
-export const CATEGORY_TO_COLOR: Record<string, string> = {
+const CATEGORY_TO_COLOR: Record<string, string> = {
   math: 'bg-blue-500',
   physics: 'bg-emerald-500',
   cs: 'bg-purple-500',
