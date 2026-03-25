@@ -54,10 +54,3 @@ export async function canModerate(session: SessionUser, resourceOwnerId: string)
   // Otherwise, must be admin
   return requireAdmin(session)
 }
-
-/**
- * Check if user can delete a resource (is owner or admin)
- */
-export async function canDelete(session: SessionUser, resourceOwnerId: string): Promise<boolean> {
-  return canModerate(session, resourceOwnerId)
-}

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-import { canDelete } from '@/lib/authorize'
+import { canModerate } from '@/lib/authorize'
 
 export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -21,7 +21,7 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
       return NextResponse.json({ error: 'Reply not found' }, { status: 404 })
     }
 
-    const authorized = await canDelete(session, reply.userId)
+    const authorized = await canModerate(session, reply.userId)
     if (!authorized) {
       return NextResponse.json({ error: 'Not authorized to delete this reply' }, { status: 403 })
     }

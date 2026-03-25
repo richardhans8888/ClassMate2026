@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-import { canDelete } from '@/lib/authorize'
+import { canModerate } from '@/lib/authorize'
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -70,7 +70,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     // Check authorization - must be owner or admin
-    const authorized = await canDelete(session, post.userId)
+    const authorized = await canModerate(session, post.userId)
     if (!authorized) {
       return NextResponse.json({ error: 'Not authorized to delete this post' }, { status: 403 })
     }
