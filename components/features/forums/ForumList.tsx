@@ -68,8 +68,8 @@ export function ForumList({ initialCategory = 'all' }: ForumListProps) {
           throw new Error('Failed to fetch posts')
         }
 
-        const data = await response.json()
-        setPosts(data)
+        const data = (await response.json()) as { posts: ForumPost[] }
+        setPosts(data.posts ?? [])
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load posts')
       } finally {

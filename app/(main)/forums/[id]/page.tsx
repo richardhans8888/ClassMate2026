@@ -61,8 +61,8 @@ export default function ForumPostPage() {
     try {
       const response = await fetch(`/api/forums/replies?postId=${postId}`)
       if (response.ok) {
-        const data = await response.json()
-        setReplies(data)
+        const data = (await response.json()) as { replies: Reply[] }
+        setReplies(data.replies ?? [])
       }
     } catch (err) {
       console.error('Failed to fetch replies:', err)
