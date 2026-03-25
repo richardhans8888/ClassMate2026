@@ -2,13 +2,7 @@
 CREATE TYPE "UserRole" AS ENUM ('STUDENT', 'TUTOR', 'ADMIN');
 
 -- CreateEnum
-CREATE TYPE "NotificationType" AS ENUM ('FORUM_REPLY', 'FORUM_UPVOTE', 'CHAT_MESSAGE', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED', 'BOOKING_COMPLETED', 'TUTOR_REVIEW', 'STUDY_GROUP_INVITE', 'STUDY_GROUP_MEMBER_JOINED', 'SYSTEM_MESSAGE');
-
--- CreateEnum
-CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'RESCHEDULED');
-
--- CreateEnum
-CREATE TYPE "PointActionType" AS ENUM ('FORUM_POST_CREATED', 'FORUM_REPLY_CREATED', 'FORUM_UPVOTE_RECEIVED', 'TUTOR_SESSION_COMPLETED', 'MATERIAL_UPLOADED', 'STUDY_GROUP_CREATED', 'STREAK_BONUS', 'REVIEW_POSTED', 'CHAT_STREAK');
+CREATE TYPE "PointActionType" AS ENUM ('FORUM_POST_CREATED', 'FORUM_REPLY_CREATED', 'FORUM_UPVOTE_RECEIVED', 'MATERIAL_UPLOADED', 'STUDY_GROUP_CREATED', 'STUDY_GROUP_JOINED', 'REVIEW_POSTED', 'STUDY_GROUP_MESSAGE_SENT');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -18,7 +12,6 @@ CREATE TABLE "User" (
     "image" TEXT,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "role" "UserRole" NOT NULL DEFAULT 'STUDENT',
-    "isPremium" BOOLEAN NOT NULL DEFAULT false,
     "xp" INTEGER NOT NULL DEFAULT 0,
     "level" INTEGER NOT NULL DEFAULT 1,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -89,35 +82,6 @@ CREATE TABLE "Verification" (
 );
 
 -- CreateTable
-CREATE TABLE "Tutor" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "subjects" TEXT[],
-    "hourlyRate" DOUBLE PRECISION NOT NULL,
-    "bio" TEXT,
-    "rating" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "reviewCount" INTEGER NOT NULL DEFAULT 0,
-    "isAvailable" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Tutor_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "TutorReview" (
-    "id" TEXT NOT NULL,
-    "tutorId" TEXT NOT NULL,
-    "reviewerId" TEXT NOT NULL,
-    "rating" INTEGER NOT NULL,
-    "comment" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "TutorReview_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "ForumPost" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -164,6 +128,7 @@ CREATE TABLE "ChatMessage" (
     "recipientId" TEXT NOT NULL,
     "sessionId" TEXT,
     "content" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'user',
     "messageType" TEXT NOT NULL DEFAULT 'text',
     "isRead" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -211,6 +176,7 @@ CREATE TABLE "StudyGroup" (
     "subject" TEXT NOT NULL,
     "maxMembers" INTEGER,
     "isPrivate" BOOLEAN NOT NULL DEFAULT false,
+    "inviteCode" TEXT,
     "memberCount" INTEGER NOT NULL DEFAULT 1,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -230,24 +196,6 @@ CREATE TABLE "StudyGroupMember" (
 );
 
 -- CreateTable
-CREATE TABLE "Booking" (
-    "id" TEXT NOT NULL,
-    "tutorId" TEXT NOT NULL,
-    "studentId" TEXT NOT NULL,
-    "subject" TEXT NOT NULL,
-    "scheduledAt" TIMESTAMP(3) NOT NULL,
-    "durationMinutes" INTEGER NOT NULL,
-    "hourlyRate" DOUBLE PRECISION NOT NULL,
-    "totalPrice" DOUBLE PRECISION NOT NULL,
-    "status" "BookingStatus" NOT NULL DEFAULT 'PENDING',
-    "notes" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Booking_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "PointTransaction" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -262,30 +210,35 @@ CREATE TABLE "PointTransaction" (
 );
 
 -- CreateTable
-CREATE TABLE "StreakRecord" (
+CREATE TABLE "FlaggedContent" (
     "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "streakDate" DATE NOT NULL,
-    "isBroken" BOOLEAN NOT NULL DEFAULT false,
+    "reporterId" TEXT NOT NULL,
+    "contentType" TEXT NOT NULL,
+    "contentId" TEXT NOT NULL,
+    "reason" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "resolvedBy" TEXT,
+    "resolution" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "resolvedAt" TIMESTAMP(3),
 
-    CONSTRAINT "StreakRecord_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "FlaggedContent_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Notification" (
+CREATE TABLE "Event" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "type" "NotificationType" NOT NULL,
     "title" TEXT NOT NULL,
-    "message" TEXT NOT NULL,
-    "isRead" BOOLEAN NOT NULL DEFAULT false,
-    "referenceId" TEXT,
-    "referenceType" TEXT,
+    "description" TEXT,
+    "date" TIMESTAMP(3) NOT NULL,
+    "startTime" TEXT,
+    "endTime" TEXT,
+    "category" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Event_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -339,30 +292,6 @@ CREATE INDEX "Session_token_idx" ON "Session"("token");
 
 -- CreateIndex
 CREATE INDEX "Account_userId_idx" ON "Account"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Tutor_userId_key" ON "Tutor"("userId");
-
--- CreateIndex
-CREATE INDEX "Tutor_userId_idx" ON "Tutor"("userId");
-
--- CreateIndex
-CREATE INDEX "Tutor_rating_idx" ON "Tutor"("rating");
-
--- CreateIndex
-CREATE INDEX "Tutor_isAvailable_idx" ON "Tutor"("isAvailable");
-
--- CreateIndex
-CREATE INDEX "TutorReview_tutorId_idx" ON "TutorReview"("tutorId");
-
--- CreateIndex
-CREATE INDEX "TutorReview_reviewerId_idx" ON "TutorReview"("reviewerId");
-
--- CreateIndex
-CREATE INDEX "TutorReview_rating_idx" ON "TutorReview"("rating");
-
--- CreateIndex
-CREATE UNIQUE INDEX "TutorReview_tutorId_reviewerId_key" ON "TutorReview"("tutorId", "reviewerId");
 
 -- CreateIndex
 CREATE INDEX "ForumPost_userId_idx" ON "ForumPost"("userId");
@@ -452,18 +381,6 @@ CREATE INDEX "StudyGroupMember_userId_idx" ON "StudyGroupMember"("userId");
 CREATE UNIQUE INDEX "StudyGroupMember_groupId_userId_key" ON "StudyGroupMember"("groupId", "userId");
 
 -- CreateIndex
-CREATE INDEX "Booking_tutorId_idx" ON "Booking"("tutorId");
-
--- CreateIndex
-CREATE INDEX "Booking_studentId_idx" ON "Booking"("studentId");
-
--- CreateIndex
-CREATE INDEX "Booking_scheduledAt_idx" ON "Booking"("scheduledAt");
-
--- CreateIndex
-CREATE INDEX "Booking_status_idx" ON "Booking"("status");
-
--- CreateIndex
 CREATE UNIQUE INDEX "PointTransaction_forumPostId_key" ON "PointTransaction"("forumPostId");
 
 -- CreateIndex
@@ -479,25 +396,25 @@ CREATE INDEX "PointTransaction_actionType_idx" ON "PointTransaction"("actionType
 CREATE INDEX "PointTransaction_createdAt_idx" ON "PointTransaction"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "StreakRecord_userId_idx" ON "StreakRecord"("userId");
+CREATE INDEX "FlaggedContent_reporterId_idx" ON "FlaggedContent"("reporterId");
 
 -- CreateIndex
-CREATE INDEX "StreakRecord_streakDate_idx" ON "StreakRecord"("streakDate");
+CREATE INDEX "FlaggedContent_contentType_contentId_idx" ON "FlaggedContent"("contentType", "contentId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "StreakRecord_userId_streakDate_key" ON "StreakRecord"("userId", "streakDate");
+CREATE INDEX "FlaggedContent_status_idx" ON "FlaggedContent"("status");
 
 -- CreateIndex
-CREATE INDEX "Notification_userId_idx" ON "Notification"("userId");
+CREATE INDEX "FlaggedContent_createdAt_idx" ON "FlaggedContent"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "Notification_createdAt_idx" ON "Notification"("createdAt");
+CREATE INDEX "Event_userId_idx" ON "Event"("userId");
 
 -- CreateIndex
-CREATE INDEX "Notification_isRead_idx" ON "Notification"("isRead");
+CREATE INDEX "Event_date_idx" ON "Event"("date");
 
 -- CreateIndex
-CREATE INDEX "Notification_type_idx" ON "Notification"("type");
+CREATE INDEX "Event_createdAt_idx" ON "Event"("createdAt");
 
 -- CreateIndex
 CREATE INDEX "_ForumPostToForumTag_B_index" ON "_ForumPostToForumTag"("B");
@@ -513,15 +430,6 @@ ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId"
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Tutor" ADD CONSTRAINT "Tutor_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "TutorReview" ADD CONSTRAINT "TutorReview_tutorId_fkey" FOREIGN KEY ("tutorId") REFERENCES "Tutor"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "TutorReview" ADD CONSTRAINT "TutorReview_reviewerId_fkey" FOREIGN KEY ("reviewerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ForumPost" ADD CONSTRAINT "ForumPost_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -557,12 +465,6 @@ ALTER TABLE "StudyGroupMember" ADD CONSTRAINT "StudyGroupMember_groupId_fkey" FO
 ALTER TABLE "StudyGroupMember" ADD CONSTRAINT "StudyGroupMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Booking" ADD CONSTRAINT "Booking_tutorId_fkey" FOREIGN KEY ("tutorId") REFERENCES "Tutor"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Booking" ADD CONSTRAINT "Booking_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "PointTransaction" ADD CONSTRAINT "PointTransaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -572,10 +474,10 @@ ALTER TABLE "PointTransaction" ADD CONSTRAINT "PointTransaction_forumPostId_fkey
 ALTER TABLE "PointTransaction" ADD CONSTRAINT "PointTransaction_forumReplyId_fkey" FOREIGN KEY ("forumReplyId") REFERENCES "ForumReply"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StreakRecord" ADD CONSTRAINT "StreakRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "FlaggedContent" ADD CONSTRAINT "FlaggedContent_reporterId_fkey" FOREIGN KEY ("reporterId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Event" ADD CONSTRAINT "Event_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_ForumPostToForumTag" ADD CONSTRAINT "_ForumPostToForumTag_A_fkey" FOREIGN KEY ("A") REFERENCES "ForumPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
