@@ -44,34 +44,17 @@ export async function POST(req: NextRequest, context: { params: Promise<{ groupI
     if (!member)
       return NextResponse.json({ error: 'You are not a member of this group' }, { status: 403 })
 
-    const message = await prisma.$transaction(async (tx) => {
-      const newMessage = await tx.chatMessage.create({
-        data: {
-          senderId: userId,
-          recipientId: userId,
-          content: sanitizedContent,
-          messageType: `group:${groupId}`,
-          role: 'user',
-        },
-        include: {
-          sender: { include: { profile: true } },
-        },
-      })
-
-      await tx.user.update({
-        where: { id: userId },
-        data: { xp: { increment: 5 } },
-      })
-      await tx.pointTransaction.create({
-        data: {
-          userId,
-          actionType: 'STUDY_GROUP_MESSAGE_SENT',
-          points: 5,
-          description: 'Sent a message in study group',
-        },
-      })
-
-      return newMessage
+    const message = await prisma.chatMessage.create({
+      data: {
+        senderId: userId,
+        recipientId: userId,
+        content: sanitizedContent,
+        messageType: `group:${groupId}`,
+        role: 'user',
+      },
+      include: {
+        sender: { include: { profile: true } },
+      },
     })
 
     return NextResponse.json({ message })

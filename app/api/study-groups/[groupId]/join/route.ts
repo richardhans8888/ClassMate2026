@@ -38,20 +38,6 @@ export async function POST(req: NextRequest, context: { params: Promise<{ groupI
         where: { id: groupId },
         data: { memberCount: { increment: 1 } },
       })
-
-      // Award XP for joining a group
-      await tx.user.update({
-        where: { id: userId },
-        data: { xp: { increment: 20 } },
-      })
-      await tx.pointTransaction.create({
-        data: {
-          userId,
-          actionType: 'STUDY_GROUP_JOINED',
-          points: 20,
-          description: 'Joined a study group',
-        },
-      })
     })
 
     return NextResponse.json({ success: true })

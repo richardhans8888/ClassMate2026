@@ -137,42 +137,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid file URL' }, { status: 400 })
     }
 
-    const createdMaterial = await prisma.$transaction(async (tx) => {
-      const material = await tx.studyMaterial.create({
-        data: {
-          userId: session.id,
-          title: sanitizedTitle,
-          description: sanitizedDescription,
-          fileUrl: sanitizedFileUrl,
-          subject: sanitizedSubject,
-          fileType: fileTypeRaw.toLowerCase(),
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              profile: { select: { displayName: true, avatarUrl: true } },
-            },
+    const createdMaterial = await prisma.studyMaterial.create({
+      data: {
+        userId: session.id,
+        title: sanitizedTitle,
+        description: sanitizedDescription,
+        fileUrl: sanitizedFileUrl,
+        subject: sanitizedSubject,
+        fileType: fileTypeRaw.toLowerCase(),
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            profile: { select: { displayName: true, avatarUrl: true } },
           },
         },
-      })
-
-      await tx.user.update({
-        where: { id: session.id },
-        data: { xp: { increment: 15 } },
-      })
-
-      await tx.pointTransaction.create({
-        data: {
-          userId: session.id,
-          actionType: 'MATERIAL_UPLOADED',
-          points: 15,
-          description: `Uploaded material: ${sanitizedTitle}`,
-        },
-      })
-
-      return material
+      },
     })
 
     return NextResponse.json({ material: createdMaterial }, { status: 201 })

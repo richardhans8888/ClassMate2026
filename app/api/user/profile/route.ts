@@ -16,11 +16,6 @@ export async function GET(req: NextRequest) {
 
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
-    const xp = user.xp
-    const xpProgress = xp % 500
-    const xpForNextLevel = 500
-    const progressPercent = Math.floor((xpProgress / xpForNextLevel) * 100)
-
     return NextResponse.json({
       profile: {
         id: user.id,
@@ -28,11 +23,6 @@ export async function GET(req: NextRequest) {
         name: user.name,
         image: user.image,
         role: user.role,
-        xp,
-        level: user.level,
-        xpProgress,
-        xpForNextLevel,
-        progressPercent,
         displayName: profile?.displayName ?? null,
         bio: profile?.bio ?? null,
         university: profile?.university ?? null,

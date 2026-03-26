@@ -39,7 +39,6 @@ async function main() {
   // ── Clear existing data (in FK-safe order) ─────────────────────────────────
   console.warn('  Clearing existing data...')
   await prisma.flaggedContent.deleteMany()
-  await prisma.pointTransaction.deleteMany()
   await prisma.chatMessage.deleteMany()
   await prisma.chatSession.deleteMany()
   await prisma.studyGroupMember.deleteMany()
@@ -63,8 +62,6 @@ async function main() {
         name: 'Alice Chen',
         emailVerified: true,
         role: 'STUDENT',
-        xp: 450,
-        level: 3,
       },
     }),
     prisma.user.create({
@@ -73,8 +70,6 @@ async function main() {
         name: 'Bob Rodriguez',
         emailVerified: true,
         role: 'STUDENT',
-        xp: 320,
-        level: 2,
       },
     }),
     prisma.user.create({
@@ -83,8 +78,6 @@ async function main() {
         name: 'Carol Williams',
         emailVerified: true,
         role: 'TUTOR',
-        xp: 820,
-        level: 5,
       },
     }),
     prisma.user.create({
@@ -93,8 +86,6 @@ async function main() {
         name: 'Diana Martinez',
         emailVerified: true,
         role: 'STUDENT',
-        xp: 180,
-        level: 1,
       },
     }),
     prisma.user.create({
@@ -103,8 +94,6 @@ async function main() {
         name: 'Evan Park',
         emailVerified: true,
         role: 'ADMIN',
-        xp: 1200,
-        level: 8,
       },
     }),
     prisma.user.create({
@@ -113,8 +102,6 @@ async function main() {
         name: 'Fiona Lee',
         emailVerified: true,
         role: 'STUDENT',
-        xp: 650,
-        level: 4,
       },
     }),
     prisma.user.create({
@@ -123,8 +110,6 @@ async function main() {
         name: 'George Patel',
         emailVerified: true,
         role: 'TUTOR',
-        xp: 950,
-        level: 6,
       },
     }),
     prisma.user.create({
@@ -133,8 +118,6 @@ async function main() {
         name: 'Hannah Johnson',
         emailVerified: true,
         role: 'STUDENT',
-        xp: 280,
-        level: 2,
       },
     }),
     // System user for AI tutor chat messages
@@ -144,8 +127,6 @@ async function main() {
         name: 'AI Tutor',
         emailVerified: true,
         role: 'ADMIN',
-        xp: 0,
-        level: 1,
       },
     }),
   ])
@@ -250,7 +231,9 @@ async function main() {
     'javascript',
   ]
   const tags = await Promise.all(tagNames.map((name) => prisma.forumTag.create({ data: { name } })))
-  const t = Object.fromEntries(tags.map((tag: { id: string; name: string }) => [tag.name, tag]))
+  const t = Object.fromEntries(
+    tags.map((tag: { id: string; name: string }) => [tag.name, tag])
+  ) as Record<string, { id: string; name: string }>
 
   // ── Forum Posts ────────────────────────────────────────────────────────────
   console.warn('  Creating forum posts...')
@@ -265,7 +248,7 @@ async function main() {
         views: 145,
         isAnswered: true,
         repliesCount: 3,
-        tags: { connect: [{ id: t['react'].id }, { id: t['javascript'].id }] },
+        tags: { connect: [{ id: t['react']!.id }, { id: t['javascript']!.id }] },
       },
     }),
     prisma.forumPost.create({
@@ -278,7 +261,7 @@ async function main() {
         views: 98,
         isAnswered: false,
         repliesCount: 4,
-        tags: { connect: [{ id: t['algorithms'].id }, { id: t['data-structures'].id }] },
+        tags: { connect: [{ id: t['algorithms']!.id }, { id: t['data-structures']!.id }] },
       },
     }),
     prisma.forumPost.create({
@@ -291,7 +274,7 @@ async function main() {
         views: 210,
         isAnswered: true,
         repliesCount: 3,
-        tags: { connect: [{ id: t['typescript'].id }] },
+        tags: { connect: [{ id: t['typescript']!.id }] },
       },
     }),
     prisma.forumPost.create({
@@ -304,7 +287,7 @@ async function main() {
         views: 387,
         isAnswered: false,
         repliesCount: 2,
-        tags: { connect: [{ id: t['react'].id }, { id: t['javascript'].id }] },
+        tags: { connect: [{ id: t['react']!.id }, { id: t['javascript']!.id }] },
       },
     }),
     prisma.forumPost.create({
@@ -317,7 +300,7 @@ async function main() {
         views: 256,
         isAnswered: false,
         repliesCount: 3,
-        tags: { connect: [{ id: t['database'].id }] },
+        tags: { connect: [{ id: t['database']!.id }] },
       },
     }),
     prisma.forumPost.create({
@@ -330,7 +313,7 @@ async function main() {
         views: 72,
         isAnswered: true,
         repliesCount: 4,
-        tags: { connect: [{ id: t['algorithms'].id }, { id: t['python'].id }] },
+        tags: { connect: [{ id: t['algorithms']!.id }, { id: t['python']!.id }] },
       },
     }),
     prisma.forumPost.create({
@@ -343,7 +326,7 @@ async function main() {
         views: 512,
         isAnswered: false,
         repliesCount: 2,
-        tags: { connect: [{ id: t['web-development'].id }] },
+        tags: { connect: [{ id: t['web-development']!.id }] },
       },
     }),
     prisma.forumPost.create({
@@ -356,7 +339,7 @@ async function main() {
         views: 55,
         isAnswered: true,
         repliesCount: 3,
-        tags: { connect: [{ id: t['python'].id }] },
+        tags: { connect: [{ id: t['python']!.id }] },
       },
     }),
   ])
@@ -1185,305 +1168,7 @@ async function main() {
     }),
   ])
 
-  // ── Point Transactions ─────────────────────────────────────────────────────
-  console.warn('  Creating point transactions...')
-  await Promise.all([
-    // Forum post creation XP
-    prisma.pointTransaction.create({
-      data: {
-        userId: alice.id,
-        actionType: 'FORUM_POST_CREATED',
-        points: 50,
-        description: 'Created forum post',
-        forumPostId: posts[0].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: bob.id,
-        actionType: 'FORUM_POST_CREATED',
-        points: 50,
-        description: 'Created forum post',
-        forumPostId: posts[1].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: fiona.id,
-        actionType: 'FORUM_POST_CREATED',
-        points: 50,
-        description: 'Created forum post',
-        forumPostId: posts[2].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: carol.id,
-        actionType: 'FORUM_POST_CREATED',
-        points: 50,
-        description: 'Created forum post',
-        forumPostId: posts[3].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: george.id,
-        actionType: 'FORUM_POST_CREATED',
-        points: 50,
-        description: 'Created forum post',
-        forumPostId: posts[4].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: diana.id,
-        actionType: 'FORUM_POST_CREATED',
-        points: 50,
-        description: 'Created forum post',
-        forumPostId: posts[5].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: evan.id,
-        actionType: 'FORUM_POST_CREATED',
-        points: 50,
-        description: 'Created forum post',
-        forumPostId: posts[6].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: hannah.id,
-        actionType: 'FORUM_POST_CREATED',
-        points: 50,
-        description: 'Created forum post',
-        forumPostId: posts[7].id,
-      },
-    }),
-
-    // Forum reply XP (one per accepted/upvoted reply)
-    prisma.pointTransaction.create({
-      data: {
-        userId: carol.id,
-        actionType: 'FORUM_REPLY_CREATED',
-        points: 20,
-        description: 'Created forum reply',
-        forumReplyId: replies[0].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: fiona.id,
-        actionType: 'FORUM_REPLY_CREATED',
-        points: 20,
-        description: 'Created forum reply',
-        forumReplyId: replies[7].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: carol.id,
-        actionType: 'FORUM_REPLY_CREATED',
-        points: 20,
-        description: 'Created forum reply',
-        forumReplyId: replies[15].id,
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: bob.id,
-        actionType: 'FORUM_REPLY_CREATED',
-        points: 20,
-        description: 'Created forum reply',
-        forumReplyId: replies[21].id,
-      },
-    }),
-
-    // Upvotes received XP
-    prisma.pointTransaction.create({
-      data: {
-        userId: alice.id,
-        actionType: 'FORUM_UPVOTE_RECEIVED',
-        points: 60,
-        description: 'XP from post upvotes',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: carol.id,
-        actionType: 'FORUM_UPVOTE_RECEIVED',
-        points: 120,
-        description: 'XP from post upvotes',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: george.id,
-        actionType: 'FORUM_UPVOTE_RECEIVED',
-        points: 95,
-        description: 'XP from post upvotes',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: fiona.id,
-        actionType: 'FORUM_UPVOTE_RECEIVED',
-        points: 75,
-        description: 'XP from post upvotes',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: evan.id,
-        actionType: 'FORUM_UPVOTE_RECEIVED',
-        points: 155,
-        description: 'XP from post upvotes',
-      },
-    }),
-
-    // Material uploads XP (15 pts — matches /api/materials POST)
-    prisma.pointTransaction.create({
-      data: {
-        userId: carol.id,
-        actionType: 'MATERIAL_UPLOADED',
-        points: 15,
-        description: 'Uploaded study material',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: george.id,
-        actionType: 'MATERIAL_UPLOADED',
-        points: 15,
-        description: 'Uploaded study material',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: evan.id,
-        actionType: 'MATERIAL_UPLOADED',
-        points: 15,
-        description: 'Uploaded study material',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: alice.id,
-        actionType: 'MATERIAL_UPLOADED',
-        points: 15,
-        description: 'Uploaded study material',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: fiona.id,
-        actionType: 'MATERIAL_UPLOADED',
-        points: 15,
-        description: 'Uploaded study material',
-      },
-    }),
-
-    // Study group message XP (5 pts each — matches /api/study-groups/[groupId]/messages POST)
-    prisma.pointTransaction.create({
-      data: {
-        userId: carol.id,
-        actionType: 'STUDY_GROUP_MESSAGE_SENT',
-        points: 5,
-        description: 'Sent a message in study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: alice.id,
-        actionType: 'STUDY_GROUP_MESSAGE_SENT',
-        points: 5,
-        description: 'Sent a message in study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: george.id,
-        actionType: 'STUDY_GROUP_MESSAGE_SENT',
-        points: 5,
-        description: 'Sent a message in study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: evan.id,
-        actionType: 'STUDY_GROUP_MESSAGE_SENT',
-        points: 5,
-        description: 'Sent a message in study group',
-      },
-    }),
-
-    // Study group XP (30 pts created, 20 pts joined, 5 pts message — matches API)
-    prisma.pointTransaction.create({
-      data: {
-        userId: carol.id,
-        actionType: 'STUDY_GROUP_CREATED',
-        points: 30,
-        description: 'Created study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: george.id,
-        actionType: 'STUDY_GROUP_CREATED',
-        points: 30,
-        description: 'Created study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: evan.id,
-        actionType: 'STUDY_GROUP_CREATED',
-        points: 30,
-        description: 'Created study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: alice.id,
-        actionType: 'STUDY_GROUP_JOINED',
-        points: 20,
-        description: 'Joined study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: bob.id,
-        actionType: 'STUDY_GROUP_JOINED',
-        points: 20,
-        description: 'Joined study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: fiona.id,
-        actionType: 'STUDY_GROUP_JOINED',
-        points: 20,
-        description: 'Joined study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: diana.id,
-        actionType: 'STUDY_GROUP_JOINED',
-        points: 20,
-        description: 'Joined study group',
-      },
-    }),
-    prisma.pointTransaction.create({
-      data: {
-        userId: hannah.id,
-        actionType: 'STUDY_GROUP_JOINED',
-        points: 20,
-        description: 'Joined study group',
-      },
-    }),
-  ])
+  // ── REMOVED: Point Transactions (gamification removed) ──────────────────────
 
   // ── Flagged Content (moderation demo) ─────────────────────────────────────
   console.warn('  Creating flagged content examples...')

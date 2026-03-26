@@ -73,20 +73,6 @@ export async function POST(req: NextRequest) {
         data: { groupId: newGroup.id, userId: ownerId, role: 'owner' },
       })
 
-      // Award XP for creating a group
-      await tx.user.update({
-        where: { id: ownerId },
-        data: { xp: { increment: 30 } },
-      })
-      await tx.pointTransaction.create({
-        data: {
-          userId: ownerId,
-          actionType: 'STUDY_GROUP_CREATED',
-          points: 30,
-          description: 'Created a study group',
-        },
-      })
-
       return newGroup
     })
 

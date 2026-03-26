@@ -21,17 +21,6 @@ enum UserRole {
   ADMIN
 }
 
-enum PointActionType {
-  FORUM_POST_CREATED
-  FORUM_REPLY_CREATED
-  FORUM_UPVOTE_RECEIVED
-  MATERIAL_UPLOADED
-  STUDY_GROUP_CREATED
-  STUDY_GROUP_JOINED
-  REVIEW_POSTED
-  STUDY_GROUP_MESSAGE_SENT
-}
-
 // USER & PROFILE MANAGEMENT
 
 model User {
@@ -41,8 +30,6 @@ model User {
   image         String?
   emailVerified Boolean  @default(false)
   role          UserRole @default(STUDENT)
-  xp            Int      @default(0)
-  level         Int      @default(1)
 
   profile              UserProfile?
   forumPosts           ForumPost[]
@@ -53,7 +40,6 @@ model User {
   studyMaterials       StudyMaterial[]
   studyGroupsOwned     StudyGroup[]       @relation("owner")
   studyGroupMembers    StudyGroupMember[]
-  pointTransactions    PointTransaction[]
   upvotedForumPosts    ForumPost[]        @relation("upvoters")
   upvotedReplies       ForumReply[]       @relation("upvoters")
   sessions             Session[]
@@ -66,8 +52,6 @@ model User {
 
   @@index([email])
   @@index([role])
-  @@index([level])
-  @@index([xp])
 }
 
 model UserProfile {
@@ -80,7 +64,6 @@ model UserProfile {
   avatarUrl   String?
   university  String?
   major       String?
-  /// @deprecated Not used — gamification is tracked via User.xp, User.level, and PointTransaction
   reputation  Int     @default(0)
 
   createdAt DateTime @default(now())
@@ -149,10 +132,9 @@ model ForumPost {
   isAnswered   Boolean @default(false)
   repliesCount Int     @default(0)
 
-  replies          ForumReply[]
-  tags             ForumTag[]
-  upvoters         User[]            @relation("upvoters")
-  pointTransaction PointTransaction?
+  replies  ForumReply[]
+  tags     ForumTag[]
+  upvoters User[]     @relation("upvoters")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -171,11 +153,10 @@ model ForumReply {
   userId String
   user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  content          String
-  upvotes          Int     @default(0)
-  isAccepted       Boolean @default(false)
-  upvoters         User[]  @relation("upvoters")
-  pointTransaction PointTransaction?
+  content    String
+  upvotes    Int     @default(0)
+  isAccepted Boolean @default(false)
+  upvoters   User[]  @relation("upvoters")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -302,29 +283,6 @@ model StudyGroupMember {
   @@unique([groupId, userId])
   @@index([groupId])
   @@index([userId])
-}
-
-// GAMIFICATION & POINTS
-
-model PointTransaction {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  actionType  PointActionType
-  points      Int
-  description String?
-
-  forumPostId  String?    @unique
-  forumPost    ForumPost? @relation(fields: [forumPostId], references: [id], onDelete: SetNull)
-  forumReplyId String?    @unique
-  forumReply   ForumReply? @relation(fields: [forumReplyId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([actionType])
-  @@index([createdAt])
 }
 
 model FlaggedContent {
