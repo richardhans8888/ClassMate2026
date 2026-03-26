@@ -25,10 +25,7 @@ services:
         NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}
         NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}
         NEXT_PUBLIC_FIREBASE_APP_ID: ${NEXT_PUBLIC_FIREBASE_APP_ID}
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
         NEXT_PUBLIC_BETTER_AUTH_URL: http://localhost:3000
-        NEXT_PUBLIC_TEST_MODE: "false"
     ports:
       - "3000:3000"
     depends_on:
@@ -37,11 +34,11 @@ services:
     env_file:
       - .env
     environment:
-      # Override DATABASE_URL to point to the local db service
+      # Points app to the Docker db service (overrides .env DATABASE_URL)
       DATABASE_URL: postgresql://postgres:postgres@db:5432/classmate
       BETTER_AUTH_URL: http://localhost:3000
       NEXT_PUBLIC_BETTER_AUTH_URL: http://localhost:3000
-    command: sh -c "npx prisma migrate deploy && npm start"
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm start"
 
 volumes:
   postgres_data:
