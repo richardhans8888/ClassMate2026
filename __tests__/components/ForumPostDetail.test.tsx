@@ -1,0 +1,201 @@
+/**
+ * @jest-environment jsdom
+ */
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+import { ForumPostDetail } from '@/components/features/forums/ForumPostDetail'
+
+describe('ForumPostDetail component', () => {
+  const mockPost = {
+    id: 'post-1',
+    title: 'How to solve quadratic equations?',
+    content: 'I am struggling with quadratic equations. Can someone explain the quadratic formula?',
+    category: 'math',
+    views: 42,
+    createdAt: '2026-03-20T10:00:00Z',
+    user: {
+      id: 'user-1',
+      email: 'student@example.com',
+      role: 'STUDENT',
+      profile: {
+        displayName: 'Alice Johnson',
+        avatarUrl: 'https://example.com/avatar.jpg',
+        major: 'Computer Science',
+      },
+    },
+    tags: [
+      { id: 'tag-1', name: 'algebra' },
+      { id: 'tag-2', name: 'homework' },
+    ],
+    _count: {
+      replies: 5,
+    },
+  }
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('renders without crashing', () => {
+    expect(() => render(<ForumPostDetail post={mockPost} />)).not.toThrow()
+  })
+
+  it('displays the post title', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    expect(screen.getByText('How to solve quadratic equations?')).toBeInTheDocument()
+  })
+
+  it('displays the post content', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    expect(
+      screen.getByText(
+        'I am struggling with quadratic equations. Can someone explain the quadratic formula?'
+      )
+    ).toBeInTheDocument()
+  })
+
+  it('displays the author name from profile displayName', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    expect(screen.getByText('Alice Johnson')).toBeInTheDocument()
+  })
+
+  it('displays the author role as "Tutor" when user is TUTOR', () => {
+    const tutorPost = {
+      ...mockPost,
+      user: { ...mockPost.user, role: 'TUTOR' },
+    }
+    render(<ForumPostDetail post={tutorPost} />)
+
+    expect(screen.getByText(/tutor/i)).toBeInTheDocument()
+  })
+
+  it('displays the author role as "Student" when user is STUDENT', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    expect(screen.getByText(/student/i)).toBeInTheDocument()
+  })
+
+  it('uses email prefix as displayName when profile displayName is null', () => {
+    const postWithoutDisplayName = {
+      ...mockPost,
+      user: {
+        ...mockPost.user,
+        profile: {
+          ...mockPost.user.profile,
+          displayName: null,
+        },
+      },
+    }
+    render(<ForumPostDetail post={postWithoutDisplayName} />)
+
+    expect(screen.getByText('student')).toBeInTheDocument()
+  })
+
+  it('displays category badge', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    expect(screen.getByText('math')).toBeInTheDocument()
+  })
+
+  it('displays the post creation date', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    // formatDate returns relative time (e.g., "5 days ago") or locale date string
+    // For a date 6 days in the past, it should display "5 days ago" format
+    expect(screen.getByText(/days ago|just now|hour|min ago/i)).toBeInTheDocument()
+  })
+
+  it('displays all tags', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    expect(screen.getByText('#algebra')).toBeInTheDocument()
+    expect(screen.getByText('#homework')).toBeInTheDocument()
+  })
+
+  it('does not render tags section when no tags exist', () => {
+    const postWithoutTags = { ...mockPost, tags: [] }
+    render(<ForumPostDetail post={postWithoutTags} />)
+
+    // Neither tag should be present
+    expect(screen.queryByText('#algebra')).not.toBeInTheDocument()
+    expect(screen.queryByText('#homework')).not.toBeInTheDocument()
+  })
+
+  it('displays replies count', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    expect(screen.getByText('5 Replies')).toBeInTheDocument()
+  })
+
+  it('displays views count', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    expect(screen.getByText('42 Views')).toBeInTheDocument()
+  })
+
+  it('does not render a Share button', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    // Verify no Share button or link exists
+    expect(screen.queryByRole('button', { name: /share/i })).not.toBeInTheDocument()
+  })
+
+  it('does not render a MoreHorizontal or options menu button', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    // Verify no more options button (MoreHorizontal icon should not exist)
+    expect(screen.queryByRole('button', { name: /more/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /options/i })).not.toBeInTheDocument()
+  })
+
+  it('displays author initial in avatar circle', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    // The avatar displays the first letter of the display name (A for Alice)
+    expect(screen.getByText('A')).toBeInTheDocument()
+  })
+
+  it('handles edge case: undefined profile gracefully', () => {
+    const postWithoutProfile = {
+      ...mockPost,
+      user: {
+        ...mockPost.user,
+        profile: null,
+      },
+    }
+    render(<ForumPostDetail post={postWithoutProfile} />)
+
+    // Should fall back to email prefix
+    expect(screen.getByText('student')).toBeInTheDocument()
+  })
+
+  it('renders with different categories', () => {
+    const categories = ['cs', 'physics', 'chemistry', 'biology', 'history']
+
+    categories.forEach((category) => {
+      const { unmount } = render(<ForumPostDetail post={{ ...mockPost, category }} />)
+
+      expect(screen.getByText(category)).toBeInTheDocument()
+      unmount()
+    })
+  })
+
+  it('displays message icon alongside replies count', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    const repliesSection = screen.getByText('5 Replies').parentElement
+    expect(repliesSection).toBeInTheDocument()
+    expect(repliesSection?.querySelector('svg')).toBeInTheDocument()
+  })
+
+  it('displays eye icon alongside views count', () => {
+    render(<ForumPostDetail post={mockPost} />)
+
+    const viewsSection = screen.getByText('42 Views').parentElement
+    expect(viewsSection).toBeInTheDocument()
+    expect(viewsSection?.querySelector('svg')).toBeInTheDocument()
+  })
+})

@@ -1,7 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { ArrowBigUp, MessageSquare, Eye, Share2, MoreHorizontal } from 'lucide-react'
+import { MessageSquare, Eye } from 'lucide-react'
 import { formatDate } from '@/lib/format'
 
 interface ForumPostDetailProps {
@@ -11,7 +10,6 @@ interface ForumPostDetailProps {
     content: string
     category: string
     views: number
-    upvotes: number
     createdAt: string
     user: {
       id: string
@@ -49,18 +47,9 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
-              {post.category}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-lg text-gray-400 dark:text-gray-500"
-            >
-              <MoreHorizontal className="h-5 w-5" />
-            </Button>
-          </div>
+          <span className="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+            {post.category}
+          </span>
         </div>
 
         <h1 className="mb-4 text-2xl font-bold text-gray-900 md:text-3xl dark:text-white">
@@ -84,28 +73,15 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
           </div>
         )}
 
-        <div className="flex items-center justify-between border-t border-gray-200 pt-6 dark:border-gray-700">
-          <div className="flex items-center gap-6">
-            <Button
-              variant="ghost"
-              className="rounded-lg px-2 text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-            >
-              <ArrowBigUp className="mr-1 h-6 w-6" />
-              <span className="font-medium">{post.upvotes}</span>
-            </Button>
-            <div className="flex items-center text-gray-500 dark:text-gray-400">
-              <MessageSquare className="mr-2 h-5 w-5" />
-              <span>{post._count.replies} Replies</span>
-            </div>
-            <div className="flex items-center text-gray-500 dark:text-gray-400">
-              <Eye className="mr-2 h-5 w-5" />
-              <span>{post.views} Views</span>
-            </div>
+        <div className="flex items-center gap-6 border-t border-gray-200 pt-6 dark:border-gray-700">
+          <div className="flex items-center text-gray-500 dark:text-gray-400">
+            <MessageSquare className="mr-2 h-5 w-5" />
+            <span>{post._count.replies} Replies</span>
           </div>
-          <Button variant="ghost" className="rounded-lg text-gray-500 dark:text-gray-400">
-            <Share2 className="mr-2 h-5 w-5" />
-            Share
-          </Button>
+          <div className="flex items-center text-gray-500 dark:text-gray-400">
+            <Eye className="mr-2 h-5 w-5" />
+            <span>{post.views} Views</span>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MessageSquare, Eye, ArrowBigUp } from 'lucide-react'
+import { MessageSquare, Eye } from 'lucide-react'
 
 interface ForumCardProps {
   id: number | string
@@ -8,7 +8,6 @@ interface ForumCardProps {
   category: string
   replies: number
   views: number
-  upvotes: number
   tags: string[]
   createdAt: string
 }
@@ -20,7 +19,6 @@ export function ForumCard({
   category,
   replies,
   views,
-  upvotes,
   tags,
   createdAt,
 }: ForumCardProps) {
@@ -43,10 +41,6 @@ export function ForumCard({
 
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-          <div className="flex items-center gap-1">
-            <ArrowBigUp className="h-5 w-5" />
-            <span>{upvotes}</span>
-          </div>
           <div className="flex items-center gap-1">
             <MessageSquare className="h-4 w-4" />
             <span>{replies} replies</span>

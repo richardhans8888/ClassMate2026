@@ -6,7 +6,6 @@ import { ForumCard } from './ForumCard'
 import { Loader2, AlertCircle, MessageSquarePlus, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/format'
-import { FORUM_CATEGORIES } from '@/lib/constants/forum'
 
 interface ForumPost {
   id: string
@@ -14,7 +13,6 @@ interface ForumPost {
   content: string
   category: string
   views: number
-  upvotes: number
   createdAt: string
   user: {
     id: string
@@ -37,18 +35,13 @@ interface RecommendedThread {
   reason: string
 }
 
-interface ForumListProps {
-  initialCategory?: string
-}
-
-export function ForumList({ initialCategory = 'all' }: ForumListProps) {
+export function ForumList() {
   const [posts, setPosts] = useState<ForumPost[]>([])
   const [recommendations, setRecommendations] = useState<RecommendedThread[]>([])
   const [recommendationsLoading, setRecommendationsLoading] = useState(true)
   const [recommendationsError, setRecommendationsError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [category, setCategory] = useState(initialCategory)
   const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
@@ -57,12 +50,7 @@ export function ForumList({ initialCategory = 'all' }: ForumListProps) {
       setError(null)
 
       try {
-        const url =
-          category && category !== 'all'
-            ? `/api/forums/posts?category=${encodeURIComponent(category)}`
-            : '/api/forums/posts'
-
-        const response = await fetch(url)
+        const response = await fetch('/api/forums/posts')
 
         if (!response.ok) {
           throw new Error('Failed to fetch posts')
@@ -78,7 +66,7 @@ export function ForumList({ initialCategory = 'all' }: ForumListProps) {
     }
 
     fetchPosts()
-  }, [category])
+  }, [])
 
   useEffect(() => {
     async function fetchRecommendations() {
@@ -147,125 +135,115 @@ export function ForumList({ initialCategory = 'all' }: ForumListProps) {
         </div>
       </div>
 
-      {/* Category Tabs */}
-      <div className="scrollbar-hide mb-6 flex items-center gap-2 overflow-x-auto pb-2">
-        {FORUM_CATEGORIES.map((cat) => (
-          <button
-            key={cat.value}
-            onClick={() => setCategory(cat.value)}
-            className={`rounded-full px-4 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-              category === cat.value
-                ? 'bg-blue-600 text-white'
-                : 'border border-gray-200 bg-white text-gray-600 hover:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
+      <div className="flex gap-6">
+        {/* Recommended Threads — left column, static */}
+        <div className="w-1/4 shrink-0">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              Recommended Threads
+            </h3>
+            {recommendationsLoading && (
+              <div className="mt-3 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...
+              </div>
+            )}
 
-      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Recommended Threads</h3>
-        {recommendationsLoading && (
-          <div className="mt-3 flex items-center text-sm text-gray-500 dark:text-gray-400">
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading recommendations...
+            {!recommendationsLoading && recommendationsError && (
+              <p className="mt-3 text-sm text-red-600 dark:text-red-400">{recommendationsError}</p>
+            )}
+
+            {!recommendationsLoading && !recommendationsError && recommendations.length === 0 && (
+              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                No recommendations yet. Start posting to personalize this list.
+              </p>
+            )}
+
+            {!recommendationsLoading && !recommendationsError && recommendations.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {recommendations.slice(0, 5).map((recommendation) => (
+                  <Link
+                    key={recommendation.id}
+                    href={`/forums/${recommendation.id}`}
+                    className="block rounded-lg border border-gray-200 px-3 py-2 transition-colors hover:border-blue-500 dark:border-gray-700"
+                  >
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {recommendation.title}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {recommendation.category} • {recommendation.reason}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-
-        {!recommendationsLoading && recommendationsError && (
-          <p className="mt-3 text-sm text-red-600 dark:text-red-400">{recommendationsError}</p>
-        )}
-
-        {!recommendationsLoading && !recommendationsError && recommendations.length === 0 && (
-          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-            No recommendations yet. Start posting to personalize this list.
-          </p>
-        )}
-
-        {!recommendationsLoading && !recommendationsError && recommendations.length > 0 && (
-          <div className="mt-3 space-y-2">
-            {recommendations.slice(0, 5).map((recommendation) => (
-              <Link
-                key={recommendation.id}
-                href={`/forums/${recommendation.id}`}
-                className="block rounded-lg border border-gray-200 px-3 py-2 transition-colors hover:border-blue-500 dark:border-gray-700"
-              >
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {recommendation.title}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {recommendation.category} • {recommendation.reason}
-                </p>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Loading State */}
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <span className="ml-3 text-gray-500 dark:text-gray-400">Loading discussions...</span>
         </div>
-      )}
 
-      {/* Error State */}
-      {error && !loading && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-12 dark:border-red-900 dark:bg-red-950">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <p className="mt-4 text-lg font-medium text-red-700 dark:text-red-400">{error}</p>
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={() => setCategory(category)} // Triggers refetch
-          >
-            Try Again
-          </Button>
-        </div>
-      )}
+        {/* Forum Posts — right column, scrollable */}
+        <div className="w-3/4">
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <span className="ml-3 text-gray-500 dark:text-gray-400">Loading discussions...</span>
+            </div>
+          )}
 
-      {/* Empty State */}
-      {!loading && !error && filteredPosts.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 bg-gray-50 py-12 dark:border-gray-700 dark:bg-gray-800">
-          <MessageSquarePlus className="h-12 w-12 text-gray-400" />
-          <p className="mt-4 text-lg font-medium text-gray-700 dark:text-gray-300">
-            {searchQuery ? 'No discussions match your search' : 'No discussions yet'}
-          </p>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {searchQuery ? 'Try a different search term' : 'Be the first to start a discussion!'}
-          </p>
-          {!searchQuery && (
-            <Link href="/forums/create">
-              <Button className="mt-4 bg-blue-600 text-white hover:bg-blue-700">
-                Start a Discussion
+          {/* Error State */}
+          {error && !loading && (
+            <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-12 dark:border-red-900 dark:bg-red-950">
+              <AlertCircle className="h-12 w-12 text-red-500" />
+              <p className="mt-4 text-lg font-medium text-red-700 dark:text-red-400">{error}</p>
+              <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+                Try Again
               </Button>
-            </Link>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && filteredPosts.length === 0 && (
+            <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 bg-gray-50 py-12 dark:border-gray-700 dark:bg-gray-800">
+              <MessageSquarePlus className="h-12 w-12 text-gray-400" />
+              <p className="mt-4 text-lg font-medium text-gray-700 dark:text-gray-300">
+                {searchQuery ? 'No discussions match your search' : 'No discussions yet'}
+              </p>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                {searchQuery
+                  ? 'Try a different search term'
+                  : 'Be the first to start a discussion!'}
+              </p>
+              {!searchQuery && (
+                <Link href="/forums/create">
+                  <Button className="mt-4 bg-blue-600 text-white hover:bg-blue-700">
+                    Start a Discussion
+                  </Button>
+                </Link>
+              )}
+            </div>
+          )}
+
+          {/* Posts List */}
+          {!loading && !error && filteredPosts.length > 0 && (
+            <div className="space-y-4">
+              {filteredPosts.map((post) => (
+                <ForumCard
+                  key={post.id}
+                  id={post.id}
+                  title={post.title}
+                  author={
+                    post.user.profile?.displayName ?? post.user.email.split('@')[0] ?? 'Anonymous'
+                  }
+                  category={post.category}
+                  replies={post._count.replies}
+                  views={post.views}
+                  tags={post.tags.map((t) => t.name)}
+                  createdAt={formatDate(post.createdAt)}
+                />
+              ))}
+            </div>
           )}
         </div>
-      )}
-
-      {/* Posts Grid */}
-      {!loading && !error && filteredPosts.length > 0 && (
-        <div className="space-y-4">
-          {filteredPosts.map((post) => (
-            <ForumCard
-              key={post.id}
-              id={post.id}
-              title={post.title}
-              author={
-                post.user.profile?.displayName ?? post.user.email.split('@')[0] ?? 'Anonymous'
-              }
-              category={post.category}
-              replies={post._count.replies}
-              views={post.views}
-              upvotes={post.upvotes}
-              tags={post.tags.map((t) => t.name)}
-              createdAt={formatDate(post.createdAt)}
-            />
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   )
 }
