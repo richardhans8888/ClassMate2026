@@ -34,6 +34,11 @@ export async function POST(req: NextRequest, context: { params: Promise<{ groupI
         data: { groupId, userId, role: 'member' },
       })
 
+      await tx.studyGroup.update({
+        where: { id: groupId },
+        data: { memberCount: { increment: 1 } },
+      })
+
       // Award XP for joining a group
       await tx.user.update({
         where: { id: userId },
@@ -64,9 +69,17 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ grou
   if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
 
   try {
-    await prisma.studyGroupMember.deleteMany({
+    const deleted = await prisma.studyGroupMember.deleteMany({
       where: { groupId, userId },
     })
+
+    if (deleted.count > 0) {
+      await prisma.studyGroup.update({
+        where: { id: groupId },
+        data: { memberCount: { decrement: 1 } },
+      })
+    }
+
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[DELETE /api/study-groups/[groupId]/join]', err)

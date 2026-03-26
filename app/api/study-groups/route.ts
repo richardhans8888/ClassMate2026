@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
@@ -52,6 +53,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'name, subject, ownerId required' }, { status: 400 })
 
   try {
+    const inviteCode = randomBytes(3).toString('hex').toUpperCase()
+
     const group = await prisma.$transaction(async (tx) => {
       const newGroup = await tx.studyGroup.create({
         data: {
@@ -61,6 +64,7 @@ export async function POST(req: NextRequest) {
           ownerId,
           maxMembers: maxMembers || 10,
           isPrivate: isPrivate || false,
+          inviteCode,
         },
       })
 
