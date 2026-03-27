@@ -207,8 +207,8 @@ export default function StudyGroupsPage() {
   }
 
   return (
-    <div className="bg-card text-foreground flex h-[calc(100vh-64px)] flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto p-6">
+    <div className="bg-background text-foreground flex h-[calc(100vh-64px)] flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 py-6 md:px-8">
         <div className="mb-6 flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-3">
             <DropdownMenu>

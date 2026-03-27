@@ -21,13 +21,13 @@ export default async function AdminModerationPage() {
   })
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 py-8 md:px-8">
       <h1 className="text-foreground text-2xl font-bold">Moderation Dashboard</h1>
       <p className="text-muted-foreground mt-2 text-sm">
         Pending flagged content requiring admin review.
       </p>
 
-      <div className="border-border bg-card mt-6 overflow-x-auto rounded-lg border dark:bg-[#1E1D2E]">
+      <div className="border-border bg-card mt-6 overflow-x-auto rounded-lg border">
         <table className="w-full text-left text-sm">
           <thead className="border-border bg-muted border-b">
             <tr>

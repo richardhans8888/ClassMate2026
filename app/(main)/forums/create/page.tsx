@@ -73,7 +73,7 @@ export default function CreateForumPostPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-8">
+    <div className="container mx-auto max-w-3xl px-6 py-8 md:px-8">
       <Link
         href="/forums"
         className="text-muted-foreground hover:text-primary mb-6 inline-flex items-center"

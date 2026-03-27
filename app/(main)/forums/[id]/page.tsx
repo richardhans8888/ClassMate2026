@@ -116,7 +116,7 @@ export default function ForumPostPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto flex max-w-4xl items-center justify-center px-4 py-12">
+      <div className="container mx-auto flex max-w-4xl items-center justify-center px-6 py-12 md:px-8">
         <Loader2 className="text-primary h-8 w-8 animate-spin" />
         <span className="text-muted-foreground ml-3">Loading discussion...</span>
       </div>
@@ -125,7 +125,7 @@ export default function ForumPostPage() {
 
   if (error || !post) {
     return (
-      <div className="container mx-auto max-w-4xl px-4 py-8">
+      <div className="container mx-auto max-w-4xl px-6 py-8 md:px-8">
         <Link
           href="/forums"
           className="text-muted-foreground hover:text-primary mb-6 inline-flex items-center"
@@ -149,7 +149,7 @@ export default function ForumPostPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
+    <div className="container mx-auto max-w-4xl px-6 py-8 md:px-8">
       <Link
         href="/forums"
         className="text-muted-foreground hover:text-primary mb-6 inline-flex items-center"

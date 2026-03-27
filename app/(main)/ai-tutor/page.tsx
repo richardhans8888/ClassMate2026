@@ -7,7 +7,7 @@ export default function AITutorPage() {
   const { messages, isLoading, error, sendMessage } = useChat()
 
   return (
-    <div className="bg-muted h-[calc(100vh-64px)] w-full overflow-hidden p-4 transition-colors duration-300 lg:p-6">
+    <div className="bg-muted h-[calc(100vh-64px)] w-full overflow-hidden px-6 py-4 transition-colors duration-300 md:px-8 lg:py-6">
       <div className="relative z-10 mx-auto h-full max-w-4xl">
         <ChatInterface
           messages={messages}

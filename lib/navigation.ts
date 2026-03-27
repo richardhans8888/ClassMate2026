@@ -1,33 +1,39 @@
 export type UserRole = 'STUDENT' | 'TUTOR' | 'ADMIN'
 
 type NavigationGroup = 'core' | 'more'
+export type SidebarSection = 'Main' | 'Learning' | 'Account'
 
-interface NavigationItem {
+export interface NavigationItem {
   href: string
   label: string
   group: NavigationGroup
+  icon: string
+  section: SidebarSection
   roles?: UserRole[]
 }
 
 export const navigationItems: NavigationItem[] = [
-  { href: '/', label: 'Home', group: 'core' },
-  { href: '/forums', label: 'Forums', group: 'core' },
-  { href: '/materials', label: 'Materials', group: 'core' },
-  { href: '/chat', label: 'Chat', group: 'core' },
-  { href: '/groups', label: 'Study Groups', group: 'core' },
-  { href: '/ai-tutor', label: 'Learn with AI', group: 'core' },
-  { href: '/admin/moderation', label: 'Moderation', group: 'core', roles: ['ADMIN'] },
+  { href: '/', label: 'Home', group: 'core', icon: 'LayoutDashboard', section: 'Main' },
+  { href: '/forums', label: 'Forums', group: 'core', icon: 'MessageSquare', section: 'Main' },
+  { href: '/groups', label: 'Study Groups', group: 'core', icon: 'Users', section: 'Main' },
+  { href: '/chat', label: 'Chat', group: 'core', icon: 'MessageCircle', section: 'Main' },
+  { href: '/materials', label: 'Materials', group: 'core', icon: 'BookOpen', section: 'Learning' },
+  { href: '/schedule', label: 'Schedule', group: 'core', icon: 'Calendar', section: 'Learning' },
+  { href: '/ai-tutor', label: 'Learn with AI', group: 'core', icon: 'Bot', section: 'Learning' },
+  { href: '/profile', label: 'Profile', group: 'core', icon: 'User', section: 'Account' },
+  {
+    href: '/admin/moderation',
+    label: 'Moderation',
+    group: 'core',
+    icon: 'Shield',
+    section: 'Account',
+    roles: ['ADMIN'],
+  },
 ]
 
 export function isNavigationItemVisible(item: NavigationItem, role: UserRole | null): boolean {
-  if (!item.roles || item.roles.length === 0) {
-    return true
-  }
-
-  if (!role) {
-    return false
-  }
-
+  if (!item.roles || item.roles.length === 0) return true
+  if (!role) return false
   return item.roles.includes(role)
 }
 
@@ -36,9 +42,19 @@ export function getNavigationByGroup(role: UserRole | null): {
   more: NavigationItem[]
 } {
   const visibleItems = navigationItems.filter((item) => isNavigationItemVisible(item, role))
-
   return {
     core: visibleItems.filter((item) => item.group === 'core'),
     more: visibleItems.filter((item) => item.group === 'more'),
+  }
+}
+
+export function getNavigationBySection(
+  role: UserRole | null
+): Record<SidebarSection, NavigationItem[]> {
+  const visibleItems = navigationItems.filter((item) => isNavigationItemVisible(item, role))
+  return {
+    Main: visibleItems.filter((item) => item.section === 'Main'),
+    Learning: visibleItems.filter((item) => item.section === 'Learning'),
+    Account: visibleItems.filter((item) => item.section === 'Account'),
   }
 }

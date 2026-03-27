@@ -101,7 +101,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="bg-background text-foreground min-h-screen p-4 transition-colors duration-300 md:p-8">
+    <div className="bg-background text-foreground min-h-screen px-6 py-4 transition-colors duration-300 md:px-8 md:py-8">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Profile Header Card */}
         <div className="border-border bg-card relative overflow-hidden rounded-3xl border p-6 shadow-sm md:p-8">
@@ -122,7 +122,7 @@ export default function ProfilePage() {
                     alt={displayName}
                     width={128}
                     height={128}
-                    className="h-full w-full rounded-full bg-[#FFD6A5]"
+                    className="bg-muted h-full w-full rounded-full"
                     unoptimized
                   />
                 </div>

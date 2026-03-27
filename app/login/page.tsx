@@ -85,7 +85,6 @@ export default function LoginPage() {
       router.push('/')
       router.refresh()
     } catch (error: unknown) {
-      console.error(error)
       setError(error instanceof Error ? error.message : 'Google sign in failed')
     } finally {
       setIsLoading(false)

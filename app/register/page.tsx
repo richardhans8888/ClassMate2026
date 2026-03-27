@@ -60,8 +60,7 @@ export default function RegisterPage() {
         router.push('/dashboard')
         router.refresh()
       }
-    } catch (err: unknown) {
-      console.error(err)
+    } catch {
       toast.error('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
