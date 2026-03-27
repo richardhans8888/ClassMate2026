@@ -65,7 +65,7 @@ export function ContactForm() {
   if (formState === 'success') {
     return (
       <div className="border-border bg-card flex flex-col items-center rounded-xl border p-8 text-center">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
+        <div className="bg-semantic-success/10 text-semantic-success mb-4 flex h-12 w-12 items-center justify-center rounded-full">
           <CheckCircle className="h-6 w-6" />
         </div>
         <h3 className="text-foreground mb-2 text-base font-semibold">Message Sent!</h3>
@@ -103,10 +103,10 @@ export function ContactForm() {
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder="Your name"
             className={`border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-offset-1 ${
-              errors.name ? 'border-red-500 focus:ring-red-500' : ''
+              errors.name ? 'border-semantic-error focus:ring-semantic-error' : ''
             }`}
           />
-          {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+          {errors.name && <p className="text-semantic-error text-xs">{errors.name}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -120,10 +120,10 @@ export function ContactForm() {
             onChange={(e) => handleChange('email', e.target.value)}
             placeholder="you@example.com"
             className={`border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-offset-1 ${
-              errors.email ? 'border-red-500 focus:ring-red-500' : ''
+              errors.email ? 'border-semantic-error focus:ring-semantic-error' : ''
             }`}
           />
-          {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+          {errors.email && <p className="text-semantic-error text-xs">{errors.email}</p>}
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export function ContactForm() {
           value={formData.category}
           onChange={(e) => handleChange('category', e.target.value)}
           className={`border-border bg-background text-foreground focus:ring-ring w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-offset-1 ${
-            errors.category ? 'border-red-500 focus:ring-red-500' : ''
+            errors.category ? 'border-semantic-error focus:ring-semantic-error' : ''
           }`}
         >
           <option value="" disabled>
@@ -148,7 +148,7 @@ export function ContactForm() {
             </option>
           ))}
         </select>
-        {errors.category && <p className="text-xs text-red-500">{errors.category}</p>}
+        {errors.category && <p className="text-semantic-error text-xs">{errors.category}</p>}
       </div>
 
       <div className="space-y-1.5">
@@ -162,20 +162,20 @@ export function ContactForm() {
           onChange={(e) => handleChange('message', e.target.value)}
           placeholder="Tell us how we can help..."
           className={`border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring w-full resize-none rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-offset-1 ${
-            errors.message ? 'border-red-500 focus:ring-red-500' : ''
+            errors.message ? 'border-semantic-error focus:ring-semantic-error' : ''
           }`}
         />
-        {errors.message && <p className="text-xs text-red-500">{errors.message}</p>}
+        {errors.message && <p className="text-semantic-error text-xs">{errors.message}</p>}
       </div>
 
       <button
         type="submit"
         disabled={formState === 'submitting'}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
       >
         {formState === 'submitting' ? (
           <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <span className="border-primary-foreground/30 border-t-primary-foreground h-4 w-4 animate-spin rounded-full border-2" />
             Sending...
           </>
         ) : (

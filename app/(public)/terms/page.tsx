@@ -26,7 +26,7 @@ export default function TermsPage() {
 
           <ContentSection title="User Responsibilities">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+              <span className="bg-accent text-primary mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg">
                 <UserCheck className="h-3.5 w-3.5" />
               </span>
               <p className="text-muted-foreground text-sm leading-relaxed">
@@ -39,7 +39,7 @@ export default function TermsPage() {
 
           <ContentSection title="Content Ownership">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+              <span className="bg-accent text-primary mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg">
                 <FileText className="h-3.5 w-3.5" />
               </span>
               <p className="text-muted-foreground text-sm leading-relaxed">

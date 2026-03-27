@@ -51,7 +51,7 @@ export default function ContactPage() {
             <div className="space-y-3">
               {contactDetails.map((detail) => (
                 <div key={detail.label} className="flex items-center gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                  <span className="bg-accent text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
                     {detail.icon}
                   </span>
                   <div>

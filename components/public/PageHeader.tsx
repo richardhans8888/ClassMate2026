@@ -12,7 +12,7 @@ export function PageHeader({ title, description, badge, icon }: PageHeaderProps)
     <div className="border-border bg-muted/30 border-b py-12 sm:py-16">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6">
         {icon && (
-          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+          <div className="bg-accent text-primary mb-4 flex h-11 w-11 items-center justify-center rounded-xl">
             {icon}
           </div>
         )}

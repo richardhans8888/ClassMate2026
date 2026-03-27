@@ -31,7 +31,7 @@ export function CalendarGrid({
     <>
       <div className="mb-2 grid grid-cols-7 gap-2">
         {DAYS.map((d) => (
-          <div key={d} className="text-center text-xs text-gray-500 dark:text-gray-400">
+          <div key={d} className="text-muted-foreground text-center text-xs">
             {d}
           </div>
         ))}
@@ -49,13 +49,13 @@ export function CalendarGrid({
               onClick={() => onCellClick(dateISO)}
               className={`h-28 rounded-xl border p-2 text-left transition-colors ${
                 inCurrent
-                  ? 'border-gray-200 bg-white hover:border-blue-500 dark:border-gray-800 dark:bg-[#0F1117]'
-                  : 'border-gray-200 bg-gray-100 opacity-70 dark:border-gray-800 dark:bg-[#0D1320]'
+                  ? 'border-border bg-card hover:border-primary'
+                  : 'border-border bg-muted opacity-70'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div
-                  className={`text-xs font-medium ${inCurrent ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}
+                  className={`text-xs font-medium ${inCurrent ? 'text-foreground' : 'text-muted-foreground'}`}
                 >
                   {cell.day}
                 </div>
@@ -75,7 +75,7 @@ export function CalendarGrid({
                   </div>
                 ))}
                 {cellEvents.length > 3 && (
-                  <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                  <div className="text-muted-foreground text-[11px]">
                     +{cellEvents.length - 3} more
                   </div>
                 )}

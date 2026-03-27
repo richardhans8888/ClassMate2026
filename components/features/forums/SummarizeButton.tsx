@@ -47,7 +47,7 @@ export function SummarizeButton({ threadContent }: SummarizeButtonProps) {
         onClick={handleSummarize}
         disabled={loading}
         variant="outline"
-        className="rounded-lg border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+        className="border-border text-primary hover:bg-accent hover:text-accent-foreground rounded-lg"
       >
         {loading ? (
           <>
@@ -63,22 +63,22 @@ export function SummarizeButton({ threadContent }: SummarizeButtonProps) {
       </Button>
 
       {summary && (
-        <div className="mt-4 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 shadow-sm">
+        <div className="border-border bg-accent mt-4 rounded-xl border p-4 shadow-sm">
           <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-blue-600" />
-              <h4 className="font-semibold text-blue-900">AI Thread Summary</h4>
+              <Sparkles className="text-primary h-4 w-4" />
+              <h4 className="text-accent-foreground font-semibold">AI Thread Summary</h4>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-gray-400 hover:text-gray-600"
+              className="text-muted-foreground hover:text-foreground h-6 w-6"
               onClick={() => setSummary(null)}
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <p className="text-sm leading-relaxed text-gray-700">{summary}</p>
+          <p className="text-foreground text-sm leading-relaxed">{summary}</p>
         </div>
       )}
     </div>

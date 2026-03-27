@@ -117,7 +117,7 @@ export function HelpFAQ() {
             onClick={() => handleCategoryChange(i)}
             className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
               activeCategory === i
-                ? 'border-blue-600 bg-blue-600/10 text-blue-600 dark:border-blue-400 dark:bg-blue-500/10 dark:text-blue-400'
+                ? 'border-primary bg-accent text-primary'
                 : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
           >

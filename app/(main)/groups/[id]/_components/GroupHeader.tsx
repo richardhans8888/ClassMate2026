@@ -36,26 +36,22 @@ export function GroupHeader({
   onBack,
 }: GroupHeaderProps) {
   return (
-    <header className="z-10 flex h-20 items-center justify-between border-b border-gray-200 bg-white/80 px-8 backdrop-blur-md dark:border-white/5 dark:bg-[#151921]/50">
+    <header className="border-border bg-card/80 z-10 flex h-20 items-center justify-between border-b px-8 backdrop-blur-md">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20">
+        <div className="bg-primary text-primary-foreground shadow-primary/20 flex h-12 w-12 items-center justify-center rounded-lg shadow-lg">
           <span className="text-xl font-bold">M</span>
         </div>
         <div>
           <div className="mb-1 flex items-center gap-3">
-            <h1 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
-              {groupInfo.name}
-            </h1>
-            <span className="rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-[10px] font-bold tracking-wide text-gray-500 uppercase dark:border-white/5 dark:bg-white/10 dark:text-gray-400">
+            <h1 className="text-foreground text-lg font-bold tracking-tight">{groupInfo.name}</h1>
+            <span className="border-border bg-muted text-muted-foreground rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase">
               GROUP {groupInfo.id}
             </span>
           </div>
-          <p className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+          <p className="text-muted-foreground flex items-center gap-2 text-xs font-medium">
             {groupInfo.subtitle}
-            <span className="h-1 w-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-            <span className="text-emerald-600 dark:text-emerald-400">
-              {groupInfo.membersOnline} Members Online
-            </span>
+            <span className="bg-border h-1 w-1 rounded-full"></span>
+            <span className="text-semantic-success">{groupInfo.membersOnline} Members Online</span>
           </p>
         </div>
       </div>
@@ -63,15 +59,15 @@ export function GroupHeader({
       <div className="flex items-center gap-4">
         {!searchOpen ? (
           <button
-            className="rounded-full p-2.5 text-gray-500 transition hover:bg-gray-100 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+            className="text-muted-foreground hover:bg-muted hover:text-primary rounded-full p-2.5 transition"
             onClick={onSearchOpen}
             title="Search"
           >
             <Search className="h-5 w-5" />
           </button>
         ) : (
-          <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-100 px-3 py-1.5 dark:border-white/10 dark:bg-[#1E2330]">
-            <Search className="h-4 w-4 text-gray-500" />
+          <div className="border-border bg-muted flex items-center gap-2 rounded-full border px-3 py-1.5">
+            <Search className="text-muted-foreground h-4 w-4" />
             <input
               autoFocus
               value={searchQuery}
@@ -80,15 +76,15 @@ export function GroupHeader({
                 if (e.key === 'Escape') onSearchClose()
               }}
               placeholder="Search messages"
-              className="w-48 bg-transparent text-sm text-gray-900 outline-none dark:text-gray-200"
+              className="text-foreground placeholder:text-muted-foreground w-48 bg-transparent text-sm outline-none"
             />
             {searchQuery && (
-              <span className="rounded bg-gray-200 px-2 py-0.5 text-[11px] text-gray-600 dark:bg-white/10 dark:text-gray-300">
+              <span className="bg-border text-muted-foreground rounded px-2 py-0.5 text-[11px]">
                 {filteredCount}
               </span>
             )}
             <button
-              className="rounded-full p-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10"
+              className="text-muted-foreground hover:bg-card rounded-full p-1.5"
               onClick={onSearchClose}
               title="Close"
             >
@@ -100,7 +96,7 @@ export function GroupHeader({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="rounded-full p-2.5 text-gray-500 transition hover:bg-gray-100 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+              className="text-muted-foreground hover:bg-muted hover:text-primary rounded-full p-2.5 transition"
               title="More"
             >
               <MoreVertical className="h-5 w-5" />

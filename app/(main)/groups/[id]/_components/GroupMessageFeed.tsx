@@ -13,7 +13,7 @@ export function GroupMessageFeed({ messages, scrollRef }: GroupMessageFeedProps)
   return (
     <div className="flex-1 space-y-8 overflow-y-auto p-8" ref={scrollRef}>
       <div className="pointer-events-none sticky top-0 z-10 flex justify-center">
-        <span className="rounded-full border border-gray-200 bg-gray-100/80 px-4 py-1.5 text-xs font-medium text-gray-500 shadow-sm backdrop-blur-sm dark:border-white/5 dark:bg-[#1E2330]/80 dark:text-gray-400">
+        <span className="border-border bg-muted/80 text-muted-foreground rounded-full border px-4 py-1.5 text-xs font-medium shadow-sm backdrop-blur-sm">
           Today, October 24
         </span>
       </div>
@@ -22,10 +22,10 @@ export function GroupMessageFeed({ messages, scrollRef }: GroupMessageFeedProps)
         if (msg.type === 'system') {
           return (
             <div key={msg.id} className="my-6 flex justify-center opacity-60">
-              <p className="flex items-center gap-2 text-xs font-medium text-gray-400 italic">
-                <span className="h-[1px] w-8 bg-gray-300 dark:bg-gray-700"></span>
+              <p className="text-muted-foreground flex items-center gap-2 text-xs font-medium italic">
+                <span className="bg-border h-[1px] w-8"></span>
                 {msg.content}
-                <span className="h-[1px] w-8 bg-gray-300 dark:bg-gray-700"></span>
+                <span className="bg-border h-[1px] w-8"></span>
               </p>
             </div>
           )
@@ -39,8 +39,8 @@ export function GroupMessageFeed({ messages, scrollRef }: GroupMessageFeedProps)
             className={`flex gap-4 ${isMe ? 'justify-end' : 'justify-start'} group`}
           >
             {!isMe && (
-              <div className="mt-1 h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border-2 border-white bg-gray-100 shadow-sm dark:border-white/10 dark:bg-gray-700">
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-bold text-white">
+              <div className="border-card bg-muted mt-1 h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border-2 shadow-sm">
+                <div className="bg-primary text-primary-foreground flex h-full w-full items-center justify-center text-sm font-bold">
                   {msg.sender?.name[0] ?? '?'}
                 </div>
               </div>
@@ -50,45 +50,41 @@ export function GroupMessageFeed({ messages, scrollRef }: GroupMessageFeedProps)
               <div className="mb-1.5 flex items-center gap-2 px-1">
                 {!isMe && (
                   <>
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">
-                      {msg.sender?.name}
-                    </span>
-                    <span className="rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:border-white/5 dark:bg-white/10 dark:text-gray-300">
+                    <span className="text-foreground text-sm font-bold">{msg.sender?.name}</span>
+                    <span className="border-border bg-muted text-muted-foreground rounded-full border px-2 py-0.5 text-[10px] font-medium">
                       {msg.sender?.role}
                     </span>
                   </>
                 )}
-                <span className="text-[10px] font-medium text-gray-400 opacity-0 transition-opacity group-hover:opacity-100">
+                <span className="text-muted-foreground text-[10px] font-medium opacity-0 transition-opacity group-hover:opacity-100">
                   {msg.timestamp}
                 </span>
-                {isMe && (
-                  <span className="text-sm font-bold text-gray-900 dark:text-white">You</span>
-                )}
+                {isMe && <span className="text-foreground text-sm font-bold">You</span>}
               </div>
 
               <div
                 className={`relative rounded-2xl p-4 text-[15px] leading-relaxed shadow-sm ${
                   isMe
-                    ? 'rounded-tr-sm bg-gradient-to-br from-indigo-600 to-purple-600 text-white'
-                    : 'rounded-tl-sm border border-gray-100 bg-white text-gray-700 dark:border-white/5 dark:bg-[#1E2330] dark:text-gray-200'
+                    ? 'bg-primary text-primary-foreground rounded-tr-sm'
+                    : 'border-border bg-card text-foreground rounded-tl-sm border'
                 }`}
               >
                 {msg.content}
 
                 {msg.attachment && (
-                  <div className="group/file mt-4 flex cursor-pointer items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-3 transition hover:bg-gray-100 dark:border-white/5 dark:bg-black/20 dark:hover:bg-black/30">
-                    <div className="rounded-lg border border-red-100 bg-red-50 p-2.5 text-red-500 transition group-hover/file:text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:group-hover/file:text-red-300">
+                  <div className="group/file border-border bg-muted hover:bg-muted/80 mt-4 flex cursor-pointer items-center gap-4 rounded-lg border p-3 transition">
+                    <div className="border-semantic-error/30 bg-semantic-error/10 text-semantic-error rounded-lg border p-2.5 transition">
                       <FileText className="h-6 w-6" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-gray-900 dark:text-white">
+                      <p className="text-foreground truncate text-sm font-bold">
                         {msg.attachment.name}
                       </p>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      <p className="text-muted-foreground text-xs font-medium">
                         {msg.attachment.size} • PDF Document
                       </p>
                     </div>
-                    <button className="rounded-full p-2 text-gray-400 transition hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-white/10 dark:hover:text-white">
+                    <button className="text-muted-foreground hover:bg-card hover:text-foreground rounded-full p-2 transition">
                       <Download className="h-4 w-4" />
                     </button>
                   </div>
@@ -97,8 +93,8 @@ export function GroupMessageFeed({ messages, scrollRef }: GroupMessageFeedProps)
             </div>
 
             {isMe && (
-              <div className="mt-1 h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border-2 border-white bg-gray-100 shadow-sm dark:border-white/10 dark:bg-gray-700">
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-sm font-bold text-white">
+              <div className="border-card bg-muted mt-1 h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border-2 shadow-sm">
+                <div className="bg-primary text-primary-foreground flex h-full w-full items-center justify-center text-sm font-bold">
                   Y
                 </div>
               </div>

@@ -110,25 +110,25 @@ export function ForumList() {
       {/* Header */}
       <div className="mb-8 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Discussion Forums</h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <h2 className="text-foreground text-2xl font-bold">Discussion Forums</h2>
+          <p className="text-muted-foreground mt-1 text-sm">
             Ask questions, share knowledge, and learn together.
           </p>
         </div>
 
         <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
           <div className="relative w-full sm:w-64">
-            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search discussions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 bg-white py-2 pr-4 pl-9 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="border-border bg-card text-foreground focus:ring-ring w-full rounded-lg border py-2 pr-4 pl-9 text-sm focus:ring-2 focus:outline-none"
             />
           </div>
           <Link href="/forums/create">
-            <Button className="shrink-0 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 rounded-lg">
               <MessageSquarePlus className="mr-2 h-4 w-4" /> New Discussion
             </Button>
           </Link>
@@ -138,22 +138,20 @@ export function ForumList() {
       <div className="flex gap-6">
         {/* Recommended Threads — left column, static */}
         <div className="w-1/4 shrink-0">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-              Recommended Threads
-            </h3>
+          <div className="border-border bg-card rounded-xl border p-4">
+            <h3 className="text-foreground text-sm font-semibold">Recommended Threads</h3>
             {recommendationsLoading && (
-              <div className="mt-3 flex items-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-muted-foreground mt-3 flex items-center text-sm">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...
               </div>
             )}
 
             {!recommendationsLoading && recommendationsError && (
-              <p className="mt-3 text-sm text-red-600 dark:text-red-400">{recommendationsError}</p>
+              <p className="text-semantic-error mt-3 text-sm">{recommendationsError}</p>
             )}
 
             {!recommendationsLoading && !recommendationsError && recommendations.length === 0 && (
-              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-muted-foreground mt-3 text-sm">
                 No recommendations yet. Start posting to personalize this list.
               </p>
             )}
@@ -164,12 +162,10 @@ export function ForumList() {
                   <Link
                     key={recommendation.id}
                     href={`/forums/${recommendation.id}`}
-                    className="block rounded-lg border border-gray-200 px-3 py-2 transition-colors hover:border-blue-500 dark:border-gray-700"
+                    className="border-border hover:border-primary block rounded-lg border px-3 py-2 transition-colors"
                   >
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {recommendation.title}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-foreground text-sm font-medium">{recommendation.title}</p>
+                    <p className="text-muted-foreground text-xs">
                       {recommendation.category} • {recommendation.reason}
                     </p>
                   </Link>
@@ -184,16 +180,16 @@ export function ForumList() {
           {/* Loading State */}
           {loading && (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="ml-3 text-gray-500 dark:text-gray-400">Loading discussions...</span>
+              <Loader2 className="text-primary h-8 w-8 animate-spin" />
+              <span className="text-muted-foreground ml-3">Loading discussions...</span>
             </div>
           )}
 
           {/* Error State */}
           {error && !loading && (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-12 dark:border-red-900 dark:bg-red-950">
-              <AlertCircle className="h-12 w-12 text-red-500" />
-              <p className="mt-4 text-lg font-medium text-red-700 dark:text-red-400">{error}</p>
+            <div className="border-semantic-error/30 bg-semantic-error/10 flex flex-col items-center justify-center rounded-xl border py-12">
+              <AlertCircle className="text-semantic-error h-12 w-12" />
+              <p className="text-semantic-error mt-4 text-lg font-medium">{error}</p>
               <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
                 Try Again
               </Button>
@@ -202,19 +198,19 @@ export function ForumList() {
 
           {/* Empty State */}
           {!loading && !error && filteredPosts.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 bg-gray-50 py-12 dark:border-gray-700 dark:bg-gray-800">
-              <MessageSquarePlus className="h-12 w-12 text-gray-400" />
-              <p className="mt-4 text-lg font-medium text-gray-700 dark:text-gray-300">
+            <div className="border-border bg-muted flex flex-col items-center justify-center rounded-xl border py-12">
+              <MessageSquarePlus className="text-muted-foreground h-12 w-12" />
+              <p className="text-foreground mt-4 text-lg font-medium">
                 {searchQuery ? 'No discussions match your search' : 'No discussions yet'}
               </p>
-              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-muted-foreground mt-2 text-sm">
                 {searchQuery
                   ? 'Try a different search term'
                   : 'Be the first to start a discussion!'}
               </p>
               {!searchQuery && (
                 <Link href="/forums/create">
-                  <Button className="mt-4 bg-blue-600 text-white hover:bg-blue-700">
+                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90 mt-4">
                     Start a Discussion
                   </Button>
                 </Link>

@@ -22,14 +22,14 @@ export default async function AdminModerationPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Moderation Dashboard</h1>
-      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      <h1 className="text-foreground text-2xl font-bold">Moderation Dashboard</h1>
+      <p className="text-muted-foreground mt-2 text-sm">
         Pending flagged content requiring admin review.
       </p>
 
-      <div className="mt-6 overflow-x-auto rounded-lg border bg-white dark:bg-slate-900">
+      <div className="border-border bg-card mt-6 overflow-x-auto rounded-lg border dark:bg-[#1E1D2E]">
         <table className="w-full text-left text-sm">
-          <thead className="border-b bg-gray-50 dark:bg-slate-800">
+          <thead className="border-border bg-muted border-b">
             <tr>
               <th className="px-4 py-3">Type</th>
               <th className="px-4 py-3">Content ID</th>
@@ -41,7 +41,7 @@ export default async function AdminModerationPage() {
           <tbody>
             {flags.length === 0 ? (
               <tr>
-                <td className="px-4 py-6 text-gray-500 dark:text-gray-400" colSpan={5}>
+                <td className="text-muted-foreground px-4 py-6" colSpan={5}>
                   No pending flags.
                 </td>
               </tr>

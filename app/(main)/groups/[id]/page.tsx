@@ -155,17 +155,17 @@ export default function GroupChatPage() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-white font-sans text-gray-900 dark:bg-[#0F1115] dark:text-white">
+    <div className="bg-card text-foreground flex h-screen w-full overflow-hidden font-sans">
       <GroupNavSidebar
         onBack={() => router.push('/groups')}
         onToggleSidebar={() => setShowSidebar((s) => !s)}
         onToggleFiles={() => setShowFiles((s) => !s)}
       />
 
-      <div className="relative flex flex-1 flex-col bg-gray-50/50 dark:bg-[#0F1115]">
+      <div className="relative flex flex-1 flex-col">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute top-[-20%] left-[-10%] h-[50%] w-[50%] rounded-full bg-purple-500/5 blur-[120px] dark:bg-purple-900/10"></div>
-          <div className="absolute right-[-10%] bottom-[-20%] h-[50%] w-[50%] rounded-full bg-indigo-500/5 blur-[120px] dark:bg-indigo-900/10"></div>
+          <div className="bg-primary/5 absolute top-[-20%] left-[-10%] h-[50%] w-[50%] rounded-full blur-[120px]"></div>
+          <div className="bg-primary/5 absolute right-[-10%] bottom-[-20%] h-[50%] w-[50%] rounded-full blur-[120px]"></div>
         </div>
 
         <GroupHeader

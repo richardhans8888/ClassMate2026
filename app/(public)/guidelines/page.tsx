@@ -13,7 +13,7 @@ const guidelines = [
   {
     title: 'Respect & Kindness',
     icon: <Heart className="h-4 w-4" />,
-    color: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+    color: 'bg-semantic-error/10 text-semantic-error',
     description:
       'ClassMate thrives when everyone feels welcome and valued. Treat every member — regardless of their background, level of knowledge, or opinion — with courtesy and empathy.',
     dos: [
@@ -32,7 +32,7 @@ const guidelines = [
   {
     title: 'Academic Integrity',
     icon: <GraduationCap className="h-4 w-4" />,
-    color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+    color: 'bg-semantic-warning/10 text-semantic-warning',
     description:
       'ClassMate is a platform for genuine learning and collaboration. Academic honesty is the foundation of a credible education and a trustworthy community.',
     dos: [
@@ -51,7 +51,7 @@ const guidelines = [
   {
     title: 'Safety & Privacy',
     icon: <Shield className="h-4 w-4" />,
-    color: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    color: 'bg-accent text-primary',
     description:
       'Everyone deserves a safe space to learn. Protecting the privacy and wellbeing of all users is a shared responsibility.',
     dos: [
@@ -103,7 +103,7 @@ export default function GuidelinesPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <p className="text-foreground flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase">
-                      <Check className="h-3.5 w-3.5 text-emerald-500" />
+                      <Check className="text-semantic-success h-3.5 w-3.5" />
                       Do
                     </p>
                     <ul className="space-y-1.5">
@@ -112,7 +112,7 @@ export default function GuidelinesPage() {
                           key={item}
                           className="text-muted-foreground flex items-start gap-2 text-sm"
                         >
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                          <span className="bg-semantic-success mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" />
                           {item}
                         </li>
                       ))}
@@ -121,7 +121,7 @@ export default function GuidelinesPage() {
 
                   <div className="space-y-2">
                     <p className="text-foreground flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase">
-                      <X className="h-3.5 w-3.5 text-red-500" />
+                      <X className="text-semantic-error h-3.5 w-3.5" />
                       Don&apos;t
                     </p>
                     <ul className="space-y-1.5">
@@ -130,7 +130,7 @@ export default function GuidelinesPage() {
                           key={item}
                           className="text-muted-foreground flex items-start gap-2 text-sm"
                         >
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                          <span className="bg-semantic-error mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" />
                           {item}
                         </li>
                       ))}

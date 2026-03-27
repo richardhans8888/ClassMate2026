@@ -24,19 +24,19 @@ const item = {
 export default function Dashboard() {
   const router = useRouter()
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#0F172A] dark:text-white">
+    <div className="bg-background min-h-screen transition-colors duration-300">
       {/* Hero Section */}
-      <section className="border-b border-gray-200 px-5 pt-12 pb-12 sm:px-6 sm:pt-14 sm:pb-14 md:px-12 md:pt-16 md:pb-14 dark:border-gray-800">
+      <section className="border-border border-b px-5 pt-12 pb-12 sm:px-6 sm:pt-14 sm:pb-14 md:px-12 md:pt-16 md:pb-14">
         <div className="mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl leading-tight font-bold text-transparent sm:text-3xl md:text-4xl lg:text-5xl dark:from-blue-400 dark:to-purple-400">
+            <h1 className="text-foreground mb-4 text-2xl leading-tight font-bold sm:text-3xl md:text-4xl lg:text-5xl">
               Your Academic Community Hub
             </h1>
-            <p className="mb-8 max-w-2xl text-base leading-relaxed text-gray-600 md:text-lg dark:text-gray-400">
+            <p className="text-muted-foreground mb-8 max-w-2xl text-base leading-relaxed md:text-lg">
               Connect with fellow students, join study groups, share materials, and collaborate in
               forums powered by AI moderation.
             </p>
@@ -45,14 +45,14 @@ export default function Dashboard() {
           {/* Featured & Trending Header */}
           <div className="mb-5 flex items-end justify-between md:mb-6">
             <div className="flex items-center gap-2">
-              <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-                <Flame className="h-5 w-5 animate-pulse fill-blue-600 text-blue-600 md:h-6 md:w-6 dark:fill-blue-400 dark:text-blue-400" />
+              <div className="bg-accent rounded-lg p-2">
+                <Flame className="fill-primary text-primary h-5 w-5 animate-pulse md:h-6 md:w-6" />
               </div>
               <h2 className="text-xl font-bold md:text-2xl">Featured & Trending</h2>
             </div>
             <Link
               href="/groups"
-              className="group flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              className="group text-primary flex items-center gap-1 text-sm font-medium hover:underline"
             >
               View all groups
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -74,7 +74,7 @@ export default function Dashboard() {
               role="button"
               aria-label="Open Forums"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
+              <div className="bg-primary absolute inset-0" />
 
               {/* Decorative circles */}
               <div className="absolute top-0 right-0 -mt-10 -mr-10 h-32 w-32 rounded-full bg-white/10 blur-xl" />
@@ -97,8 +97,8 @@ export default function Dashboard() {
                   Discussion Forums
                 </h3>
                 <div className="flex items-end justify-between">
-                  <p className="flex items-center gap-1 text-sm text-gray-200">
-                    <Zap className="h-3 w-3 fill-yellow-300 text-yellow-300" />
+                  <p className="flex items-center gap-1 text-sm text-white/80">
+                    <Zap className="fill-semantic-warning text-semantic-warning h-3 w-3" />
                     Ask questions & share knowledge
                   </p>
                 </div>
@@ -108,56 +108,54 @@ export default function Dashboard() {
             {/* Study Groups Card */}
             <motion.div
               variants={item}
-              className="group relative cursor-pointer rounded-2xl border border-gray-200 bg-white p-5 shadow-md transition-all hover:-translate-y-1 hover:border-blue-500 hover:shadow-lg dark:border-gray-800 dark:bg-[#1E293B] dark:hover:border-blue-500"
+              className="group border-border bg-card hover:border-primary relative cursor-pointer rounded-2xl border p-5 shadow-md transition-all hover:-translate-y-1 hover:shadow-lg"
               onClick={() => router.push('/groups')}
               role="button"
               aria-label="View Study Groups"
             >
               <div className="absolute top-5 right-5 flex flex-col items-end gap-1">
-                <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-100 px-2 py-1 dark:border-gray-700 dark:bg-[#0F172A]">
-                  <Users className="h-3 w-3 text-blue-500" />
-                  <span className="text-xs font-bold text-gray-900 dark:text-white">12</span>
+                <div className="border-border bg-muted flex items-center gap-1 rounded-md border px-2 py-1">
+                  <Users className="text-primary h-3 w-3" />
+                  <span className="text-foreground text-xs font-bold">12</span>
                 </div>
-                <span className="text-[10px] font-medium text-blue-600 dark:text-blue-300">
-                  Active Now
-                </span>
+                <span className="text-primary text-[10px] font-medium">Active Now</span>
               </div>
 
               <div className="mb-3 flex items-start gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-lg font-bold text-white shadow-inner">
+                <div className="bg-semantic-success flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white shadow-inner">
                   <Users className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="flex items-center gap-1 text-lg font-bold text-gray-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+                  <h3 className="text-foreground group-hover:text-primary flex items-center gap-1 text-lg font-bold transition-colors">
                     Study Groups
                   </h3>
-                  <p className="text-sm text-blue-600 dark:text-blue-400">Collaborate & Learn</p>
+                  <p className="text-primary text-sm">Collaborate & Learn</p>
                 </div>
               </div>
 
               <div className="mb-3 flex flex-wrap gap-2">
-                <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:border-gray-700 dark:bg-[#0F172A] dark:text-gray-300">
+                <span className="border-border bg-muted text-muted-foreground rounded-md border px-2 py-1 text-[10px]">
                   Calculus
                 </span>
-                <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:border-gray-700 dark:bg-[#0F172A] dark:text-gray-300">
+                <span className="border-border bg-muted text-muted-foreground rounded-md border px-2 py-1 text-[10px]">
                   Physics
                 </span>
-                <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:border-gray-700 dark:bg-[#0F172A] dark:text-gray-300">
+                <span className="border-border bg-muted text-muted-foreground rounded-md border px-2 py-1 text-[10px]">
                   Chemistry
                 </span>
               </div>
 
-              <p className="mb-4 line-clamp-2 text-xs text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground mb-4 line-clamp-2 text-xs">
                 Join study groups to collaborate with peers, share notes, and prepare for exams
                 together.
               </p>
 
               <div className="mt-auto flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <span className="text-muted-foreground text-sm font-medium">
                   5 groups available
                 </span>
                 <button
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition-all hover:bg-blue-700 hover:shadow-md active:scale-95"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium shadow transition-all hover:shadow-md active:scale-95"
                   onClick={(e) => {
                     e.stopPropagation()
                     router.push('/groups')
@@ -171,22 +169,22 @@ export default function Dashboard() {
             {/* AI Promo Card */}
             <motion.div
               variants={item}
-              className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-indigo-900/50 bg-gradient-to-br from-[#1E1B4B] to-[#1E293B] p-6 text-center shadow-lg transition-all hover:-translate-y-1 hover:shadow-indigo-500/20"
+              className="group border-border relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border bg-[#1E1D2E] p-6 text-center shadow-lg transition-all hover:-translate-y-1"
             >
-              <div className="pointer-events-none absolute top-0 right-0 -mt-16 -mr-16 h-32 w-32 rounded-full bg-indigo-500/10 blur-3xl"></div>
+              <div className="bg-primary/10 pointer-events-none absolute top-0 right-0 -mt-16 -mr-16 h-32 w-32 rounded-full blur-3xl"></div>
 
-              <div className="animate-bounce-slow mb-4 rounded-full bg-indigo-500/20 p-4 transition-transform duration-500 group-hover:scale-110">
-                <Bot className="h-8 w-8 text-indigo-400" />
+              <div className="animate-bounce-slow bg-primary/20 mb-4 rounded-full p-4 transition-transform duration-500 group-hover:scale-110">
+                <Bot className="text-primary h-8 w-8" />
               </div>
 
               <h3 className="mb-2 text-xl font-bold text-white">Try AI Tutoring</h3>
-              <p className="mb-6 max-w-xs text-sm text-gray-400">
+              <p className="text-muted-foreground mb-6 max-w-xs text-sm">
                 Get instant help with homework, concept explanations, and quiz generation 24/7.
               </p>
 
               <Link
                 href="/ai-tutor"
-                className="transform rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2.5 font-medium text-white shadow-lg shadow-indigo-500/25 transition-all hover:-translate-y-0.5 hover:scale-105 hover:from-indigo-500 hover:to-purple-500 active:scale-95"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 transform rounded-full px-6 py-2.5 font-medium shadow-lg transition-all hover:-translate-y-0.5 hover:scale-105 active:scale-95"
               >
                 Start Free Chat
               </Link>

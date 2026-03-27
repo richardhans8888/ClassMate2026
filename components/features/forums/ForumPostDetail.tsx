@@ -33,30 +33,28 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
   const authorRole = post.user.role === 'TUTOR' ? 'Tutor' : 'Student'
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="border-border bg-card overflow-hidden rounded-xl border shadow-sm">
       <div className="p-6 md:p-8">
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+            <div className="bg-muted text-primary flex h-10 w-10 items-center justify-center rounded-full font-bold">
               {authorName.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h3 className="font-medium text-gray-900 dark:text-white">{authorName}</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <h3 className="text-foreground font-medium">{authorName}</h3>
+              <p className="text-muted-foreground text-xs">
                 {authorRole} &bull; {formatDate(post.createdAt)}
               </p>
             </div>
           </div>
-          <span className="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+          <span className="bg-accent text-accent-foreground rounded px-2.5 py-0.5 text-xs font-semibold">
             {post.category}
           </span>
         </div>
 
-        <h1 className="mb-4 text-2xl font-bold text-gray-900 md:text-3xl dark:text-white">
-          {post.title}
-        </h1>
+        <h1 className="text-foreground mb-4 text-2xl font-bold md:text-3xl">{post.title}</h1>
 
-        <div className="prose mb-6 max-w-none whitespace-pre-line text-gray-700 dark:text-gray-300">
+        <div className="prose text-foreground dark:prose-invert mb-6 max-w-none whitespace-pre-line">
           {post.content}
         </div>
 
@@ -65,7 +63,7 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
             {post.tags.map((tag) => (
               <span
                 key={tag.id}
-                className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                className="bg-muted text-muted-foreground rounded-md px-3 py-1 text-sm"
               >
                 #{tag.name}
               </span>
@@ -73,12 +71,12 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
           </div>
         )}
 
-        <div className="flex items-center gap-6 border-t border-gray-200 pt-6 dark:border-gray-700">
-          <div className="flex items-center text-gray-500 dark:text-gray-400">
+        <div className="border-border flex items-center gap-6 border-t pt-6">
+          <div className="text-muted-foreground flex items-center">
             <MessageSquare className="mr-2 h-5 w-5" />
             <span>{post._count.replies} Replies</span>
           </div>
-          <div className="flex items-center text-gray-500 dark:text-gray-400">
+          <div className="text-muted-foreground flex items-center">
             <Eye className="mr-2 h-5 w-5" />
             <span>{post.views} Views</span>
           </div>

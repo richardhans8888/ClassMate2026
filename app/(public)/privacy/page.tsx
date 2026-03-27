@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           <ContentSection title="Information We Collect">
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                <span className="bg-accent text-primary mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg">
                   <Eye className="h-3.5 w-3.5" />
                 </span>
                 <div>
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                <span className="bg-accent text-primary mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg">
                   <Database className="h-3.5 w-3.5" />
                 </span>
                 <div>
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                <span className="bg-accent text-primary mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg">
                   <Lock className="h-3.5 w-3.5" />
                 </span>
                 <div>

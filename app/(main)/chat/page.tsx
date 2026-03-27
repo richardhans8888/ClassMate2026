@@ -93,27 +93,25 @@ export default function ChatPage() {
 
   return (
     <div className="h-full flex-1">
-      <div className="h-full overflow-y-auto bg-white md:hidden dark:bg-gray-900">
-        <div className="sticky top-0 z-10 border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-          <h2 className="mb-3 text-xl font-bold text-gray-900 dark:text-white">Messages</h2>
+      <div className="bg-card h-full overflow-y-auto md:hidden">
+        <div className="border-border bg-card sticky top-0 z-10 border-b p-4">
+          <h2 className="text-foreground mb-3 text-xl font-bold">Messages</h2>
           <div className="relative">
-            <Search className="absolute top-2.5 left-3 h-4 w-4 text-gray-400" />
+            <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
             <input
               type="text"
               placeholder="Search messages..."
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="w-full rounded-lg border border-transparent bg-gray-50 py-2 pr-4 pl-9 text-sm text-gray-900 transition-colors focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-gray-800 dark:text-white dark:focus:bg-gray-900"
+              className="bg-muted text-foreground focus:bg-card focus:ring-ring w-full rounded-lg border border-transparent py-2 pr-4 pl-9 text-sm transition-colors focus:ring-2 focus:outline-none"
             />
           </div>
         </div>
 
-        {loading && (
-          <p className="p-4 text-sm text-gray-500 dark:text-gray-400">Loading conversations...</p>
-        )}
-        {!loading && error && <p className="p-4 text-sm text-red-600">{error}</p>}
+        {loading && <p className="text-muted-foreground p-4 text-sm">Loading conversations...</p>}
+        {!loading && error && <p className="text-semantic-error p-4 text-sm">{error}</p>}
         {!loading && !error && filteredConversations.length === 0 && (
-          <p className="p-4 text-sm text-gray-500 dark:text-gray-400">No conversations yet.</p>
+          <p className="text-muted-foreground p-4 text-sm">No conversations yet.</p>
         )}
 
         {!loading &&
@@ -126,37 +124,33 @@ export default function ChatPage() {
             return (
               <Link href={`/chat/${conversation.userId}`} key={conversation.userId}>
                 <div
-                  className={`border-b border-gray-50 p-4 dark:border-gray-800 ${
-                    conversation.unreadCount > 0
-                      ? 'bg-blue-50/50 dark:bg-blue-900/20'
-                      : 'bg-white dark:bg-gray-900'
+                  className={`border-border border-b p-4 ${
+                    conversation.unreadCount > 0 ? 'bg-accent/50' : 'bg-card'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-lg font-bold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                    <div className="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold">
                       {initial}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex items-baseline justify-between">
-                        <h3 className="truncate font-semibold text-gray-900 dark:text-white">
-                          {displayName}
-                        </h3>
-                        <span className="text-xs whitespace-nowrap text-gray-500 dark:text-gray-400">
+                        <h3 className="text-foreground truncate font-semibold">{displayName}</h3>
+                        <span className="text-muted-foreground text-xs whitespace-nowrap">
                           {formatTime(conversation.lastMessage.createdAt)}
                         </span>
                       </div>
                       <p
                         className={`truncate text-sm ${
                           conversation.unreadCount > 0
-                            ? 'font-medium text-gray-900 dark:text-gray-100'
-                            : 'text-gray-500 dark:text-gray-400'
+                            ? 'text-foreground font-medium'
+                            : 'text-muted-foreground'
                         }`}
                       >
                         {conversation.lastMessage.content}
                       </p>
                     </div>
                     {conversation.unreadCount > 0 && (
-                      <div className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-xs font-bold text-white">
+                      <div className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-bold">
                         {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
                       </div>
                     )}
@@ -167,14 +161,12 @@ export default function ChatPage() {
           })}
       </div>
 
-      <div className="hidden h-full flex-col items-center justify-center bg-gray-50 p-8 text-center md:flex dark:bg-gray-800">
-        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-          <Send className="ml-1 h-10 w-10 text-blue-600" />
+      <div className="bg-muted hidden h-full flex-col items-center justify-center p-8 text-center md:flex">
+        <div className="bg-accent mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+          <Send className="text-primary ml-1 h-10 w-10" />
         </div>
-        <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
-          Select a conversation
-        </h2>
-        <p className="max-w-md text-gray-500 dark:text-gray-400">
+        <h2 className="text-foreground mb-2 text-2xl font-bold">Select a conversation</h2>
+        <p className="text-muted-foreground max-w-md">
           Choose a contact from the list to start chatting.
         </p>
       </div>

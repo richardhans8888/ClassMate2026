@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 const COLOR_OPTIONS = [
-  'bg-blue-500',
-  'bg-emerald-500',
-  'bg-purple-500',
-  'bg-amber-500',
-  'bg-rose-500',
+  'bg-primary',
+  'bg-semantic-success',
+  'bg-secondary',
+  'bg-semantic-warning',
+  'bg-semantic-error',
 ]
 
 interface EventDialogProps {
@@ -33,7 +33,7 @@ interface EventDialogProps {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 dark:border-gray-800 dark:bg-[#15181E] dark:text-white'
+  'w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground'
 
 export function EventDialog({
   open,
@@ -57,12 +57,12 @@ export function EventDialog({
 }: EventDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0F1117]">
+      <DialogContent className="border-border bg-card border">
         <DialogHeader>
           <DialogTitle>{editingId ? 'Edit Schedule' : 'Add Schedule'}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="text-muted-foreground text-sm">
             {draftDate ? new Date(draftDate).toDateString() : ''}
           </div>
           <input
@@ -100,7 +100,7 @@ export function EventDialog({
               <button
                 key={c}
                 onClick={() => onColorChange(c)}
-                className={`h-6 w-6 rounded ${c} ${color === c ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-white dark:ring-offset-[#0F1117]' : ''}`}
+                className={`h-6 w-6 rounded ${c} ${color === c ? 'ring-ring ring-offset-card ring-2 ring-offset-2' : ''}`}
                 aria-label={c}
               />
             ))}
@@ -110,7 +110,7 @@ export function EventDialog({
               Cancel
             </Button>
             <Button
-              className="rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
               onClick={onSave}
               disabled={saving}
             >

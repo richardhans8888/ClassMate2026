@@ -17,12 +17,12 @@ export default function PublicLayout({
   return (
     <div className="bg-background flex min-h-screen flex-col">
       <header className="border-border bg-background/95 sticky top-0 z-50 border-b backdrop-blur-sm">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4 sm:px-6">
+        <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex items-center justify-center rounded-lg bg-blue-600 p-1.5">
-              <BookOpen className="h-4 w-4 text-white" />
+            <div className="bg-primary flex items-center justify-center rounded-lg p-1.5">
+              <BookOpen className="text-primary-foreground h-5 w-5" />
             </div>
-            <span className="text-foreground text-base font-bold tracking-tight">ClassMate</span>
+            <span className="text-foreground text-xl font-bold tracking-tight">ClassMate</span>
           </Link>
 
           <div className="flex items-center gap-2">

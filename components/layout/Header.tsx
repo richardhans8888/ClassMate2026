@@ -72,17 +72,15 @@ export function Header({ onLogout }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white text-gray-900 transition-colors duration-300 dark:border-gray-800 dark:bg-[#0F172A] dark:text-white">
+    <header className="border-border bg-background text-foreground sticky top-0 z-50 w-full border-b transition-colors duration-300">
       <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
         {/* Logo */}
         <div className="flex items-center gap-8 md:gap-16">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex items-center justify-center rounded-lg bg-blue-600 p-1.5">
+            <div className="bg-primary flex items-center justify-center rounded-lg p-1.5">
               <BookOpen className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-              ClassMate
-            </span>
+            <span className="text-foreground text-xl font-bold tracking-tight">ClassMate</span>
           </Link>
         </div>
 
@@ -93,14 +91,12 @@ export function Header({ onLogout }: HeaderProps) {
               key={item.href}
               href={item.href}
               className={`relative rounded-md px-3 py-1.5 transition-colors ${
-                isActive(item.href)
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+                isActive(item.href) ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {item.label}
               {isActive(item.href) && (
-                <span className="absolute inset-x-3 -bottom-[18px] h-[2px] rounded-full bg-blue-600 dark:bg-blue-400" />
+                <span className="bg-primary absolute inset-x-3 -bottom-[18px] h-[2px] rounded-full" />
               )}
             </Link>
           ))}
@@ -113,10 +109,10 @@ export function Header({ onLogout }: HeaderProps) {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="group rounded-full transition-all outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                <div className="h-9 w-9 cursor-pointer rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[2px] transition-transform group-hover:scale-105">
-                  <div className="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-[#0F172A]">
-                    <User className="h-5 w-5 text-gray-500 dark:text-gray-300" />
+              <button className="group focus-visible:ring-ring rounded-full transition-all outline-none focus-visible:ring-2">
+                <div className="bg-primary h-9 w-9 cursor-pointer rounded-full p-[2px] transition-transform group-hover:scale-105">
+                  <div className="bg-background flex h-full w-full items-center justify-center rounded-full">
+                    <User className="text-muted-foreground h-5 w-5" />
                   </div>
                 </div>
               </button>
@@ -144,7 +140,7 @@ export function Header({ onLogout }: HeaderProps) {
 
               {/* Sign Out */}
               <DropdownMenuItem
-                className="cursor-pointer text-red-600 dark:text-red-400"
+                className="text-semantic-error cursor-pointer"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
               >
@@ -163,21 +159,19 @@ export function Header({ onLogout }: HeaderProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-lg text-gray-500 md:hidden dark:text-gray-400"
+                className="text-muted-foreground rounded-lg md:hidden"
               >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 bg-white p-0 dark:bg-[#0F172A]">
+            <SheetContent side="left" className="bg-background w-72 p-0">
               <div className="flex h-full flex-col">
                 {/* Brand header */}
-                <div className="flex items-center gap-3 border-b border-gray-100 px-5 py-4 pr-12 dark:border-gray-800">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600">
+                <div className="border-border flex items-center gap-3 border-b px-5 py-4 pr-12">
+                  <div className="bg-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
                     <BookOpen className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-base font-bold text-gray-900 dark:text-white">
-                    ClassMate
-                  </span>
+                  <span className="text-foreground text-base font-bold">ClassMate</span>
                 </div>
 
                 {/* Nav links */}
@@ -189,8 +183,8 @@ export function Header({ onLogout }: HeaderProps) {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                         isActive(item.href)
-                          ? 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400'
-                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
+                          ? 'bg-accent text-primary'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                       }`}
                     >
                       {item.label}

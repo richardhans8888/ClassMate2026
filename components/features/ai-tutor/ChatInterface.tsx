@@ -70,27 +70,27 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
   }
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-gray-800 dark:bg-[#0F1117]">
+    <div className="border-border bg-card relative flex h-full flex-col overflow-hidden rounded-2xl border shadow-sm transition-colors duration-300">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 p-6 dark:border-gray-800/50">
+      <div className="border-border flex items-center justify-between border-b p-6">
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
-          <span className="font-medium text-gray-900 dark:text-gray-200">AI Tutor Online</span>
+          <div className="bg-semantic-success h-2 w-2 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+          <span className="text-foreground font-medium">AI Tutor Online</span>
         </div>
       </div>
 
       {/* Chat Area */}
       <div ref={chatBoxRef} className="flex-1 space-y-8 overflow-y-auto p-6">
         {error && (
-          <div className="rounded-xl bg-red-50 p-3 text-center text-sm text-red-500 dark:bg-red-900/20">
+          <div className="bg-semantic-error/10 text-semantic-error rounded-xl p-3 text-center text-sm">
             {error}
           </div>
         )}
 
         {messages.length === 0 && !isLoading && (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center opacity-50">
-            <Bot className="h-10 w-10 text-indigo-400" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <Bot className="text-primary h-10 w-10" />
+            <p className="text-muted-foreground text-sm">
               Ask me anything — I&apos;m here to help you learn.
             </p>
           </div>
@@ -101,7 +101,7 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
           return (
             <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
               {msg.role === 'assistant' && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 shadow-lg shadow-indigo-500/20">
+                <div className="bg-primary shadow-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-lg">
                   <Bot className="h-5 w-5 text-white" />
                 </div>
               )}
@@ -110,8 +110,8 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
                 <div
                   className={`rounded-2xl p-4 shadow-sm ${
                     msg.role === 'user'
-                      ? 'rounded-tr-none bg-blue-600 text-white dark:bg-[#2A2D3A] dark:text-gray-100'
-                      : 'rounded-tl-none border border-gray-200 bg-gray-100 text-gray-800 dark:border-gray-800 dark:bg-[#1E2028] dark:text-gray-300'
+                      ? 'bg-primary text-primary-foreground rounded-tr-none'
+                      : 'border-border bg-muted text-foreground rounded-tl-none border'
                   }`}
                 >
                   <div className="space-y-3 leading-relaxed whitespace-pre-wrap">
@@ -127,18 +127,20 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
                       ) : (
                         <div
                           key={i}
-                          className="overflow-hidden rounded-xl border border-gray-700 bg-[#1e293b] shadow-md dark:bg-[#0D0F14]"
+                          className="border-border overflow-hidden rounded-xl border bg-[#1E1D2E] shadow-md"
                         >
-                          <div className="flex items-center justify-between border-b border-gray-700 bg-[#0f172a] px-4 py-2 dark:bg-[#1A1C24]">
-                            <span className="font-mono text-xs text-gray-400">{part.language}</span>
+                          <div className="border-border flex items-center justify-between border-b bg-[#0F0E17] px-4 py-2">
+                            <span className="text-muted-foreground font-mono text-xs">
+                              {part.language}
+                            </span>
                             <div className="flex gap-1.5">
-                              <div className="h-2.5 w-2.5 rounded-full bg-red-500/40"></div>
-                              <div className="h-2.5 w-2.5 rounded-full bg-yellow-500/40"></div>
-                              <div className="h-2.5 w-2.5 rounded-full bg-green-500/40"></div>
+                              <div className="bg-semantic-error/40 h-2.5 w-2.5 rounded-full"></div>
+                              <div className="bg-semantic-warning/40 h-2.5 w-2.5 rounded-full"></div>
+                              <div className="bg-semantic-success/40 h-2.5 w-2.5 rounded-full"></div>
                             </div>
                           </div>
                           <div className="overflow-x-auto p-4">
-                            <pre className="font-mono text-sm text-gray-300">
+                            <pre className="text-foreground/80 font-mono text-sm">
                               <code>{part.content}</code>
                             </pre>
                           </div>
@@ -150,7 +152,7 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
               </div>
 
               {msg.role === 'user' && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-emerald-500 bg-emerald-100 p-0.5">
+                <div className="border-semantic-success bg-semantic-success/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 p-0.5">
                   <Image
                     src="https://api.dicebear.com/7.x/avataaars/svg?seed=Richard"
                     alt="User"
@@ -167,10 +169,10 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
 
         {isLoading && (
           <div className="flex gap-4">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600">
+            <div className="bg-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
               <Bot className="h-5 w-5 text-white" />
             </div>
-            <div className="rounded-2xl rounded-tl-none border border-gray-200 bg-gray-100 p-4 dark:border-gray-800 dark:bg-[#1E2028]">
+            <div className="border-border bg-muted rounded-2xl rounded-tl-none border p-4">
               <div className="flex h-5 items-center gap-1">
                 {[0, 1, 2].map((i) => (
                   <motion.div
@@ -181,7 +183,7 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
                       repeat: Infinity,
                       delay: i * 0.15,
                     }}
-                    className="h-2 w-2 rounded-full bg-indigo-400"
+                    className="bg-primary h-2 w-2 rounded-full"
                   />
                 ))}
               </div>
@@ -192,8 +194,8 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
 
       {/* Input Area */}
       <div className="p-6 pt-0">
-        <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-2 pr-2 shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-[#1E2028]">
-          <button className="rounded-xl p-2 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
+        <div className="border-border bg-muted flex items-center gap-3 rounded-2xl border p-2 pr-2 shadow-sm transition-shadow hover:shadow-md">
+          <button className="text-muted-foreground hover:bg-card hover:text-foreground rounded-lg p-2 transition-colors">
             <Plus className="h-5 w-5" />
           </button>
           <input
@@ -202,23 +204,23 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask a follow-up question..."
-            className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-500 focus:outline-none dark:text-gray-200"
+            className="text-foreground placeholder-muted-foreground flex-1 bg-transparent text-sm focus:outline-none"
             disabled={isLoading}
           />
           <div className="flex items-center gap-2">
-            <button className="rounded-xl p-2 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
+            <button className="text-muted-foreground hover:bg-card hover:text-foreground rounded-lg p-2 transition-colors">
               <ImageIcon className="h-5 w-5" />
             </button>
             <button
               onClick={handleSend}
               disabled={isLoading || !input.trim()}
-              className="rounded-xl bg-indigo-600 p-2 text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 rounded-xl p-2 shadow-lg transition-colors disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
             </button>
           </div>
         </div>
-        <p className="mt-3 text-center text-xs text-gray-500 dark:text-gray-600">
+        <p className="text-muted-foreground mt-3 text-center text-xs">
           AI can make mistakes. Consider checking important information.
         </p>
       </div>

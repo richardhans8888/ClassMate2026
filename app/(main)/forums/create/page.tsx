@@ -76,23 +76,18 @@ export default function CreateForumPostPage() {
     <div className="container mx-auto max-w-3xl px-4 py-8">
       <Link
         href="/forums"
-        className="mb-6 inline-flex items-center text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+        className="text-muted-foreground hover:text-primary mb-6 inline-flex items-center"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Forums
       </Link>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h1 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
-          Create New Discussion
-        </h1>
+      <div className="border-border bg-card rounded-xl border p-8 shadow-sm">
+        <h1 className="text-foreground mb-6 text-2xl font-bold">Create New Discussion</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label
-              htmlFor="title"
-              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
+            <label htmlFor="title" className="text-foreground mb-1 block text-sm font-medium">
               Title
             </label>
             <input
@@ -101,7 +96,7 @@ export default function CreateForumPostPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What's your question or topic?"
-              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500"
+              className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
               required
               disabled={loading}
             />
@@ -109,17 +104,14 @@ export default function CreateForumPostPage() {
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label
-                htmlFor="category"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="category" className="text-foreground mb-1 block text-sm font-medium">
                 Category
               </label>
               <select
                 id="category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+                className="border-border bg-muted text-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
                 required
                 disabled={loading}
               >
@@ -136,10 +128,7 @@ export default function CreateForumPostPage() {
             </div>
 
             <div>
-              <label
-                htmlFor="tags"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="tags" className="text-foreground mb-1 block text-sm font-medium">
                 Tags (comma separated)
               </label>
               <input
@@ -148,17 +137,14 @@ export default function CreateForumPostPage() {
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
                 placeholder="e.g., calculus, homework, derivatives"
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500"
+                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
                 disabled={loading}
               />
             </div>
           </div>
 
           <div>
-            <label
-              htmlFor="content"
-              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
+            <label htmlFor="content" className="text-foreground mb-1 block text-sm font-medium">
               Content
             </label>
             <textarea
@@ -167,14 +153,14 @@ export default function CreateForumPostPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Describe your question or discussion topic in detail..."
-              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500"
+              className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
               required
               disabled={loading}
             />
-            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Markdown is supported.</p>
+            <p className="text-muted-foreground mt-2 text-xs">Markdown is supported.</p>
           </div>
 
-          <div className="flex justify-end gap-4 border-t border-gray-200 pt-4 dark:border-gray-700">
+          <div className="border-border flex justify-end gap-4 border-t pt-4">
             <Link href="/forums">
               <Button variant="outline" type="button" className="rounded-lg" disabled={loading}>
                 Cancel
@@ -182,7 +168,7 @@ export default function CreateForumPostPage() {
             </Link>
             <Button
               type="submit"
-              className="rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
               disabled={loading}
             >
               {loading ? (

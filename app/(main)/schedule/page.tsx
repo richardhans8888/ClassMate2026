@@ -27,7 +27,7 @@ export default function MySchedulePage() {
   const [endTime, setEndTime] = useState('')
   const [category, setCategory] = useState('math')
   const [description, setDescription] = useState('')
-  const [color, setColor] = useState('bg-blue-500')
+  const [color, setColor] = useState('bg-primary')
 
   const monthMatrix = useMemo(() => buildMonthMatrix(current.year, current.month), [current])
   const monthLabel = useMemo(
@@ -66,7 +66,7 @@ export default function MySchedulePage() {
     setEndTime('')
     setDescription('')
     setCategory('math')
-    setColor('bg-blue-500')
+    setColor('bg-primary')
     setOpen(true)
   }
 
@@ -171,7 +171,7 @@ export default function MySchedulePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0F172A]">
+    <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-5xl px-6 py-8">
         <CalendarHeader
           monthLabel={monthLabel}
@@ -181,13 +181,13 @@ export default function MySchedulePage() {
         />
 
         {error && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+          <div className="border-semantic-error/30 bg-semantic-error/10 text-semantic-error mb-4 rounded-lg border px-4 py-3 text-sm">
             {error}
           </div>
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-8 text-gray-600 dark:border-gray-800 dark:bg-[#0F1117] dark:text-gray-300">
+          <div className="border-border bg-card text-muted-foreground flex items-center justify-center rounded-xl border p-8">
             <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading schedule...
           </div>
         ) : (

@@ -14,12 +14,12 @@ export function CalendarHeader({ monthLabel, onPrev, onNext, onNewEvent }: Calen
   return (
     <div className="mb-6 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-blue-600 p-2 text-white">
+        <div className="bg-primary text-primary-foreground rounded-lg p-2">
           <Calendar className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">My Schedule</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">{monthLabel}</p>
+          <h1 className="text-foreground text-xl font-bold">My Schedule</h1>
+          <p className="text-muted-foreground text-sm">{monthLabel}</p>
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -30,7 +30,7 @@ export function CalendarHeader({ monthLabel, onPrev, onNext, onNewEvent }: Calen
           <ChevronRight className="h-4 w-4" />
         </Button>
         <Button
-          className="rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
           onClick={onNewEvent}
         >
           <Plus className="mr-2 h-4 w-4" />

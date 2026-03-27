@@ -17,20 +17,20 @@ export function EventList({ events, loading, onEdit, onDelete }: EventListProps)
 
   return (
     <div className="mt-8">
-      <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+      <h2 className="text-foreground mb-3 flex items-center gap-2 text-sm font-semibold">
         <Clock className="h-4 w-4" /> Upcoming
       </h2>
       <div className="space-y-3">
         {sorted.map((e) => (
           <div
             key={e.id}
-            className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-[#0F1117]"
+            className="border-border bg-card flex items-center justify-between rounded-xl border p-3"
           >
             <div className="flex items-center gap-3">
               <div className={`h-6 w-2 rounded ${e.color}`} />
               <div>
-                <div className="text-sm font-medium text-gray-900 dark:text-white">{e.title}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-foreground text-sm font-medium">{e.title}</div>
+                <div className="text-muted-foreground text-xs">
                   {new Date(e.date).toLocaleDateString()} {formatEventTime(e.startTime, e.endTime)}
                 </div>
               </div>
@@ -51,7 +51,7 @@ export function EventList({ events, loading, onEdit, onDelete }: EventListProps)
           </div>
         ))}
         {!loading && events.length === 0 && (
-          <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 dark:border-gray-800 dark:bg-[#0F1117] dark:text-gray-300">
+          <div className="border-border bg-card text-muted-foreground rounded-xl border p-4 text-sm">
             No events yet. Add your first schedule item.
           </div>
         )}

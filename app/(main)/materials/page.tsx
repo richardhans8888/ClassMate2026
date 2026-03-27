@@ -119,13 +119,13 @@ export default function MaterialsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 flex flex-col items-center justify-between gap-4 md:flex-row">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Study Materials</h1>
-          <p className="mt-1 text-gray-600 dark:text-gray-400">
+          <h1 className="text-foreground text-2xl font-bold">Study Materials</h1>
+          <p className="text-muted-foreground mt-1">
             Share and discover resources to boost your learning.
           </p>
         </div>
         <Link href="/materials/upload">
-          <Button className="rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg">
             <Upload className="mr-2 h-4 w-4" />
             Upload Material
           </Button>
@@ -135,13 +135,13 @@ export default function MaterialsPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
         {/* Sidebar Filters */}
         <div className="space-y-6 lg:col-span-1">
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="border-border bg-card rounded-xl border p-5 shadow-sm">
             <div className="relative mb-4">
-              <Search className="absolute top-2.5 left-3 h-4 w-4 text-gray-400" />
+              <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
               <input
                 type="text"
                 placeholder="Search resources..."
-                className="w-full rounded-lg border border-gray-200 bg-white py-2 pr-4 pl-9 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500"
+                className="border-border bg-card text-foreground focus:ring-ring placeholder:text-muted-foreground w-full rounded-lg border py-2 pr-4 pl-9 text-sm focus:ring-2 focus:outline-none"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
@@ -149,7 +149,7 @@ export default function MaterialsPage() {
 
             <div className="space-y-4">
               <div>
-                <h3 className="mb-3 flex items-center font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-foreground mb-3 flex items-center font-semibold">
                   <Filter className="mr-2 h-4 w-4" />
                   Subject
                 </h3>
@@ -160,13 +160,13 @@ export default function MaterialsPage() {
                         type="radio"
                         name="subject"
                         id={`subject-${subject}`}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="border-border text-primary focus:ring-ring rounded"
                         checked={selectedSubject === subject}
                         onChange={() => setSelectedSubject(subject)}
                       />
                       <label
                         htmlFor={`subject-${subject}`}
-                        className="cursor-pointer text-sm text-gray-700 select-none dark:text-gray-300"
+                        className="text-foreground cursor-pointer text-sm select-none"
                       >
                         {subject}
                       </label>
@@ -176,7 +176,7 @@ export default function MaterialsPage() {
               </div>
 
               <div>
-                <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">File Type</h3>
+                <h3 className="text-foreground mb-3 font-semibold">File Type</h3>
                 <div className="space-y-2">
                   {['All Types', ...dynamicTypes].map((type) => (
                     <div key={type} className="flex items-center space-x-2">
@@ -184,13 +184,13 @@ export default function MaterialsPage() {
                         type="radio"
                         name="type"
                         id={`type-${type}`}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="border-border text-primary focus:ring-ring rounded"
                         checked={selectedType === type}
                         onChange={() => setSelectedType(type)}
                       />
                       <label
                         htmlFor={`type-${type}`}
-                        className="cursor-pointer text-sm text-gray-700 select-none dark:text-gray-300"
+                        className="text-foreground cursor-pointer text-sm select-none"
                       >
                         {type}
                       </label>
@@ -201,25 +201,25 @@ export default function MaterialsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-green-100 bg-green-50 p-5">
+          <div className="border-semantic-success/30 bg-semantic-success/10 rounded-xl border p-5">
             <div className="mb-2 flex items-center gap-3">
-              <div className="rounded-lg bg-green-100 p-2">
-                <Download className="h-5 w-5 text-green-600" />
+              <div className="bg-semantic-success/20 rounded-lg p-2">
+                <Download className="text-semantic-success h-5 w-5" />
               </div>
-              <h3 className="font-semibold text-green-900">Top Contributors</h3>
+              <h3 className="text-foreground font-semibold">Top Contributors</h3>
             </div>
             <ul className="mt-3 space-y-3">
               <li className="flex justify-between text-sm">
-                <span className="text-green-800">Sarah Chen</span>
-                <span className="font-medium text-green-700">12 uploads</span>
+                <span className="text-foreground">Sarah Chen</span>
+                <span className="text-semantic-success font-medium">12 uploads</span>
               </li>
               <li className="flex justify-between text-sm">
-                <span className="text-green-800">Mike Ross</span>
-                <span className="font-medium text-green-700">8 uploads</span>
+                <span className="text-foreground">Mike Ross</span>
+                <span className="text-semantic-success font-medium">8 uploads</span>
               </li>
               <li className="flex justify-between text-sm">
-                <span className="text-green-800">Jessica Pearson</span>
-                <span className="font-medium text-green-700">6 uploads</span>
+                <span className="text-foreground">Jessica Pearson</span>
+                <span className="text-semantic-success font-medium">6 uploads</span>
               </li>
             </ul>
           </div>
@@ -227,16 +227,14 @@ export default function MaterialsPage() {
 
         {/* Materials Grid */}
         <div className="lg:col-span-3">
-          <div className="mb-6 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="border-border bg-card mb-6 flex items-center justify-between rounded-lg border p-4 shadow-sm">
+            <div className="text-muted-foreground text-sm">
               Showing{' '}
-              <span className="font-medium text-gray-900 dark:text-white">
-                {filteredMaterials.length}
-              </span>{' '}
+              <span className="text-foreground font-medium">{filteredMaterials.length}</span>{' '}
               resources
             </div>
             <select
-              className="rounded-md border-gray-300 bg-white text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+              className="border-border bg-card text-foreground focus:border-ring focus:ring-ring rounded-md text-sm"
               value={sortBy}
               onChange={(event) => setSortBy(event.target.value as SortOption)}
             >
@@ -249,19 +247,19 @@ export default function MaterialsPage() {
           </div>
 
           {loading && (
-            <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+            <div className="border-border bg-card text-muted-foreground rounded-lg border p-6 text-sm">
               Loading materials...
             </div>
           )}
 
           {!loading && error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+            <div className="border-semantic-error/30 bg-semantic-error/10 text-semantic-error rounded-lg border p-6 text-sm">
               {error}
             </div>
           )}
 
           {!loading && !error && filteredMaterials.length === 0 && (
-            <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+            <div className="border-border bg-card text-muted-foreground rounded-lg border p-6 text-sm">
               No materials found for the current filters.
             </div>
           )}

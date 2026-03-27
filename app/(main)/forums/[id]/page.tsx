@@ -117,8 +117,8 @@ export default function ForumPostPage() {
   if (loading) {
     return (
       <div className="container mx-auto flex max-w-4xl items-center justify-center px-4 py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <span className="ml-3 text-gray-500 dark:text-gray-400">Loading discussion...</span>
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
+        <span className="text-muted-foreground ml-3">Loading discussion...</span>
       </div>
     )
   }
@@ -128,14 +128,14 @@ export default function ForumPostPage() {
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <Link
           href="/forums"
-          className="mb-6 inline-flex items-center text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+          className="text-muted-foreground hover:text-primary mb-6 inline-flex items-center"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Forums
         </Link>
-        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-12 dark:border-red-900 dark:bg-red-950">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <p className="mt-4 text-lg font-medium text-red-700 dark:text-red-300">
+        <div className="border-semantic-error/30 bg-semantic-error/10 flex flex-col items-center justify-center rounded-xl border py-12">
+          <AlertCircle className="text-semantic-error h-12 w-12" />
+          <p className="text-semantic-error mt-4 text-lg font-medium">
             {error || 'Post not found'}
           </p>
           <Link href="/forums">
@@ -152,7 +152,7 @@ export default function ForumPostPage() {
     <div className="container mx-auto max-w-4xl px-4 py-8">
       <Link
         href="/forums"
-        className="mb-6 inline-flex items-center text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+        className="text-muted-foreground hover:text-primary mb-6 inline-flex items-center"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Forums

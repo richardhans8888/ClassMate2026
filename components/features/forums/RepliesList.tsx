@@ -22,7 +22,7 @@ interface RepliesListProps {
 export function RepliesList({ replies }: RepliesListProps) {
   if (replies.length === 0) {
     return (
-      <div className="py-8 text-center text-gray-500 dark:text-gray-400">
+      <div className="text-muted-foreground py-8 text-center">
         No replies yet. Be the first to respond!
       </div>
     )
@@ -30,34 +30,27 @@ export function RepliesList({ replies }: RepliesListProps) {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-bold text-gray-900 dark:text-white">{replies.length} Answers</h3>
+      <h3 className="text-foreground text-lg font-bold">{replies.length} Answers</h3>
 
       {replies.map((reply) => {
         const authorName =
           reply.user.profile?.displayName ?? reply.user.email.split('@')[0] ?? 'Anonymous'
 
         return (
-          <div
-            key={reply.id}
-            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-          >
+          <div key={reply.id} className="border-border bg-card rounded-xl border p-6 shadow-sm">
             <div className="mb-4 flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                <div className="bg-muted text-muted-foreground flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold">
                   {authorName.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white">
-                    {authorName}
-                  </h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {formatDate(reply.createdAt)}
-                  </p>
+                  <h4 className="text-foreground text-sm font-medium">{authorName}</h4>
+                  <p className="text-muted-foreground text-xs">{formatDate(reply.createdAt)}</p>
                 </div>
               </div>
             </div>
 
-            <div className="text-sm leading-relaxed whitespace-pre-line text-gray-700 dark:text-gray-300">
+            <div className="text-foreground text-sm leading-relaxed whitespace-pre-line">
               {reply.content}
             </div>
           </div>
