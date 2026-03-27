@@ -65,10 +65,10 @@ describe('Header component', () => {
     expect(screen.getAllByRole('link', { name: /chat/i })[0]).toBeInTheDocument()
   })
 
-  it('renders a more menu trigger for secondary routes', () => {
+  it('renders the Learn with AI navigation link', () => {
     render(<Header />)
 
-    expect(screen.getAllByRole('button', { name: /more/i })[0]).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /learn with ai/i })[0]).toBeInTheDocument()
   })
 
   it('renders the theme toggle button', () => {

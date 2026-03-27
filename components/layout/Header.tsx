@@ -1,20 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import {
-  User,
-  Menu,
-  BookOpen,
-  LogOut,
-  Users,
-  Plus,
-  Calendar as CalendarIcon,
-  Loader2,
-  ChevronDown,
-} from 'lucide-react'
+import { User, Menu, BookOpen, LogOut, Calendar as CalendarIcon, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from 'components/mode-toggle'
 import { authClient } from '@/lib/auth-client'
@@ -27,14 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from 'components/ui/dropdown-menu'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from 'components/ui/dialog'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 interface HeaderProps {
@@ -43,6 +25,7 @@ interface HeaderProps {
 
 export function Header({ onLogout }: HeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { data: session } = authClient.useSession()
   const userId = session?.user?.id
   const name = session?.user?.name ?? session?.user?.email?.split('@')[0] ?? 'User'
@@ -51,7 +34,7 @@ export function Header({ onLogout }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const [userRole, setUserRole] = useState<UserRole | null>(null)
-  const { core: coreNavItems, more: moreNavItems } = getNavigationByGroup(userRole)
+  const { core: coreNavItems } = getNavigationByGroup(userRole)
 
   useEffect(() => {
     if (!userId) return
@@ -83,6 +66,11 @@ export function Header({ onLogout }: HeaderProps) {
     }
   }
 
+  function isActive(href: string) {
+    if (href === '/') return pathname === '/'
+    return pathname.startsWith(href)
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white text-gray-900 transition-colors duration-300 dark:border-gray-800 dark:bg-[#0F172A] dark:text-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
@@ -99,39 +87,23 @@ export function Header({ onLogout }: HeaderProps) {
         </div>
 
         {/* Nav */}
-        <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
+        <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
           {coreNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+              className={`relative rounded-md px-3 py-1.5 transition-colors ${
+                isActive(item.href)
+                  ? 'text-blue-600 dark:text-blue-400'
+                  : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+              }`}
             >
               {item.label}
+              {isActive(item.href) && (
+                <span className="absolute inset-x-3 -bottom-[18px] h-[2px] rounded-full bg-blue-600 dark:bg-blue-400" />
+              )}
             </Link>
           ))}
-
-          {moreNavItems.length > 0 ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-auto px-0 text-sm font-medium text-gray-500 transition-colors hover:bg-transparent hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-                >
-                  More
-                  <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
-                {moreNavItems.map((item) => (
-                  <DropdownMenuItem asChild key={item.href}>
-                    <Link href={item.href} className="cursor-pointer">
-                      {item.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : null}
         </nav>
 
         {/* Right */}
@@ -139,104 +111,52 @@ export function Header({ onLogout }: HeaderProps) {
           <ModeToggle />
 
           {/* User Menu */}
-          <Dialog>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="group rounded-full transition-all outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                  <div className="h-9 w-9 cursor-pointer rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[2px] transition-transform group-hover:scale-105">
-                    <div className="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-[#0F172A]">
-                      <User className="h-5 w-5 text-gray-500 dark:text-gray-300" />
-                    </div>
-                  </div>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm leading-none font-medium">{name}</p>
-                    <p className="text-muted-foreground text-xs leading-none">{email}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Account</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DialogTrigger asChild>
-                  <DropdownMenuItem>
-                    <Users className="mr-2 h-4 w-4" />
-                    <span>Switch Account</span>
-                  </DropdownMenuItem>
-                </DialogTrigger>
-                <DropdownMenuItem asChild>
-                  <Link href="/schedule" className="cursor-pointer">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    <span>My Schedule</span>
-                  </Link>
-                </DropdownMenuItem>
-
-                {/* Sign Out */}
-                <DropdownMenuItem
-                  className="cursor-pointer text-red-600 dark:text-red-400"
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                >
-                  {isLoggingOut ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <LogOut className="mr-2 h-4 w-4" />
-                  )}
-                  <span>{isLoggingOut ? 'Signing out...' : 'Sign Out'}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Switch Account Dialog */}
-            <DialogContent className="border-gray-200 bg-white sm:max-w-[425px] dark:border-gray-800 dark:bg-[#0F1117]">
-              <DialogHeader>
-                <DialogTitle className="text-gray-900 dark:text-white">Switch Account</DialogTitle>
-                <DialogDescription className="text-gray-500 dark:text-gray-400">
-                  Sign out and sign in with a different account.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[2px]">
-                      <div className="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-[#0F172A]">
-                        <User className="h-5 w-5 text-gray-500 dark:text-gray-300" />
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{email}</p>
-                    </div>
-                  </div>
-                  <div className="h-2 w-2 rounded-full bg-green-500" />
-                </div>
-
-                <div className="relative my-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-200 dark:border-gray-800" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500 dark:bg-[#0F1117]">Or</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="group rounded-full transition-all outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                <div className="h-9 w-9 cursor-pointer rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[2px] transition-transform group-hover:scale-105">
+                  <div className="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-[#0F172A]">
+                    <User className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                   </div>
                 </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm leading-none font-medium">{name}</p>
+                  <p className="text-muted-foreground text-xs leading-none">{email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/profile" className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Account</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/schedule" className="cursor-pointer">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <span>My Schedule</span>
+                </Link>
+              </DropdownMenuItem>
 
-                <Button
-                  variant="outline"
-                  className="w-full rounded-lg border-2 border-dashed border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-300"
-                  onClick={handleLogout}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add / Switch Account
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              {/* Sign Out */}
+              <DropdownMenuItem
+                className="cursor-pointer text-red-600 dark:text-red-400"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <LogOut className="mr-2 h-4 w-4" />
+                )}
+                <span>{isLoggingOut ? 'Signing out...' : 'Sign Out'}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -267,31 +187,15 @@ export function Header({ onLogout }: HeaderProps) {
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                      className={`flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+                        isActive(item.href)
+                          ? 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400'
+                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
+                      }`}
                     >
                       {item.label}
                     </Link>
                   ))}
-
-                  {moreNavItems.length > 0 ? (
-                    <div className="mt-3 px-2">
-                      <p className="mb-2 px-2 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                        More
-                      </p>
-                      <div className="flex flex-col gap-1">
-                        {moreNavItems.map((item) => (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
-                          >
-                            {item.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
                 </nav>
               </div>
             </SheetContent>

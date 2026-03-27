@@ -15,15 +15,8 @@ export const navigationItems: NavigationItem[] = [
   { href: '/materials', label: 'Materials', group: 'core' },
   { href: '/chat', label: 'Chat', group: 'core' },
   { href: '/groups', label: 'Study Groups', group: 'core' },
-
-  { href: '/schedule', label: 'Schedule', group: 'more' },
-  { href: '/ai-tutor', label: 'Learn with AI', group: 'more' },
-  { href: '/help', label: 'Help', group: 'more' },
-  { href: '/guidelines', label: 'Guidelines', group: 'more' },
-  { href: '/contact', label: 'Contact', group: 'more' },
-  { href: '/privacy', label: 'Privacy', group: 'more' },
-  { href: '/terms', label: 'Terms', group: 'more' },
-  { href: '/admin/moderation', label: 'Moderation', group: 'more', roles: ['ADMIN'] },
+  { href: '/ai-tutor', label: 'Learn with AI', group: 'core' },
+  { href: '/admin/moderation', label: 'Moderation', group: 'core', roles: ['ADMIN'] },
 ]
 
 export function isNavigationItemVisible(item: NavigationItem, role: UserRole | null): boolean {
