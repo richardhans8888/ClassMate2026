@@ -34,5 +34,4 @@ export type GroupInfo = {
   name: string
   subtitle: string
   membersOnline: number
-  streak: string
 }

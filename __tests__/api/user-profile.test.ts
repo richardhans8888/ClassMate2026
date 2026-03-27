@@ -20,7 +20,7 @@ describe('GET /api/user/profile', () => {
   })
 
   it('returns 200 when userId is provided', async () => {
-    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1', xp: 0, level: 1 })
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1' })
     ;(prisma.userProfile.findUnique as jest.Mock).mockResolvedValue(null)
     const req = new NextRequest('http://localhost/api/user/profile?userId=user-1')
     const res = await GET(req)

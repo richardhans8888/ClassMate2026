@@ -3,20 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
-import {
-  Share2,
-  Flame,
-  Star,
-  Trophy,
-  MapPin,
-  GraduationCap,
-  Zap,
-  Award,
-  History,
-  BookOpen,
-  PenTool,
-  Loader2,
-} from 'lucide-react'
+import { Share2, MapPin, GraduationCap, History, BookOpen, PenTool, Loader2 } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import {
   Dialog,
@@ -30,9 +17,6 @@ type ProfileData = {
   id: string
   name: string | null
   email: string
-  xp: number
-  level: number
-  progressPercent: number
   displayName: string | null
   bio: string | null
   university: string | null
@@ -106,9 +90,6 @@ export default function ProfilePage() {
   const displayName = profile?.displayName ?? profile?.name ?? session?.user?.name ?? 'Unknown'
   const university = profile?.university ?? null
   const major = profile?.major ?? null
-  const xp = profile?.xp ?? 0
-  const level = profile?.level ?? 1
-  const progressPercent = profile?.progressPercent ?? 0
   const avatarSeed = encodeURIComponent(displayName)
 
   if (loading) {
@@ -145,13 +126,6 @@ export default function ProfilePage() {
                     unoptimized
                   />
                 </div>
-              </div>
-              <div className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-1 shadow-xl dark:border-gray-700 dark:bg-[#1E2028]">
-                <span className="text-[10px] font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">
-                  Lvl
-                </span>
-                <span className="text-sm font-bold text-gray-900 dark:text-white">{level}</span>
-                <Zap className="h-3 w-3 fill-yellow-500 text-yellow-500 dark:fill-yellow-400 dark:text-yellow-400" />
               </div>
             </div>
 
@@ -204,77 +178,10 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-          <div className="group flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors hover:border-orange-500/30 dark:border-gray-800/50 dark:bg-[#0F1117] dark:hover:border-orange-900/30">
-            <div>
-              <p className="mb-1 text-xs font-bold tracking-wider text-gray-500 uppercase">
-                Study Streak
-              </p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-gray-900 dark:text-white">— Days</span>
-              </div>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 transition-colors group-hover:bg-orange-200 dark:bg-orange-500/10 dark:group-hover:bg-orange-500/20">
-              <Flame className="h-6 w-6 fill-orange-500 text-orange-500" />
-            </div>
-          </div>
-
-          <div className="group relative flex items-center justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors hover:border-blue-500/30 dark:border-gray-800/50 dark:bg-[#0F1117] dark:hover:border-purple-900/30">
-            <div className="relative z-10">
-              <p className="mb-1 text-xs font-bold tracking-wider text-gray-500 uppercase">
-                Academic XP
-              </p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {xp.toLocaleString()}
-                </span>
-                <span className="text-sm text-gray-500">pts</span>
-              </div>
-              <div className="mt-3 h-1.5 w-32 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-            </div>
-            <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 transition-colors group-hover:bg-blue-200 dark:bg-blue-500/10 dark:group-hover:bg-blue-500/20">
-              <Star className="h-6 w-6 fill-blue-500 text-blue-500" />
-            </div>
-          </div>
-
-          <div className="group flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-colors hover:border-green-500/30 dark:border-gray-800/50 dark:bg-[#0F1117] dark:hover:border-green-900/30">
-            <div>
-              <p className="mb-1 text-xs font-bold tracking-wider text-gray-500 uppercase">
-                Global Rank
-              </p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-gray-900 dark:text-white">—</span>
-              </div>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 transition-colors group-hover:bg-green-200 dark:bg-green-500/10 dark:group-hover:bg-green-500/20">
-              <Trophy className="h-6 w-6 fill-green-600 text-green-600 dark:fill-green-500 dark:text-green-500" />
-            </div>
-          </div>
-        </div>
-
         {/* Main Grid */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left Column (2/3) */}
           <div className="space-y-6 lg:col-span-2">
-            {/* Skill Badges */}
-            <div>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
-                  <Award className="h-5 w-5 text-blue-600 dark:text-blue-500" />
-                  Skill Badges
-                </h2>
-              </div>
-              <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-[#0F1117]">
-                <p className="text-sm text-gray-500">No badges earned yet.</p>
-              </div>
-            </div>
-
             {/* Enrolled Courses */}
             <div>
               <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">

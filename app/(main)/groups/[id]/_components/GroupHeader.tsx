@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Users, FileText, Flame, MoreVertical, ChevronLeft } from 'lucide-react'
+import { Search, Users, FileText, MoreVertical, ChevronLeft } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,14 +61,6 @@ export function GroupHeader({
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="hidden items-center gap-2 rounded-full border border-orange-100 bg-orange-50 px-4 py-2 shadow-sm md:flex dark:border-white/5 dark:bg-[#1E2330]">
-          <Flame className="h-4 w-4 fill-orange-500 text-orange-500" />
-          <span className="text-xs font-bold text-orange-600 dark:text-orange-200">
-            {groupInfo.streak} Streak
-          </span>
-        </div>
-        <div className="mx-2 h-8 w-[1px] bg-gray-200 dark:bg-white/10"></div>
-
         {!searchOpen ? (
           <button
             className="rounded-full p-2.5 text-gray-500 transition hover:bg-gray-100 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"

@@ -15,7 +15,6 @@ const groupInfo: GroupInfo = {
   name: 'Advanced Macroeconomics',
   subtitle: 'Prepare for Midterm Exam',
   membersOnline: 12,
-  streak: '4h 20m',
 }
 
 const members: Member[] = [
@@ -38,7 +37,7 @@ const members: Member[] = [
   {
     id: 3,
     name: 'Mike',
-    role: 'Level 2',
+    role: 'Member',
     status: 'online',
     avatar: '/avatars/mike.jpg',
     isSpeaking: false,
@@ -46,7 +45,7 @@ const members: Member[] = [
   {
     id: 4,
     name: 'Jessica',
-    role: 'Level 3',
+    role: 'Member',
     status: 'online',
     avatar: '/avatars/jessica.jpg',
     isSpeaking: false,
@@ -104,7 +103,7 @@ const initialMessages: ChatMessage[] = [
   {
     id: 4,
     type: 'text',
-    sender: { name: 'Mike', role: 'Level 2', avatar: '/avatars/mike.jpg' },
+    sender: { name: 'Mike', role: 'Member', avatar: '/avatars/mike.jpg' },
     content: "I'm hopping into the voice channel if anyone wants to discuss the graph live.",
     timestamp: '14:15',
   },

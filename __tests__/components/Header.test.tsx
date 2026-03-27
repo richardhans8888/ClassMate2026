@@ -71,11 +71,9 @@ describe('Header component', () => {
     expect(screen.getAllByRole('button', { name: /more/i })[0]).toBeInTheDocument()
   })
 
-  it('shows the level badge', () => {
+  it('renders the theme toggle button', () => {
     render(<Header />)
 
-    // Level is fetched from API on mount; with no session (userId undefined),
-    // the fetch is skipped and the default state (Lvl 1) is displayed
-    expect(screen.getByText(/lvl/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/toggle theme/i)).toBeInTheDocument()
   })
 })

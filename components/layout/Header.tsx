@@ -8,7 +8,6 @@ import {
   User,
   Menu,
   BookOpen,
-  Trophy,
   LogOut,
   Users,
   Plus,
@@ -51,18 +50,15 @@ export function Header({ onLogout }: HeaderProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const [level, setLevel] = useState<number>(1)
   const [userRole, setUserRole] = useState<UserRole | null>(null)
   const { core: coreNavItems, more: moreNavItems } = getNavigationByGroup(userRole)
 
-  // Fetch level from profile
   useEffect(() => {
     if (!userId) return
     fetch(`/api/user/profile?userId=${userId}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.profile?.role) setUserRole(data.profile.role as UserRole)
-        if (data.profile?.level) setLevel(data.profile.level as number)
       })
       .catch(console.error)
   }, [userId])
@@ -141,11 +137,6 @@ export function Header({ onLogout }: HeaderProps) {
         {/* Right */}
         <div className="flex items-center gap-4">
           <ModeToggle />
-
-          <div className="hidden items-center gap-2 rounded-full border border-gray-200 bg-gray-100 px-3 py-1.5 md:flex dark:border-gray-700 dark:bg-[#1E293B]">
-            <Trophy className="h-4 w-4 text-yellow-500" />
-            <span className="text-xs font-bold text-gray-700 dark:text-white">Lvl {level}</span>
-          </div>
 
           {/* User Menu */}
           <Dialog>

@@ -16,7 +16,7 @@ export const swaggerSpec = {
     { name: 'ai', description: 'AI features: chat, moderation, summarization' },
     { name: 'messages', description: 'Direct user-to-user messaging' },
     { name: 'sessions', description: 'AI tutor chat sessions' },
-    { name: 'user', description: 'User profile and XP management' },
+    { name: 'user', description: 'User profile management' },
     { name: 'docs', description: 'API documentation and specification endpoints' },
   ],
   security: [],
@@ -376,7 +376,7 @@ export const swaggerSpec = {
         tags: ['materials'],
         summary: 'Upload material metadata',
         description:
-          'Creates a study material record with validation, sanitization, and XP awarding for authenticated users.',
+          'Creates a study material record with validation and sanitization for authenticated users.',
         requestBody: {
           required: true,
           content: {
@@ -976,7 +976,7 @@ export const swaggerSpec = {
       post: {
         tags: ['study-groups'],
         summary: 'Create a study group',
-        description: 'Creates a new study group. Awards XP to the creator.',
+        description: 'Creates a new study group.',
         requestBody: {
           required: true,
           content: {
@@ -1033,7 +1033,7 @@ export const swaggerSpec = {
       post: {
         tags: ['study-groups'],
         summary: 'Join a study group',
-        description: 'Adds the current user as a member. Awards XP for joining.',
+        description: 'Adds the current user as a member.',
         parameters: [
           {
             name: 'groupId',
@@ -1106,7 +1106,7 @@ export const swaggerSpec = {
       post: {
         tags: ['study-groups'],
         summary: 'Send a group message',
-        description: 'Posts a message to the study group. Awards XP for participation.',
+        description: 'Posts a message to the study group.',
         parameters: [
           {
             name: 'groupId',
@@ -1441,11 +1441,10 @@ export const swaggerSpec = {
       get: {
         tags: ['user'],
         summary: 'Get user profile',
-        description:
-          'Returns the profile for the authenticated user, including XP and level progress.',
+        description: 'Returns the profile for the authenticated user.',
         responses: {
           '200': {
-            description: 'User profile with XP progress',
+            description: 'User profile',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/UserProfile' },
@@ -1485,61 +1484,6 @@ export const swaggerSpec = {
               },
             },
           },
-          '401': { description: 'Unauthorized' },
-        },
-      },
-    },
-
-    '/api/user/xp': {
-      post: {
-        tags: ['user'],
-        summary: 'Award XP to user',
-        description: 'Awards XP points to the authenticated user for a specific action.',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['actionType', 'points'],
-                properties: {
-                  actionType: {
-                    type: 'string',
-                    enum: [
-                      'FORUM_POST_CREATED',
-                      'FORUM_REPLY_CREATED',
-                      'FORUM_UPVOTE_RECEIVED',
-                      'MATERIAL_UPLOADED',
-                      'STUDY_GROUP_CREATED',
-                      'STUDY_GROUP_JOINED',
-                      'STUDY_GROUP_MESSAGE_SENT',
-                      'REVIEW_POSTED',
-                    ],
-                  },
-                  points: { type: 'integer', minimum: 1 },
-                  description: { type: 'string' },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          '200': {
-            description: 'XP awarded',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    xp: { type: 'integer', description: 'New total XP' },
-                    level: { type: 'integer', description: 'Current level' },
-                    transaction: { $ref: '#/components/schemas/PointTransaction' },
-                  },
-                },
-              },
-            },
-          },
-          '400': { description: 'Invalid action type or points' },
           '401': { description: 'Unauthorized' },
         },
       },
@@ -1868,16 +1812,6 @@ export const swaggerSpec = {
           university: { type: 'string', nullable: true },
           major: { type: 'string', nullable: true },
           reputation: { type: 'integer', default: 0 },
-          xp: { type: 'integer', description: 'Total XP from user record' },
-          level: { type: 'integer', description: 'Current level' },
-          xpProgress: {
-            type: 'object',
-            properties: {
-              current: { type: 'integer' },
-              required: { type: 'integer' },
-              percentage: { type: 'number' },
-            },
-          },
           createdAt: { type: 'string', format: 'date-time' },
           updatedAt: { type: 'string', format: 'date-time' },
         },
@@ -1896,30 +1830,6 @@ export const swaggerSpec = {
               major: { type: 'string', nullable: true },
             },
           },
-        },
-      },
-
-      PointTransaction: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          userId: { type: 'string' },
-          actionType: {
-            type: 'string',
-            enum: [
-              'FORUM_POST_CREATED',
-              'FORUM_REPLY_CREATED',
-              'FORUM_UPVOTE_RECEIVED',
-              'MATERIAL_UPLOADED',
-              'STUDY_GROUP_CREATED',
-              'STUDY_GROUP_JOINED',
-              'STUDY_GROUP_MESSAGE_SENT',
-              'REVIEW_POSTED',
-            ],
-          },
-          points: { type: 'integer' },
-          description: { type: 'string', nullable: true },
-          createdAt: { type: 'string', format: 'date-time' },
         },
       },
     },
