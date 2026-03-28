@@ -61,11 +61,16 @@ function NavGroup({
 
   return (
     <div className="mb-4">
-      {!collapsed && (
-        <p className="text-muted-foreground mb-1.5 px-3 text-[10px] font-semibold tracking-widest uppercase">
-          {section}
-        </p>
-      )}
+      {/* Section header — fades out when collapsed, takes no space */}
+      <p
+        className={cn(
+          'text-muted-foreground mb-1.5 overflow-hidden px-2 text-[10px] font-semibold tracking-widest whitespace-nowrap uppercase transition-all duration-200 ease-in-out',
+          collapsed ? 'max-h-0 opacity-0' : 'max-h-6 opacity-100'
+        )}
+      >
+        {section}
+      </p>
+
       <div className="flex flex-col gap-0.5">
         {items.map((item) => {
           const Icon = ICON_MAP[item.icon] ?? User
@@ -76,16 +81,40 @@ function NavGroup({
               href={item.href}
               onClick={onNavigate}
               title={collapsed ? item.label : undefined}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                collapsed && 'justify-center px-2',
-                active
-                  ? 'bg-accent text-primary'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              )}
+              className="relative flex h-10 items-center"
             >
-              <Icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span className="truncate">{item.label}</span>}
+              {/* Collapsed view — centered 40×40 pill, crossfades in */}
+              <span
+                className={cn(
+                  'absolute inset-0 flex items-center justify-center transition-opacity duration-200',
+                  collapsed ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+                )}
+              >
+                <span
+                  className={cn(
+                    'flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150',
+                    active
+                      ? 'bg-accent text-primary'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )}
+                >
+                  <Icon className="h-5 w-5" />
+                </span>
+              </span>
+
+              {/* Expanded view — full-width row with label, crossfades in */}
+              <span
+                className={cn(
+                  'absolute inset-0 flex items-center gap-2 rounded-lg px-2 text-sm font-medium transition-opacity duration-200',
+                  collapsed ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100',
+                  active
+                    ? 'bg-accent text-primary'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="truncate">{item.label}</span>
+              </span>
             </Link>
           )
         })}
@@ -111,13 +140,13 @@ function SidebarContent({
 
   return (
     <div className="flex h-full flex-col">
-      {/* Collapse toggle (desktop only) */}
+      {/* Hamburger toggle (desktop only) — always at same position */}
       {onToggleCollapse && (
-        <div className={cn('p-2', collapsed ? 'px-2' : 'px-3')}>
+        <div className="flex h-14 items-center px-2">
           <button
             onClick={onToggleCollapse}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center rounded-lg p-2 transition-colors"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150"
           >
             <Menu className="h-5 w-5 shrink-0" />
           </button>
@@ -125,7 +154,7 @@ function SidebarContent({
       )}
 
       {/* Nav groups */}
-      <nav className={cn('flex-1 overflow-y-auto py-4', collapsed ? 'px-2' : 'px-3')}>
+      <nav className="flex-1 overflow-y-auto px-2 py-2">
         {(['Main', 'Learning', 'Account'] as SidebarSection[]).map((section) => (
           <NavGroup
             key={section}
@@ -144,13 +173,31 @@ function SidebarContent({
           href="/settings"
           onClick={onNavigate}
           title={collapsed ? 'Settings' : undefined}
-          className={cn(
-            'text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-            collapsed && 'justify-center px-2'
-          )}
+          className="relative flex h-10 items-center"
         >
-          <Settings className="h-5 w-5 shrink-0" />
-          {!collapsed && <span className="truncate">Settings</span>}
+          {/* Collapsed view */}
+          <span
+            className={cn(
+              'absolute inset-0 flex items-center justify-center transition-opacity duration-200',
+              collapsed ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+            )}
+          >
+            <span className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150">
+              <Settings className="h-5 w-5" />
+            </span>
+          </span>
+
+          {/* Expanded view */}
+          <span
+            className={cn(
+              'absolute inset-0 flex items-center gap-2 rounded-lg px-2 text-sm font-medium transition-opacity duration-200',
+              collapsed ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100',
+              'text-muted-foreground hover:bg-muted hover:text-foreground'
+            )}
+          >
+            <Settings className="h-5 w-5 shrink-0" />
+            <span className="truncate">Settings</span>
+          </span>
         </Link>
       </div>
     </div>
