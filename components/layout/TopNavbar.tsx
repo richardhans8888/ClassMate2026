@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, User, LogOut, Settings, Sun, Moon, Loader2, BookOpen } from 'lucide-react'
+import Image from 'next/image'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -17,13 +18,36 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-interface TopNavbarProps {
-  onMobileMenuOpen: () => void
+const AVATAR_COLORS = [
+  'bg-violet-500',
+  'bg-blue-500',
+  'bg-emerald-500',
+  'bg-rose-500',
+  'bg-amber-500',
+  'bg-cyan-500',
+  'bg-fuchsia-500',
+  'bg-orange-500',
+  'bg-teal-500',
+  'bg-indigo-500',
+]
+
+function getAvatarColor(seed: string): string {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0
+  }
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length]
 }
 
-export function TopNavbar({ onMobileMenuOpen }: TopNavbarProps) {
+interface TopNavbarProps {
+  onMobileMenuOpen: () => void
+  userImage?: string | null
+  userName?: string | null
+  userEmail?: string | null
+}
+
+export function TopNavbar({ onMobileMenuOpen, userImage, userName, userEmail }: TopNavbarProps) {
   const router = useRouter()
-  const { data: session } = authClient.useSession()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -32,8 +56,9 @@ export function TopNavbar({ onMobileMenuOpen }: TopNavbarProps) {
     setMounted(true)
   }, [])
 
-  const name = session?.user?.name ?? session?.user?.email?.split('@')[0] ?? 'User'
-  const email = session?.user?.email ?? ''
+  const name = userName ?? userEmail?.split('@')[0] ?? 'User'
+  const email = userEmail ?? ''
+  const avatarColor = getAvatarColor(userEmail ?? userName ?? 'user')
 
   async function handleLogout() {
     setIsLoggingOut(true)
@@ -52,7 +77,7 @@ export function TopNavbar({ onMobileMenuOpen }: TopNavbarProps) {
   }
 
   return (
-    <header className="border-border bg-background sticky top-0 z-40 flex h-16 items-center gap-4 border-b px-4">
+    <header className="bg-background sticky top-0 z-40 flex h-16 items-center gap-4 px-4">
       {/* Logo */}
       <div className="flex items-center gap-3">
         <div className="bg-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
@@ -80,9 +105,27 @@ export function TopNavbar({ onMobileMenuOpen }: TopNavbarProps) {
           <DropdownMenuTrigger asChild>
             <button className="group focus-visible:ring-ring rounded-full outline-none focus-visible:ring-2">
               <div className="bg-primary h-9 w-9 cursor-pointer rounded-full p-[2px] transition-transform group-hover:scale-105">
-                <div className="bg-background flex h-full w-full items-center justify-center rounded-full">
-                  <User className="text-muted-foreground h-5 w-5" />
-                </div>
+                {userImage ? (
+                  <Image
+                    src={userImage}
+                    alt={userName ?? 'User avatar'}
+                    width={36}
+                    height={36}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className={`flex h-full w-full items-center justify-center rounded-full ${avatarColor}`}
+                  >
+                    {name !== 'User' ? (
+                      <span className="text-sm font-semibold text-white">
+                        {name.charAt(0).toUpperCase()}
+                      </span>
+                    ) : (
+                      <User className="h-4 w-4 text-white" />
+                    )}
+                  </div>
+                )}
               </div>
             </button>
           </DropdownMenuTrigger>

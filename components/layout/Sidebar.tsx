@@ -12,8 +12,7 @@ import {
   User,
   Shield,
   Settings,
-  ChevronLeft,
-  ChevronRight,
+  Menu,
   type LucideIcon,
 } from 'lucide-react'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
@@ -114,23 +113,13 @@ function SidebarContent({
     <div className="flex h-full flex-col">
       {/* Collapse toggle (desktop only) */}
       {onToggleCollapse && (
-        <div className="border-border border-b p-2">
+        <div className={cn('p-2', collapsed ? 'px-2' : 'px-3')}>
           <button
             onClick={onToggleCollapse}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className={cn(
-              'text-muted-foreground hover:bg-muted hover:text-foreground flex w-full items-center rounded-lg px-3 py-2 text-sm transition-colors',
-              collapsed && 'justify-center px-0'
-            )}
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center rounded-lg p-2 transition-colors"
           >
-            {collapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <>
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                <span>Collapse</span>
-              </>
-            )}
+            <Menu className="h-5 w-5 shrink-0" />
           </button>
         </div>
       )}

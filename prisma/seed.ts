@@ -23,6 +23,11 @@ const SEED_PASSWORD = 'Password123!'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function avatarUrl(name: string): string {
+  const encoded = encodeURIComponent(name.trim() || 'User')
+  return `https://ui-avatars.com/api/?name=${encoded}&size=128&background=6366f1&color=fff&bold=true`
+}
+
 function daysFromNow(n: number): Date {
   const d = new Date()
   d.setDate(d.getDate() + n)
@@ -60,6 +65,7 @@ async function main() {
       data: {
         email: 'alice@classmate.dev',
         name: 'Alice Chen',
+        image: avatarUrl('Alice Chen'),
         emailVerified: true,
         role: 'STUDENT',
       },
@@ -68,6 +74,7 @@ async function main() {
       data: {
         email: 'bob@classmate.dev',
         name: 'Bob Rodriguez',
+        image: avatarUrl('Bob Rodriguez'),
         emailVerified: true,
         role: 'STUDENT',
       },
@@ -76,6 +83,7 @@ async function main() {
       data: {
         email: 'carol@classmate.dev',
         name: 'Carol Williams',
+        image: avatarUrl('Carol Williams'),
         emailVerified: true,
         role: 'TUTOR',
       },
@@ -84,6 +92,7 @@ async function main() {
       data: {
         email: 'diana@classmate.dev',
         name: 'Diana Martinez',
+        image: avatarUrl('Diana Martinez'),
         emailVerified: true,
         role: 'STUDENT',
       },
@@ -92,6 +101,7 @@ async function main() {
       data: {
         email: 'evan@classmate.dev',
         name: 'Evan Park',
+        image: avatarUrl('Evan Park'),
         emailVerified: true,
         role: 'ADMIN',
       },
@@ -100,6 +110,7 @@ async function main() {
       data: {
         email: 'fiona@classmate.dev',
         name: 'Fiona Lee',
+        image: avatarUrl('Fiona Lee'),
         emailVerified: true,
         role: 'STUDENT',
       },
@@ -108,6 +119,7 @@ async function main() {
       data: {
         email: 'george@classmate.dev',
         name: 'George Patel',
+        image: avatarUrl('George Patel'),
         emailVerified: true,
         role: 'TUTOR',
       },
@@ -116,6 +128,7 @@ async function main() {
       data: {
         email: 'hannah@classmate.dev',
         name: 'Hannah Johnson',
+        image: avatarUrl('Hannah Johnson'),
         emailVerified: true,
         role: 'STUDENT',
       },
@@ -125,6 +138,7 @@ async function main() {
       data: {
         email: 'ai-tutor@classmate.dev',
         name: 'AI Tutor',
+        image: avatarUrl('AI Tutor'),
         emailVerified: true,
         role: 'ADMIN',
       },
@@ -138,6 +152,7 @@ async function main() {
       data: {
         userId: alice.id,
         displayName: 'Alice Chen',
+        avatarUrl: avatarUrl('Alice Chen'),
         bio: 'CS sophomore. Love React and building web apps. Currently levelling up my TypeScript skills.',
         university: 'Binus University',
         major: 'Computer Science',
@@ -147,6 +162,7 @@ async function main() {
       data: {
         userId: bob.id,
         displayName: 'Bob Rodriguez',
+        avatarUrl: avatarUrl('Bob Rodriguez'),
         bio: 'First-year student passionate about algorithms and competitive programming. Python enthusiast.',
         university: 'Binus University',
         major: 'Information Systems',
@@ -156,6 +172,7 @@ async function main() {
       data: {
         userId: carol.id,
         displayName: 'Carol Williams',
+        avatarUrl: avatarUrl('Carol Williams'),
         bio: 'Senior CS student and peer tutor. Specialising in web development and the React ecosystem.',
         university: 'Binus University',
         major: 'Computer Science',
@@ -165,6 +182,7 @@ async function main() {
       data: {
         userId: diana.id,
         displayName: 'Diana Martinez',
+        avatarUrl: avatarUrl('Diana Martinez'),
         bio: 'Just started my CS journey! Excited to learn data structures and algorithms from scratch.',
         university: 'Binus University',
         major: 'Computer Science',
@@ -174,6 +192,7 @@ async function main() {
       data: {
         userId: evan.id,
         displayName: 'Evan Park',
+        avatarUrl: avatarUrl('Evan Park'),
         bio: 'ClassMate platform admin. Here to help students connect and learn together.',
         university: 'Binus University',
         major: 'Computer Science',
@@ -183,6 +202,7 @@ async function main() {
       data: {
         userId: fiona.id,
         displayName: 'Fiona Lee',
+        avatarUrl: avatarUrl('Fiona Lee'),
         bio: 'Full-stack developer in training. Big fan of TypeScript and clean architecture principles.',
         university: 'Binus University',
         major: 'Software Engineering',
@@ -192,6 +212,7 @@ async function main() {
       data: {
         userId: george.id,
         displayName: 'George Patel',
+        avatarUrl: avatarUrl('George Patel'),
         bio: 'Database systems tutor with 2 years of experience. Passionate about PostgreSQL and query optimisation.',
         university: 'Binus University',
         major: 'Computer Science',
@@ -201,6 +222,7 @@ async function main() {
       data: {
         userId: hannah.id,
         displayName: 'Hannah Johnson',
+        avatarUrl: avatarUrl('Hannah Johnson'),
         bio: 'Transfer student learning programming from scratch. Grateful for the ClassMate community!',
         university: 'Binus University',
         major: 'Information Technology',
