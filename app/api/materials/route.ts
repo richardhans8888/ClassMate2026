@@ -1,8 +1,10 @@
+import path from 'path'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { sanitizeText, sanitizeUrl } from '@/lib/sanitize'
+import { uploadFile } from '@/lib/storage'
+import { sanitizeText } from '@/lib/sanitize'
 
 const ALLOWED_FILE_TYPES = [
   'pdf',
@@ -20,10 +22,6 @@ const ALLOWED_FILE_TYPES = [
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024
 
 type SortBy = 'createdAt' | 'downloads' | 'rating'
-
-function validateFileType(fileType: string): boolean {
-  return ALLOWED_FILE_TYPES.includes(fileType.toLowerCase() as (typeof ALLOWED_FILE_TYPES)[number])
-}
 
 function normalizeSortBy(input: string | null): SortBy {
   if (input === 'downloads' || input === 'rating') {
@@ -87,44 +85,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = (await request.json()) as Record<string, unknown>
+    const formData = await request.formData()
 
-    const titleRaw = typeof body.title === 'string' ? body.title : ''
-    const descriptionRaw = typeof body.description === 'string' ? body.description : null
-    const fileUrlRaw = typeof body.fileUrl === 'string' ? body.fileUrl : ''
-    const subjectRaw = typeof body.subject === 'string' ? body.subject : ''
-    const fileTypeRaw = typeof body.fileType === 'string' ? body.fileType : ''
-    const fileSizeRaw = typeof body.fileSize === 'number' ? body.fileSize : null
+    const file = formData.get('file')
+    const titleRaw = formData.get('title')
+    const descriptionRaw = formData.get('description')
+    const subjectRaw = formData.get('subject')
 
-    if (!titleRaw || !fileUrlRaw || !subjectRaw || !fileTypeRaw) {
+    if (!(file instanceof File) || !titleRaw || !subjectRaw) {
+      return NextResponse.json({ error: 'file, title, and subject are required' }, { status: 400 })
+    }
+
+    const fileExt = path.extname(file.name).toLowerCase().replace('.', '')
+    if (!ALLOWED_FILE_TYPES.includes(fileExt as (typeof ALLOWED_FILE_TYPES)[number])) {
       return NextResponse.json(
-        { error: 'title, fileUrl, subject, and fileType are required' },
+        { error: `Invalid file type. Allowed: ${ALLOWED_FILE_TYPES.join(', ')}` },
         { status: 400 }
       )
     }
 
-    if (!validateFileType(fileTypeRaw)) {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
       return NextResponse.json(
-        {
-          error: `Invalid file type. Allowed: ${ALLOWED_FILE_TYPES.join(', ')}`,
-        },
+        { error: `File size exceeds 50MB limit (${MAX_FILE_SIZE_BYTES} bytes)` },
         { status: 400 }
       )
     }
 
-    if (fileSizeRaw !== null && fileSizeRaw > MAX_FILE_SIZE_BYTES) {
-      return NextResponse.json(
-        {
-          error: `File size exceeds 50MB limit (${MAX_FILE_SIZE_BYTES} bytes)`,
-        },
-        { status: 400 }
-      )
-    }
-
-    const sanitizedTitle = sanitizeText(titleRaw)
-    const sanitizedDescription = descriptionRaw ? sanitizeText(descriptionRaw) : null
-    const sanitizedFileUrl = sanitizeUrl(fileUrlRaw)
-    const sanitizedSubject = sanitizeText(subjectRaw)
+    const sanitizedTitle = sanitizeText(String(titleRaw))
+    const sanitizedDescription = descriptionRaw ? sanitizeText(String(descriptionRaw)) : null
+    const sanitizedSubject = sanitizeText(String(subjectRaw))
 
     if (!sanitizedTitle || !sanitizedSubject) {
       return NextResponse.json(
@@ -133,18 +122,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!sanitizedFileUrl) {
-      return NextResponse.json({ error: 'Invalid file URL' }, { status: 400 })
-    }
+    const fileUrl = await uploadFile(file, session.id)
 
     const createdMaterial = await prisma.studyMaterial.create({
       data: {
         userId: session.id,
         title: sanitizedTitle,
         description: sanitizedDescription,
-        fileUrl: sanitizedFileUrl,
+        fileUrl,
         subject: sanitizedSubject,
-        fileType: fileTypeRaw.toLowerCase(),
+        fileType: fileExt,
       },
       include: {
         user: {

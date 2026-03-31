@@ -36,7 +36,7 @@ function getAvatarColor(seed: string): string {
   for (let i = 0; i < seed.length; i++) {
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0
   }
-  return AVATAR_COLORS[hash % AVATAR_COLORS.length]
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length] as string
 }
 
 interface TopNavbarProps {

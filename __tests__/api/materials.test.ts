@@ -3,15 +3,36 @@ import { GET, POST } from '@/app/api/materials/route'
 import { POST as downloadPOST } from '@/app/api/materials/[id]/download/route'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { uploadFile } from '@/lib/storage'
 
 jest.mock('@/lib/prisma')
 jest.mock('@/lib/auth', () => ({
   getSession: jest.fn(),
 }))
+jest.mock('@/lib/storage', () => ({
+  uploadFile: jest.fn(),
+  deleteFile: jest.fn(),
+}))
 
 afterEach(() => {
   jest.clearAllMocks()
 })
+
+function makeFormData(fields: Record<string, string | File>): FormData {
+  const fd = new FormData()
+  for (const [key, value] of Object.entries(fields)) {
+    fd.append(key, value)
+  }
+  return fd
+}
+
+function makePdfFile(name = 'test.pdf', sizeOverride?: number): File {
+  const file = new File(['file-content'], name, { type: 'application/pdf' })
+  if (sizeOverride !== undefined) {
+    Object.defineProperty(file, 'size', { value: sizeOverride, configurable: true })
+  }
+  return file
+}
 
 describe('/api/materials GET', () => {
   it('returns materials list', async () => {
@@ -43,23 +64,23 @@ describe('/api/materials GET', () => {
 describe('/api/materials POST', () => {
   it('creates material with valid data', async () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'user1' })
-    ;(prisma.$transaction as jest.Mock).mockImplementation(async (callback) => callback(prisma))
+    ;(uploadFile as jest.Mock).mockResolvedValue('/uploads/user1/uuid.pdf')
     ;(prisma.studyMaterial.create as jest.Mock).mockResolvedValue({
       id: '1',
       title: 'Test',
-      fileUrl: 'https://example.com/file.pdf',
+      fileUrl: '/uploads/user1/uuid.pdf',
       user: { id: 'user1', email: 'test@example.com', profile: null },
+    })
+
+    const fd = makeFormData({
+      file: makePdfFile('test.pdf'),
+      title: 'Test Material',
+      subject: 'Math',
     })
 
     const request = new NextRequest('http://localhost/api/materials', {
       method: 'POST',
-      body: JSON.stringify({
-        title: 'Test Material',
-        fileUrl: 'https://example.com/file.pdf',
-        subject: 'Math',
-        fileType: 'pdf',
-      }),
-      headers: { 'Content-Type': 'application/json' },
+      body: fd,
     })
 
     const response = await POST(request)
@@ -69,10 +90,15 @@ describe('/api/materials POST', () => {
   it('rejects unauthorized requests', async () => {
     ;(getSession as jest.Mock).mockResolvedValue(null)
 
+    const fd = makeFormData({
+      file: makePdfFile(),
+      title: 'Test',
+      subject: 'Math',
+    })
+
     const request = new NextRequest('http://localhost/api/materials', {
       method: 'POST',
-      body: JSON.stringify({}),
-      headers: { 'Content-Type': 'application/json' },
+      body: fd,
     })
 
     const response = await POST(request)
@@ -82,15 +108,16 @@ describe('/api/materials POST', () => {
   it('rejects invalid file types', async () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'user1' })
 
+    const exeFile = new File(['content'], 'malware.exe', { type: 'application/octet-stream' })
+    const fd = makeFormData({
+      file: exeFile,
+      title: 'Test',
+      subject: 'Math',
+    })
+
     const request = new NextRequest('http://localhost/api/materials', {
       method: 'POST',
-      body: JSON.stringify({
-        title: 'Test',
-        fileUrl: 'https://example.com/file.exe',
-        subject: 'Math',
-        fileType: 'exe',
-      }),
-      headers: { 'Content-Type': 'application/json' },
+      body: fd,
     })
 
     const response = await POST(request)
@@ -102,17 +129,16 @@ describe('/api/materials POST', () => {
   it('rejects oversized files', async () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'user1' })
 
+    const largeFile = makePdfFile('big.pdf', 60 * 1024 * 1024)
+    const fd = new FormData()
+    fd.append('file', largeFile)
+    fd.append('title', 'Test')
+    fd.append('subject', 'Math')
+
     const request = new NextRequest('http://localhost/api/materials', {
       method: 'POST',
-      body: JSON.stringify({
-        title: 'Test',
-        fileUrl: 'https://example.com/file.pdf',
-        subject: 'Math',
-        fileType: 'pdf',
-        fileSize: 60 * 1024 * 1024,
-      }),
-      headers: { 'Content-Type': 'application/json' },
     })
+    jest.spyOn(request, 'formData').mockResolvedValueOnce(fd)
 
     const response = await POST(request)
     expect(response.status).toBe(400)
@@ -122,18 +148,18 @@ describe('/api/materials POST', () => {
 
   it('sanitizes XSS in title', async () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'user1' })
-    ;(prisma.$transaction as jest.Mock).mockImplementation(async (callback) => callback(prisma))
+    ;(uploadFile as jest.Mock).mockResolvedValue('/uploads/user1/uuid.pdf')
     ;(prisma.studyMaterial.create as jest.Mock).mockResolvedValue({ id: '1' })
+
+    const fd = makeFormData({
+      file: makePdfFile(),
+      title: '<script>alert("xss")</script>Safe Title',
+      subject: 'Math',
+    })
 
     const request = new NextRequest('http://localhost/api/materials', {
       method: 'POST',
-      body: JSON.stringify({
-        title: '<script>alert("xss")</script>Safe Title',
-        fileUrl: 'https://example.com/file.pdf',
-        subject: 'Math',
-        fileType: 'pdf',
-      }),
-      headers: { 'Content-Type': 'application/json' },
+      body: fd,
     })
 
     await POST(request)
