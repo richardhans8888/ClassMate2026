@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { sanitizeMarkdown } from '@/lib/sanitize'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { moderateContent } from '@/lib/moderation'
 
 export async function POST(req: NextRequest) {
   const currentSession = await getSession()
@@ -38,8 +39,26 @@ export async function POST(req: NextRequest) {
       activeSessionId = newSession.id
     }
 
-    // Save the user's message (last message in the array)
+    // Moderate the user's message before processing
     const lastMessage = messages[messages.length - 1]
+    if (lastMessage?.role === 'user') {
+      const moderation = await moderateContent(lastMessage.content as string)
+      if (moderation.action === 'block') {
+        return NextResponse.json(
+          {
+            error: 'Content blocked by moderation',
+            moderation: {
+              action: 'block',
+              reason: moderation.reason,
+              categories: moderation.categories,
+            },
+          },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Save the user's message (last message in the array)
     if (lastMessage?.role === 'user') {
       await prisma.chatMessage.create({
         data: {

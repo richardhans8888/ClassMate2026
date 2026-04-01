@@ -1,4 +1,4 @@
-interface ModerationResult {
+export interface ModerationResult {
   safe: boolean
   toxicity_score: number
   spam_score: number
@@ -7,38 +7,75 @@ interface ModerationResult {
   reason: string
 }
 
+const FAIL_CLOSED: ModerationResult = {
+  safe: false,
+  toxicity_score: 0,
+  spam_score: 0,
+  categories: [],
+  action: 'block',
+  reason: 'Moderation service unavailable — content blocked for safety',
+}
+
 export async function moderateContent(content: string): Promise<ModerationResult> {
   try {
-    const response = await fetch(`${process.env.BETTER_AUTH_URL}/api/moderation`, {
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey) {
+      return FAIL_CLOSED
+    }
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        Cookie: '', // Note: In production, you'd pass the auth cookie for internal calls
       },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a content moderation AI for a student community platform. Analyze the provided content and return ONLY a JSON object with this exact structure:
+{
+  "safe": true/false,
+  "toxicity_score": 0-100,
+  "spam_score": 0-100,
+  "categories": ["category1", "category2"],
+  "action": "approve"|"warn"|"block",
+  "reason": "brief explanation"
+}
+
+Categories can include: harassment, hate_speech, spam, off_topic, inappropriate, sexual_content, violence, self_harm.
+- action "approve": safe content (toxicity < 30, spam < 40)
+- action "warn": borderline content (toxicity 30-60, spam 40-70)
+- action "block": unsafe content (toxicity > 60, spam > 70)`,
+          },
+          {
+            role: 'user',
+            content: `Analyze this content:\n\n${content}`,
+          },
+        ],
+        temperature: 0.3,
+      }),
     })
 
     if (!response.ok) {
-      return {
-        safe: true,
-        toxicity_score: 0,
-        spam_score: 0,
-        categories: [],
-        action: 'approve',
-        reason: 'Moderation service unavailable, defaulting to approve',
-      }
+      return FAIL_CLOSED
     }
 
-    return await response.json()
-  } catch (error) {
-    console.error('Moderation error:', error)
-    return {
-      safe: true,
-      toxicity_score: 0,
-      spam_score: 0,
-      categories: [],
-      action: 'approve',
-      reason: 'Moderation service error, defaulting to approve',
+    const data = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>
     }
+    const aiResponse = data.choices?.[0]?.message?.content
+
+    if (!aiResponse) {
+      return FAIL_CLOSED
+    }
+
+    // Extract JSON from markdown code blocks if present
+    const jsonMatch = aiResponse.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/)
+    const jsonString = jsonMatch?.[1] ?? aiResponse
+    return JSON.parse(jsonString) as ModerationResult
+  } catch {
+    return FAIL_CLOSED
   }
 }

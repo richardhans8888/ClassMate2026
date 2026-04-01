@@ -6,6 +6,16 @@ import { getSession } from '@/lib/auth'
 
 jest.mock('@/lib/prisma')
 jest.mock('@/lib/auth', () => ({ getSession: jest.fn() }))
+jest.mock('@/lib/moderation', () => ({
+  moderateContent: jest.fn().mockResolvedValue({
+    safe: true,
+    toxicity_score: 0,
+    spam_score: 0,
+    categories: [],
+    action: 'approve',
+    reason: 'Safe content',
+  }),
+}))
 
 const mockGetSession = getSession as jest.MockedFunction<typeof getSession>
 const mockFetch = jest.spyOn(global, 'fetch')
