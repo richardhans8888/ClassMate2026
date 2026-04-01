@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 export interface Message {
   id: string
@@ -11,13 +11,50 @@ export interface Message {
 
 interface UseChatOptions {
   sessionId?: string
-  userId?: string
 }
 
-export function useChat({ sessionId, userId }: UseChatOptions = {}) {
+interface StoredMessage {
+  id: string
+  role: string
+  content: string
+  createdAt: string
+}
+
+export function useChat({ sessionId: initialSessionId }: UseChatOptions = {}) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [activeSessionId, setActiveSessionId] = useState<string | undefined>(initialSessionId)
+
+  const loadMessages = useCallback(async (sessionId: string) => {
+    setIsLoadingHistory(true)
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/messages`)
+      if (!res.ok) return
+      const data = (await res.json()) as { messages: StoredMessage[] }
+      setMessages(
+        data.messages.map((m) => ({
+          id: m.id,
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+          timestamp: new Date(m.createdAt),
+        }))
+      )
+    } catch {
+      // Silently fail — user can still start a new conversation
+    } finally {
+      setIsLoadingHistory(false)
+    }
+  }, [])
+
+  // Load message history when an initial session is provided
+  useEffect(() => {
+    if (initialSessionId) {
+      setActiveSessionId(initialSessionId)
+      void loadMessages(initialSessionId)
+    }
+  }, [initialSessionId, loadMessages])
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -55,14 +92,19 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
               role: m.role,
               content: m.content,
             })),
-            sessionId,
-            userId,
+            sessionId: activeSessionId,
           }),
         })
 
         if (!response.ok) {
-          const errData = await response.json().catch(() => ({}))
-          throw new Error(errData.error || 'Failed to get response')
+          const errData = (await response.json().catch(() => ({}))) as { error?: string }
+          throw new Error(errData.error ?? 'Failed to get response')
+        }
+
+        // Capture new session ID from header (set when server auto-creates a session)
+        const returnedSessionId = response.headers.get('X-Session-Id')
+        if (returnedSessionId && returnedSessionId !== activeSessionId) {
+          setActiveSessionId(returnedSessionId)
         }
 
         if (!response.body) throw new Error('No response body')
@@ -79,7 +121,7 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
           const lines = buffer.split('\n')
 
           // Keep the last incomplete line in the buffer
-          buffer = lines.pop() || ''
+          buffer = lines.pop() ?? ''
 
           for (const line of lines) {
             const trimmed = line.trim()
@@ -89,10 +131,13 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
             if (data === '[DONE]') continue
 
             try {
-              const parsed = JSON.parse(data)
+              const parsed = JSON.parse(data) as {
+                choices?: Array<{ delta?: { content?: string } }>
+                text?: string
+              }
 
-              // OpenRouter / OpenAI format: choices[0].delta.content
-              const text = parsed.choices?.[0]?.delta?.content || parsed.text || ''
+              // OpenAI / Groq format: choices[0].delta.content
+              const text = parsed.choices?.[0]?.delta?.content ?? parsed.text ?? ''
 
               if (text) {
                 setMessages((prev) =>
@@ -113,7 +158,7 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
         setIsLoading(false)
       }
     },
-    [messages, sessionId, userId, isLoading]
+    [messages, activeSessionId, isLoading]
   )
 
   const clearMessages = useCallback(() => {
@@ -121,11 +166,25 @@ export function useChat({ sessionId, userId }: UseChatOptions = {}) {
     setError(null)
   }, [])
 
+  const switchSession = useCallback(
+    async (sessionId: string) => {
+      setMessages([])
+      setError(null)
+      setActiveSessionId(sessionId)
+      await loadMessages(sessionId)
+    },
+    [loadMessages]
+  )
+
   return {
     messages,
     isLoading,
+    isLoadingHistory,
     error,
+    activeSessionId,
     sendMessage,
     clearMessages,
+    switchSession,
+    loadMessages,
   }
 }

@@ -1,13 +1,55 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { sanitizeMarkdown } from '@/lib/sanitize'
+import { getSession } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
+  const currentSession = await getSession()
+  if (!currentSession) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
-    const { messages } = await req.json()
+    const { messages, sessionId: providedSessionId } = await req.json()
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: 'messages required' }, { status: 400 })
+    }
+
+    // Verify provided session belongs to current user
+    if (providedSessionId) {
+      const existing = await prisma.chatSession.findFirst({
+        where: { id: providedSessionId, userId: currentSession.id },
+      })
+      if (!existing) {
+        return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+      }
+    }
+
+    // Auto-create session if none provided
+    let activeSessionId: string = providedSessionId
+    if (!activeSessionId) {
+      const newSession = await prisma.chatSession.create({
+        data: {
+          userId: currentSession.id,
+          title: 'Chat Session',
+          subject: 'General',
+        },
+      })
+      activeSessionId = newSession.id
+    }
+
+    // Save the user's message (last message in the array)
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage?.role === 'user') {
+      await prisma.chatMessage.create({
+        data: {
+          senderId: currentSession.id,
+          recipientId: currentSession.id,
+          sessionId: activeSessionId,
+          content: lastMessage.content,
+          role: 'user',
+        },
+      })
     }
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -38,10 +80,63 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: errorText }, { status: response.status })
     }
 
-    return new Response(response.body, {
+    if (!response.body) {
+      return NextResponse.json({ error: 'No response body from AI' }, { status: 502 })
+    }
+
+    // Intercept stream to accumulate AI response, then save it
+    let accumulatedContent = ''
+    const decoder = new TextDecoder()
+    const userId = currentSession.id
+    const sessionIdToSave = activeSessionId
+
+    const transformStream = new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        const text = decoder.decode(chunk, { stream: true })
+        for (const line of text.split('\n')) {
+          const trimmed = line.trim()
+          if (trimmed.startsWith('data: ') && trimmed !== 'data: [DONE]') {
+            try {
+              const parsed = JSON.parse(trimmed.slice(6)) as {
+                choices?: Array<{ delta?: { content?: string } }>
+              }
+              const content = parsed.choices?.[0]?.delta?.content ?? ''
+              accumulatedContent += content
+            } catch {
+              // Skip malformed SSE chunks
+            }
+          }
+        }
+        controller.enqueue(chunk)
+      },
+      async flush() {
+        if (accumulatedContent) {
+          try {
+            await prisma.chatMessage.create({
+              data: {
+                senderId: userId,
+                recipientId: userId,
+                sessionId: sessionIdToSave,
+                content: accumulatedContent,
+                role: 'assistant',
+              },
+            })
+            await prisma.chatSession.update({
+              where: { id: sessionIdToSave },
+              data: { updatedAt: new Date() },
+            })
+          } catch (saveErr) {
+            console.error('[POST /api/chat] Failed to save AI message:', saveErr)
+          }
+        }
+      },
+    })
+
+    return new Response(response.body.pipeThrough(transformStream), {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
+        'X-Session-Id': activeSessionId,
       },
     })
   } catch (error: unknown) {
