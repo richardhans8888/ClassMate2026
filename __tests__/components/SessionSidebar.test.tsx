@@ -1,0 +1,141 @@
+/**
+ * @jest-environment jsdom
+ */
+import React from 'react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { SessionSidebar } from '@/components/features/ai-tutor/SessionSidebar'
+
+// jsdom does not provide fetch — define it before spying
+global.fetch = jest.fn() as jest.Mock
+const mockFetch = global.fetch as jest.Mock
+
+// Helper: build a fake fetch Response-like object
+function mockJsonResponse(body: unknown, ok = true) {
+  return Promise.resolve({ ok, json: () => Promise.resolve(body) })
+}
+
+const MOCK_SESSIONS = [
+  {
+    id: 'session-1',
+    title: 'Calculus Help',
+    subject: 'Mathematics',
+    updatedAt: new Date().toISOString(),
+    _count: { messages: 5 },
+  },
+  {
+    id: 'session-2',
+    title: 'Data Structures Q&A',
+    subject: 'Computer Science',
+    updatedAt: new Date().toISOString(),
+    _count: { messages: 1 },
+  },
+]
+
+const defaultProps = {
+  activeSessionId: undefined,
+  onSelectSession: jest.fn(),
+  onNewChat: jest.fn(),
+  onDeleteSession: jest.fn(),
+}
+
+afterEach(() => {
+  jest.clearAllMocks()
+})
+
+describe('SessionSidebar component', () => {
+  it('renders the New Chat button', async () => {
+    mockFetch.mockImplementationOnce(() => mockJsonResponse({ sessions: [] }))
+    render(<SessionSidebar {...defaultProps} />)
+    expect(screen.getByRole('button', { name: /new chat/i })).toBeInTheDocument()
+  })
+
+  it('shows loading state initially', () => {
+    // Never resolves — keeps the component in loading state
+    mockFetch.mockReturnValueOnce(new Promise(() => {}))
+    render(<SessionSidebar {...defaultProps} />)
+    expect(screen.getByText(/loading sessions/i)).toBeInTheDocument()
+  })
+
+  it('shows empty state when there are no sessions', async () => {
+    mockFetch.mockImplementationOnce(() => mockJsonResponse({ sessions: [] }))
+    render(<SessionSidebar {...defaultProps} />)
+    await waitFor(() => {
+      expect(screen.getByText(/no past sessions yet/i)).toBeInTheDocument()
+    })
+  })
+
+  it('renders a list of sessions after loading', async () => {
+    mockFetch.mockImplementationOnce(() => mockJsonResponse({ sessions: MOCK_SESSIONS }))
+    render(<SessionSidebar {...defaultProps} />)
+    await waitFor(() => {
+      expect(screen.getByText('Calculus Help')).toBeInTheDocument()
+      expect(screen.getByText('Data Structures Q&A')).toBeInTheDocument()
+    })
+  })
+
+  it('highlights the active session', async () => {
+    mockFetch.mockImplementationOnce(() => mockJsonResponse({ sessions: MOCK_SESSIONS }))
+    render(<SessionSidebar {...defaultProps} activeSessionId="session-1" />)
+    await waitFor(() => {
+      expect(screen.getByText('Calculus Help')).toBeInTheDocument()
+    })
+    // The active session row has the bg-accent class
+    const activeRow = screen.getByText('Calculus Help').closest('[role="button"]')
+    expect(activeRow?.className).toContain('bg-accent')
+  })
+
+  it('calls onSelectSession when a session is clicked', async () => {
+    const onSelectSession = jest.fn()
+    mockFetch.mockImplementationOnce(() => mockJsonResponse({ sessions: MOCK_SESSIONS }))
+    render(<SessionSidebar {...defaultProps} onSelectSession={onSelectSession} />)
+    await waitFor(() => screen.getByText('Calculus Help'))
+    await userEvent.click(screen.getByText('Calculus Help'))
+    expect(onSelectSession).toHaveBeenCalledWith('session-1')
+  })
+
+  it('calls onNewChat when the New Chat button is clicked', async () => {
+    const onNewChat = jest.fn()
+    mockFetch.mockImplementationOnce(() => mockJsonResponse({ sessions: [] }))
+    render(<SessionSidebar {...defaultProps} onNewChat={onNewChat} />)
+    await userEvent.click(screen.getByRole('button', { name: /new chat/i }))
+    expect(onNewChat).toHaveBeenCalledTimes(1)
+  })
+
+  it('calls onDeleteSession and removes session from list after successful delete', async () => {
+    const onDeleteSession = jest.fn()
+    mockFetch
+      .mockImplementationOnce(() => mockJsonResponse({ sessions: MOCK_SESSIONS }))
+      .mockImplementationOnce(() => mockJsonResponse({ success: true }))
+
+    render(
+      <SessionSidebar
+        {...defaultProps}
+        onDeleteSession={onDeleteSession}
+        activeSessionId="session-2"
+      />
+    )
+
+    await waitFor(() => screen.getByText('Calculus Help'))
+
+    // Hover to reveal delete button, then click
+    const deleteButtons = screen.getAllByRole('button', { name: /delete session/i })
+    await userEvent.click(deleteButtons[0])
+
+    await waitFor(() => {
+      expect(onDeleteSession).toHaveBeenCalledWith('session-1')
+      expect(screen.queryByText('Calculus Help')).not.toBeInTheDocument()
+    })
+  })
+
+  it('shows singular "msg" for sessions with exactly 1 message', async () => {
+    mockFetch.mockImplementationOnce(() => mockJsonResponse({ sessions: MOCK_SESSIONS }))
+    render(<SessionSidebar {...defaultProps} />)
+    await waitFor(() => {
+      // session-2 has 1 message → "1 msg" (no "s")
+      expect(screen.getByText(/1 msg$/)).toBeInTheDocument()
+      // session-1 has 5 messages → "5 msgs"
+      expect(screen.getByText(/5 msgs/)).toBeInTheDocument()
+    })
+  })
+})

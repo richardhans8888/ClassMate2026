@@ -1,20 +1,53 @@
 'use client'
 
 import { ChatInterface } from 'components/features/ai-tutor/ChatInterface'
+import { SessionSidebar } from 'components/features/ai-tutor/SessionSidebar'
 import { useChat } from '../../../hooks/useChat'
 
 export default function AITutorPage() {
-  const { messages, isLoading, error, sendMessage } = useChat()
+  const {
+    messages,
+    isLoading,
+    isLoadingHistory,
+    error,
+    activeSessionId,
+    sendMessage,
+    switchSession,
+    newChat,
+  } = useChat()
+
+  const handleDeleteSession = (sessionId: string) => {
+    if (sessionId === activeSessionId) {
+      newChat()
+    }
+  }
 
   return (
     <div className="bg-muted h-[calc(100vh-64px)] w-full overflow-hidden px-6 py-4 transition-colors duration-300 md:px-8 lg:py-6">
-      <div className="relative z-10 mx-auto h-full max-w-4xl">
-        <ChatInterface
-          messages={messages}
-          isLoading={isLoading}
-          error={error}
-          sendMessage={sendMessage}
-        />
+      <div className="relative z-10 mx-auto h-full max-w-5xl">
+        <div className="border-border bg-card flex h-full overflow-hidden rounded-2xl border shadow-sm">
+          {/* Session Sidebar — desktop only */}
+          <div className="hidden md:flex">
+            <SessionSidebar
+              activeSessionId={activeSessionId}
+              onSelectSession={switchSession}
+              onNewChat={newChat}
+              onDeleteSession={handleDeleteSession}
+            />
+          </div>
+
+          {/* Chat Interface */}
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <ChatInterface
+              messages={messages}
+              isLoading={isLoading}
+              isLoadingHistory={isLoadingHistory}
+              error={error}
+              sendMessage={sendMessage}
+              onNewChat={newChat}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Ambient Background Glow */}

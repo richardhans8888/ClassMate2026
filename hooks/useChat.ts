@@ -176,6 +176,12 @@ export function useChat({ sessionId: initialSessionId }: UseChatOptions = {}) {
     [loadMessages]
   )
 
+  const newChat = useCallback(() => {
+    setMessages([])
+    setError(null)
+    setActiveSessionId(undefined)
+  }, [])
+
   return {
     messages,
     isLoading,
@@ -185,6 +191,7 @@ export function useChat({ sessionId: initialSessionId }: UseChatOptions = {}) {
     sendMessage,
     clearMessages,
     switchSession,
+    newChat,
     loadMessages,
   }
 }

@@ -9,11 +9,20 @@ import type { Message } from '../../../hooks/useChat'
 interface ChatInterfaceProps {
   messages: Message[]
   isLoading: boolean
+  isLoadingHistory?: boolean
   error: string | null
   sendMessage: (content: string) => void
+  onNewChat?: () => void
 }
 
-export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatInterfaceProps) {
+export function ChatInterface({
+  messages,
+  isLoading,
+  isLoadingHistory = false,
+  error,
+  sendMessage,
+  onNewChat,
+}: ChatInterfaceProps) {
   const [input, setInput] = useState('')
   const chatBoxRef = useRef<HTMLDivElement>(null)
 
@@ -77,6 +86,15 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
           <div className="bg-semantic-success h-2 w-2 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
           <span className="text-foreground font-medium">AI Tutor Online</span>
         </div>
+        {onNewChat && (
+          <button
+            onClick={onNewChat}
+            className="border-border hover:bg-muted text-muted-foreground flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors md:hidden"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            New Chat
+          </button>
+        )}
       </div>
 
       {/* Chat Area */}
@@ -87,7 +105,13 @@ export function ChatInterface({ messages, isLoading, error, sendMessage }: ChatI
           </div>
         )}
 
-        {messages.length === 0 && !isLoading && (
+        {isLoadingHistory && (
+          <div className="flex h-full flex-col items-center justify-center gap-3 text-center opacity-50">
+            <p className="text-muted-foreground text-sm">Loading conversation...</p>
+          </div>
+        )}
+
+        {messages.length === 0 && !isLoading && !isLoadingHistory && (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center opacity-50">
             <Bot className="text-primary h-10 w-10" />
             <p className="text-muted-foreground text-sm">

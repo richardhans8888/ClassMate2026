@@ -122,4 +122,28 @@ describe('ChatInterface component', () => {
     const input = screen.getByPlaceholderText(/ask a follow-up question/i)
     expect(input).toBeDisabled()
   })
+
+  it('shows loading history indicator when isLoadingHistory is true', () => {
+    render(<ChatInterface {...defaultProps} isLoadingHistory={true} />)
+
+    expect(screen.getByText(/loading conversation/i)).toBeInTheDocument()
+    // Empty-state hint should NOT appear while loading history
+    expect(screen.queryByText(/ask me anything/i)).not.toBeInTheDocument()
+  })
+
+  it('renders a mobile New Chat button when onNewChat is provided', () => {
+    const onNewChat = jest.fn()
+    render(<ChatInterface {...defaultProps} onNewChat={onNewChat} />)
+
+    const newChatButton = screen.getByRole('button', { name: /new chat/i })
+    expect(newChatButton).toBeInTheDocument()
+  })
+
+  it('calls onNewChat when the mobile New Chat button is clicked', async () => {
+    const onNewChat = jest.fn()
+    render(<ChatInterface {...defaultProps} onNewChat={onNewChat} />)
+
+    await userEvent.click(screen.getByRole('button', { name: /new chat/i }))
+    expect(onNewChat).toHaveBeenCalledTimes(1)
+  })
 })
