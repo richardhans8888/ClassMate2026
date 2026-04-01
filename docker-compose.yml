@@ -38,7 +38,10 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/classmate
       BETTER_AUTH_URL: http://localhost:3000
       NEXT_PUBLIC_BETTER_AUTH_URL: http://localhost:3000
+    volumes:
+      - uploads_data:/app/public/uploads
     command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm start"
 
 volumes:
   postgres_data:
+  uploads_data:
