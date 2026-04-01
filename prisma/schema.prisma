@@ -21,6 +21,12 @@ enum UserRole {
   ADMIN
 }
 
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 // USER & PROFILE MANAGEMENT
 
 model User {
@@ -46,6 +52,8 @@ model User {
   accounts             Account[]
   events               Event[]
   flaggedContents      FlaggedContent[]
+  connectionsSent      Connection[]       @relation("connectionsSent")
+  connectionsReceived  Connection[]       @relation("connectionsReceived")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -324,4 +332,21 @@ model Event {
   @@index([createdAt])
 }
 
+// USER CONNECTIONS
 
+model Connection {
+  id          String           @id @default(cuid())
+  senderId    String
+  sender      User             @relation("connectionsSent", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId String
+  recipient   User             @relation("connectionsReceived", fields: [recipientId], references: [id], onDelete: Cascade)
+  status      ConnectionStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([senderId, recipientId])
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([status])
+}

@@ -3,7 +3,16 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
-import { Share2, MapPin, GraduationCap, History, BookOpen, PenTool, Loader2 } from 'lucide-react'
+import {
+  Share2,
+  MapPin,
+  GraduationCap,
+  History,
+  BookOpen,
+  PenTool,
+  Loader2,
+  Users,
+} from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import {
   Dialog,
@@ -28,6 +37,7 @@ export default function ProfilePage() {
   const { data: session } = authClient.useSession()
   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [connectionCount, setConnectionCount] = useState(0)
   const [editOpen, setEditOpen] = useState(false)
   const [editName, setEditName] = useState('')
   const [editBio, setEditBio] = useState('')
@@ -41,10 +51,13 @@ export default function ProfilePage() {
       setLoading(false)
       return
     }
-    fetch(`/api/user/profile?userId=${userId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.profile) setProfile(data.profile as ProfileData)
+    Promise.all([
+      fetch(`/api/user/profile?userId=${userId}`).then((r) => r.json()),
+      fetch(`/api/connections/count`).then((r) => r.json()),
+    ])
+      .then(([profileData, countData]) => {
+        if (profileData.profile) setProfile(profileData.profile as ProfileData)
+        if (typeof countData.count === 'number') setConnectionCount(countData.count)
       })
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -149,6 +162,12 @@ export default function ProfilePage() {
                       </div>
                     </>
                   )}
+                  <div className="flex items-center gap-1.5">
+                    <Users className="h-4 w-4" />
+                    <span>
+                      {connectionCount} connection{connectionCount !== 1 ? 's' : ''}
+                    </span>
+                  </div>
                 </div>
               </div>
 
