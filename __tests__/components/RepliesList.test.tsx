@@ -11,6 +11,8 @@ describe('RepliesList component', () => {
     id: 'reply-1',
     content: 'Try using the quadratic formula: ax² + bx + c = 0',
     createdAt: '2026-03-21T14:30:00Z',
+    upvotes: 0,
+    hasUpvoted: false,
     user: {
       id: 'user-2',
       email: 'tutor@example.com',
@@ -102,8 +104,10 @@ describe('RepliesList component', () => {
     const replies = [mockReply()]
     render(<RepliesList replies={replies} />)
 
-    // formatDate returns relative time (e.g., "5 days ago") or locale date string
-    expect(screen.getByText(/days ago|just now|hour|min ago/i)).toBeInTheDocument()
+    // formatDate returns relative time (e.g., "5 days ago") or locale date string (e.g., "3/21/2026")
+    expect(
+      screen.getByText(/days ago|just now|hour|min ago|\d{1,2}\/\d{1,2}\/\d{4}/i)
+    ).toBeInTheDocument()
   })
 
   it('renders multiple replies', () => {
@@ -162,12 +166,11 @@ describe('RepliesList component', () => {
     expect(screen.queryByRole('button', { name: /reply/i })).not.toBeInTheDocument()
   })
 
-  it('Reply interface does not include upvotes field', () => {
-    const replies = [mockReply()]
-    const reply = replies[0]
+  it('Reply interface includes upvotes and hasUpvoted fields', () => {
+    const reply = mockReply()
 
-    // Verify that the upvotes field does not exist on the Reply interface
-    expect((reply as unknown as Record<string, unknown>).upvotes).toBeUndefined()
+    expect(typeof reply.upvotes).toBe('number')
+    expect(typeof reply.hasUpvoted).toBe('boolean')
   })
 
   it('handles edge case: many replies', () => {

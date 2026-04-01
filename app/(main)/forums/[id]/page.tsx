@@ -17,6 +17,7 @@ interface Post {
   category: string
   views: number
   upvotes: number
+  hasUpvoted: boolean
   createdAt: string
   user: {
     id: string
@@ -38,6 +39,7 @@ interface Reply {
   id: string
   content: string
   upvotes: number
+  hasUpvoted: boolean
   createdAt: string
   user: {
     id: string

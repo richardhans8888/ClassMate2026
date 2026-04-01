@@ -44,7 +44,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       data: { views: { increment: 1 } },
     })
 
-    return NextResponse.json(post, { status: 200 })
+    const session = await getSession()
+    let hasUpvoted = false
+    if (session) {
+      const upvoteCount = await prisma.forumPost.count({
+        where: { id, upvoters: { some: { id: session.id } } },
+      })
+      hasUpvoted = upvoteCount > 0
+    }
+
+    return NextResponse.json({ ...post, hasUpvoted }, { status: 200 })
   } catch (error: unknown) {
     console.error('Get post error:', error)
     return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 })

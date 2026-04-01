@@ -32,6 +32,8 @@ jest.mock('@/components/features/forums/ForumCard', () => ({
     category: string
     replies: number
     views: number
+    upvotes: number
+    hasUpvoted: boolean
     tags: string[]
     createdAt: string
   }) => <div data-testid="forum-card">{title}</div>,
@@ -64,6 +66,8 @@ describe('ForumList component', () => {
       content: 'What are your best study tips?',
       category: 'Study Tips',
       views: 42,
+      upvotes: 0,
+      hasUpvoted: false,
       createdAt: '2025-03-26T10:00:00Z',
       user: {
         id: 'user-1',
@@ -87,6 +91,8 @@ describe('ForumList component', () => {
       content: 'Looking for algorithm resources...',
       category: 'Resources',
       views: 28,
+      upvotes: 0,
+      hasUpvoted: false,
       createdAt: '2025-03-25T10:00:00Z',
       user: {
         id: 'user-2',

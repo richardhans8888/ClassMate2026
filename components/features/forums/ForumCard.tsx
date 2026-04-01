@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { MessageSquare, Eye } from 'lucide-react'
+import { UpvoteButton } from './UpvoteButton'
 
 interface ForumCardProps {
   id: number | string
@@ -8,6 +9,8 @@ interface ForumCardProps {
   category: string
   replies: number
   views: number
+  upvotes: number
+  hasUpvoted: boolean
   tags: string[]
   createdAt: string
 }
@@ -19,6 +22,8 @@ export function ForumCard({
   category,
   replies,
   views,
+  upvotes,
+  hasUpvoted,
   tags,
   createdAt,
 }: ForumCardProps) {
@@ -41,6 +46,12 @@ export function ForumCard({
 
       <div className="mt-4 flex items-center justify-between">
         <div className="text-muted-foreground flex items-center gap-6 text-sm">
+          <UpvoteButton
+            contentId={String(id)}
+            contentType="post"
+            initialUpvotes={upvotes}
+            initialHasUpvoted={hasUpvoted}
+          />
           <div className="flex items-center gap-1">
             <MessageSquare className="h-4 w-4" />
             <span>{replies} replies</span>

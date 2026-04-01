@@ -12,6 +12,8 @@ describe('ForumPostDetail component', () => {
     content: 'I am struggling with quadratic equations. Can someone explain the quadratic formula?',
     category: 'math',
     views: 42,
+    upvotes: 0,
+    hasUpvoted: false,
     createdAt: '2026-03-20T10:00:00Z',
     user: {
       id: 'user-1',
@@ -103,9 +105,10 @@ describe('ForumPostDetail component', () => {
   it('displays the post creation date', () => {
     render(<ForumPostDetail post={mockPost} />)
 
-    // formatDate returns relative time (e.g., "5 days ago") or locale date string
-    // For a date 6 days in the past, it should display "5 days ago" format
-    expect(screen.getByText(/days ago|just now|hour|min ago/i)).toBeInTheDocument()
+    // formatDate returns relative time (e.g., "5 days ago") or locale date string (e.g., "3/20/2026")
+    expect(
+      screen.getByText(/days ago|just now|hour|min ago|\d{1,2}\/\d{1,2}\/\d{4}/i)
+    ).toBeInTheDocument()
   })
 
   it('displays all tags', () => {

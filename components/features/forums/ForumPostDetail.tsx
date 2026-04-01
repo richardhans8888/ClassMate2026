@@ -2,6 +2,7 @@
 
 import { MessageSquare, Eye } from 'lucide-react'
 import { formatDate } from '@/lib/format'
+import { UpvoteButton } from './UpvoteButton'
 
 interface ForumPostDetailProps {
   post: {
@@ -10,6 +11,8 @@ interface ForumPostDetailProps {
     content: string
     category: string
     views: number
+    upvotes: number
+    hasUpvoted: boolean
     createdAt: string
     user: {
       id: string
@@ -72,6 +75,12 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
         )}
 
         <div className="border-border flex items-center gap-6 border-t pt-6">
+          <UpvoteButton
+            contentId={post.id}
+            contentType="post"
+            initialUpvotes={post.upvotes}
+            initialHasUpvoted={post.hasUpvoted}
+          />
           <div className="text-muted-foreground flex items-center">
             <MessageSquare className="mr-2 h-5 w-5" />
             <span>{post._count.replies} Replies</span>

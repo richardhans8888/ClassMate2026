@@ -1,11 +1,14 @@
 'use client'
 
 import { formatDate } from '@/lib/format'
+import { UpvoteButton } from './UpvoteButton'
 
 export interface Reply {
   id: string
   content: string
   createdAt: string
+  upvotes: number
+  hasUpvoted: boolean
   user: {
     id: string
     email: string
@@ -48,6 +51,12 @@ export function RepliesList({ replies }: RepliesListProps) {
                   <p className="text-muted-foreground text-xs">{formatDate(reply.createdAt)}</p>
                 </div>
               </div>
+              <UpvoteButton
+                contentId={reply.id}
+                contentType="reply"
+                initialUpvotes={reply.upvotes}
+                initialHasUpvoted={reply.hasUpvoted}
+              />
             </div>
 
             <div className="text-foreground text-sm leading-relaxed whitespace-pre-line">

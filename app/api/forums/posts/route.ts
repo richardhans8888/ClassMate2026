@@ -39,7 +39,22 @@ export async function GET(req: NextRequest) {
       },
     })
 
-    return NextResponse.json({ posts }, { status: 200 })
+    const session = await getSession()
+    let upvotedPostIds = new Set<string>()
+    if (session) {
+      const userData = await prisma.user.findUnique({
+        where: { id: session.id },
+        select: { upvotedForumPosts: { select: { id: true } } },
+      })
+      upvotedPostIds = new Set((userData?.upvotedForumPosts ?? []).map((p) => p.id))
+    }
+
+    const postsWithUpvoted = posts.map((post) => ({
+      ...post,
+      hasUpvoted: upvotedPostIds.has(post.id),
+    }))
+
+    return NextResponse.json({ posts: postsWithUpvoted }, { status: 200 })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json({ error: message }, { status: 500 })

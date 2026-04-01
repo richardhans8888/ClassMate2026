@@ -13,6 +13,8 @@ interface ForumPost {
   content: string
   category: string
   views: number
+  upvotes: number
+  hasUpvoted: boolean
   createdAt: string
   user: {
     id: string
@@ -232,6 +234,8 @@ export function ForumList() {
                   category={post.category}
                   replies={post._count.replies}
                   views={post.views}
+                  upvotes={post.upvotes}
+                  hasUpvoted={post.hasUpvoted}
                   tags={post.tags.map((t) => t.name)}
                   createdAt={formatDate(post.createdAt)}
                 />
