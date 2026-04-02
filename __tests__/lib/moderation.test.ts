@@ -140,6 +140,36 @@ describe('moderateContent — fail-closed on error', () => {
     expect(result.action).toBe('block')
   })
 
+  it('returns block when AI returns valid JSON but missing action field', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ result: 'ok', safe: true }) } }],
+      }),
+    })
+
+    const result = await moderateContent('Normal content')
+    expect(result.action).toBe('block')
+  })
+
+  it('returns block when AI returns valid JSON with unrecognised action value', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({ action: 'allow', safe: true, toxicity_score: 0 }),
+            },
+          },
+        ],
+      }),
+    })
+
+    const result = await moderateContent('Normal content')
+    expect(result.action).toBe('block')
+  })
+
   it('returns block when GROQ_API_KEY is missing', async () => {
     delete process.env.GROQ_API_KEY
 

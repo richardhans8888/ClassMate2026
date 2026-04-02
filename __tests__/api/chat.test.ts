@@ -176,4 +176,50 @@ describe('POST /api/chat', () => {
       expect.objectContaining({ method: 'POST' })
     )
   })
+
+  it('returns 400 when moderation blocks the message', async () => {
+    mockGetSession.mockResolvedValueOnce(AUTHED_USER)
+    const { moderateContent } = jest.requireMock('@/lib/moderation') as {
+      moderateContent: jest.Mock
+    }
+    moderateContent.mockResolvedValueOnce({
+      safe: false,
+      toxicity_score: 95,
+      spam_score: 5,
+      categories: ['harassment'],
+      action: 'block',
+      reason: 'Content contains harassment',
+    })
+
+    const req = new NextRequest('http://localhost/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages: [{ role: 'user', content: 'Hateful content here' }] }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    const body = (await res.json()) as {
+      error: string
+      moderation: { action: string; reason: string }
+    }
+    expect(body.error).toBe('Content blocked by moderation')
+    expect(body.moderation.action).toBe('block')
+    expect(body.moderation.reason).toBe('Content contains harassment')
+    // Groq streaming should NOT be called
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 when message content is not a string', async () => {
+    mockGetSession.mockResolvedValueOnce(AUTHED_USER)
+
+    const req = new NextRequest('http://localhost/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages: [{ role: 'user', content: 42 }] }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    const body = (await res.json()) as { error: string }
+    expect(body.error).toBe('Invalid message content')
+  })
 })

@@ -16,6 +16,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'messages required' }, { status: 400 })
     }
 
+    // Moderate the user's message before any DB writes
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage?.role === 'user') {
+      if (typeof lastMessage.content !== 'string' || !lastMessage.content.trim()) {
+        return NextResponse.json({ error: 'Invalid message content' }, { status: 400 })
+      }
+      const moderation = await moderateContent(lastMessage.content)
+      if (moderation.action === 'block') {
+        return NextResponse.json(
+          {
+            error: 'Content blocked by moderation',
+            moderation: {
+              action: 'block',
+              reason: moderation.reason,
+              categories: moderation.categories,
+            },
+          },
+          { status: 400 }
+        )
+      }
+    }
+
     // Verify provided session belongs to current user
     if (providedSessionId) {
       const existing = await prisma.chatSession.findFirst({
@@ -37,25 +59,6 @@ export async function POST(req: NextRequest) {
         },
       })
       activeSessionId = newSession.id
-    }
-
-    // Moderate the user's message before processing
-    const lastMessage = messages[messages.length - 1]
-    if (lastMessage?.role === 'user') {
-      const moderation = await moderateContent(lastMessage.content as string)
-      if (moderation.action === 'block') {
-        return NextResponse.json(
-          {
-            error: 'Content blocked by moderation',
-            moderation: {
-              action: 'block',
-              reason: moderation.reason,
-              categories: moderation.categories,
-            },
-          },
-          { status: 400 }
-        )
-      }
     }
 
     // Save the user's message (last message in the array)

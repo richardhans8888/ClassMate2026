@@ -74,7 +74,14 @@ Categories can include: harassment, hate_speech, spam, off_topic, inappropriate,
     // Extract JSON from markdown code blocks if present
     const jsonMatch = aiResponse.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/)
     const jsonString = jsonMatch?.[1] ?? aiResponse
-    return JSON.parse(jsonString) as ModerationResult
+    const parsed = JSON.parse(jsonString) as Record<string, unknown>
+
+    // Validate that the required action field is a known value
+    if (!['approve', 'warn', 'block'].includes(parsed.action as string)) {
+      return FAIL_CLOSED
+    }
+
+    return parsed as unknown as ModerationResult
   } catch {
     return FAIL_CLOSED
   }
