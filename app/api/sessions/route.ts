@@ -2,11 +2,15 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
 
 // GET /api/sessions
 export async function GET() {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const limited = await checkRateLimit(session.id, generalLimiter)
+  if (limited) return limited
 
   try {
     const sessions = await prisma.chatSession.findMany({
@@ -28,6 +32,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const limited = await checkRateLimit(session.id, writeLimiter)
+  if (limited) return limited
 
   const body = await req.json().catch(() => ({}))
   const { title, subject } = body as { title?: string; subject?: string }
@@ -51,6 +58,9 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const limited = await checkRateLimit(session.id, writeLimiter)
+  if (limited) return limited
 
   const { searchParams } = new URL(req.url)
   const sessionId = searchParams.get('sessionId')

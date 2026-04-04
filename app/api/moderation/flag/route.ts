@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
 import { ALLOWED_CONTENT_TYPES, contentExists, type AllowedContentType } from '@/lib/content-exists'
+import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,6 +12,9 @@ export async function POST(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const body = (await req.json()) as {
       contentType?: string

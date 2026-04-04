@@ -1,11 +1,16 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, generalLimiter } from '@/lib/rate-limit'
 
 // GET /api/user/me — returns current user data for both Firebase and Better Auth sessions
-export async function GET() {
+export async function GET(_req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const limited = await checkRateLimit(session.id, generalLimiter)
+  if (limited) return limited
 
   try {
     const [user, profile] = await Promise.all([

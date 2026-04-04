@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth'
 import { canModerate } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
+import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
 type UpdateEventPayload = {
   title?: unknown
@@ -45,6 +46,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const { id } = await params
 
@@ -145,6 +149,9 @@ export async function DELETE(
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const { id } = await params
 

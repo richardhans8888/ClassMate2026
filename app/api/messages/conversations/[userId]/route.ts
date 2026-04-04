@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeMarkdown } from '@/lib/sanitize'
+import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
@@ -113,6 +114,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ use
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const { userId } = await params
     if (!userId) {

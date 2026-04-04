@@ -1,14 +1,19 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { scoreAndRankPosts } from '@/lib/recommendations'
+import { checkRateLimit, generalLimiter } from '@/lib/rate-limit'
 
-export async function GET() {
+export async function GET(_req: NextRequest) {
   try {
     const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, generalLimiter)
+    if (limited) return limited
 
     const [historyUser, flaggedPosts] = await Promise.all([
       prisma.user.findUnique({

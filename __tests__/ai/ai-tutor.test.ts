@@ -13,8 +13,30 @@
 
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/chat/route'
+import { getSession } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+
+jest.mock('@/lib/auth', () => ({ getSession: jest.fn() }))
+jest.mock('@/lib/prisma')
+jest.mock('@/lib/moderation', () => ({
+  moderateContent: jest.fn().mockResolvedValue({
+    safe: true,
+    toxicity_score: 0,
+    spam_score: 0,
+    categories: [],
+    action: 'approve',
+    reason: 'ok',
+  }),
+}))
 
 const mockFetch = jest.spyOn(global, 'fetch')
+
+beforeEach(() => {
+  ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1', email: 'test@test.com' })
+  ;(prisma.chatSession.create as jest.Mock).mockResolvedValue({ id: 'session-1' })
+  ;(prisma.chatMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-1' })
+  ;(prisma.chatSession.update as jest.Mock).mockResolvedValue({ id: 'session-1' })
+})
 
 function makeSSEResponse(content: string) {
   const encoder = new TextEncoder()

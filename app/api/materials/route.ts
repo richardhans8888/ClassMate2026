@@ -5,6 +5,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { uploadFile } from '@/lib/storage'
 import { sanitizeText } from '@/lib/sanitize'
+import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
 const ALLOWED_FILE_TYPES = [
   'pdf',
@@ -84,6 +85,9 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const formData = await request.formData()
 

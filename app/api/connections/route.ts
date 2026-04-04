@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
 
 // POST /api/connections — send a connection request
 export async function POST(req: NextRequest) {
@@ -10,6 +11,9 @@ export async function POST(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const { recipientId } = await req.json()
 
@@ -77,6 +81,9 @@ export async function GET(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, generalLimiter)
+    if (limited) return limited
 
     const { searchParams } = new URL(req.url)
     const status = searchParams.get('status') ?? 'accepted'

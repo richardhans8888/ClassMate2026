@@ -1,9 +1,13 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, generalLimiter, writeLimiter, getClientIp } from '@/lib/rate-limit'
 
 // GET /api/user/profile?userId=xxx
 export async function GET(req: NextRequest) {
+  const limited = await checkRateLimit(getClientIp(req), generalLimiter)
+  if (limited) return limited
+
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get('userId')
   if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
@@ -38,6 +42,9 @@ export async function GET(req: NextRequest) {
 
 // PATCH /api/user/profile — update profile
 export async function PATCH(req: NextRequest) {
+  const limited = await checkRateLimit(getClientIp(req), writeLimiter)
+  if (limited) return limited
+
   const { userId, displayName, bio, university, major, avatarUrl } = await req.json()
   if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
 

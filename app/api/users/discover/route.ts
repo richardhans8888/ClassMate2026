@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getConnectionStatus } from '@/lib/connections'
+import { checkRateLimit, generalLimiter } from '@/lib/rate-limit'
 
 const PAGE_SIZE = 20
 
@@ -13,6 +14,9 @@ export async function GET(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, generalLimiter)
+    if (limited) return limited
 
     const { searchParams } = new URL(req.url)
     const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))

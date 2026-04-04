@@ -2,8 +2,13 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { adminAuth } from '@/lib/firebase-admin'
 import { prisma } from '@/lib/prisma'
+import { authLimiter, checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  const limited = await checkRateLimit(ip, authLimiter)
+  if (limited) return limited
+
   const authorization = req.headers.get('Authorization')
 
   if (!authorization?.startsWith('Bearer ')) {

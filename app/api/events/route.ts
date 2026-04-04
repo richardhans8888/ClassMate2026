@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
+import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
 type EventPayload = {
   title?: unknown
@@ -54,6 +55,9 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const body = (await request.json()) as EventPayload
 

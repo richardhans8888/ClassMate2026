@@ -2,6 +2,8 @@ import { randomBytes } from 'crypto'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getSession } from '@/lib/auth'
+import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
 // GET /api/study-groups?subject=Math&userId=xxx&myGroups=true
 export async function GET(req: NextRequest) {
@@ -48,9 +50,13 @@ export async function GET(req: NextRequest) {
 
 // POST /api/study-groups — create a group
 export async function POST(req: NextRequest) {
+  const session = await getSession()
   const { name, description, subject, ownerId, maxMembers, isPrivate } = await req.json()
   if (!name || !subject || !ownerId)
     return NextResponse.json({ error: 'name, subject, ownerId required' }, { status: 400 })
+
+  const limited = await checkRateLimit(session?.id ?? ownerId, writeLimiter)
+  if (limited) return limited
 
   try {
     const inviteCode = randomBytes(3).toString('hex').toUpperCase()

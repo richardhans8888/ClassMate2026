@@ -1,6 +1,8 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, generalLimiter } from '@/lib/rate-limit'
 
 interface ConversationSummary {
   userId: string
@@ -14,12 +16,15 @@ interface ConversationSummary {
 }
 
 // GET /api/messages/conversations
-export async function GET() {
+export async function GET(_req: NextRequest) {
   try {
     const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, generalLimiter)
+    if (limited) return limited
 
     const recentMessages = await prisma.chatMessage.findMany({
       where: {

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { requireAdmin } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, generalLimiter } from '@/lib/rate-limit'
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,6 +11,9 @@ export async function GET(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, generalLimiter)
+    if (limited) return limited
 
     const isAdmin = await requireAdmin(session)
     if (!isAdmin) {

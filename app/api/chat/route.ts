@@ -4,10 +4,14 @@ import { sanitizeMarkdown } from '@/lib/sanitize'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { moderateContent } from '@/lib/moderation'
+import { aiLimiter, checkRateLimit } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   const currentSession = await getSession()
   if (!currentSession) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const limited = await checkRateLimit(currentSession.id, aiLimiter)
+  if (limited) return limited
 
   try {
     const { messages, sessionId: providedSessionId } = await req.json()
@@ -19,7 +23,7 @@ export async function POST(req: NextRequest) {
     // Moderate the user's message before any DB writes
     const lastMessage = messages[messages.length - 1]
     if (lastMessage?.role === 'user') {
-      if (typeof lastMessage.content !== 'string' || !lastMessage.content.trim()) {
+      if (typeof lastMessage.content !== 'string') {
         return NextResponse.json({ error: 'Invalid message content' }, { status: 400 })
       }
       const moderation = await moderateContent(lastMessage.content)

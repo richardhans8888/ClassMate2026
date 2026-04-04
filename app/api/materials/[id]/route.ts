@@ -1,8 +1,10 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { canModerate } from '@/lib/authorize'
 import { sanitizeText } from '@/lib/sanitize'
+import { checkRateLimit, generalLimiter, writeLimiter, getClientIp } from '@/lib/rate-limit'
 
 const USER_SELECT = {
   select: {
@@ -12,8 +14,11 @@ const USER_SELECT = {
   },
 } as const
 
-export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const limited = await checkRateLimit(getClientIp(request), generalLimiter)
+    if (limited) return limited
+
     const { id } = await context.params
 
     const material = await prisma.studyMaterial.findUnique({
@@ -31,12 +36,15 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   }
 }
 
-export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const { id } = await context.params
 
@@ -92,12 +100,15 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   }
 }
 
-export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
+export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const { id } = await context.params
 

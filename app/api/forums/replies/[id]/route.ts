@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { canModerate } from '@/lib/authorize'
 import { sanitizeMarkdown } from '@/lib/sanitize'
+import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -10,6 +11,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const { id } = await context.params
 
@@ -60,6 +64,9 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const { id } = await context.params
 

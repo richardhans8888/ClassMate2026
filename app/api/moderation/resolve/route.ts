@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { requireAdmin } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
 const ALLOWED_ACTIONS = ['dismiss', 'remove', 'warn'] as const
 
@@ -14,6 +15,9 @@ export async function POST(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, writeLimiter)
+    if (limited) return limited
 
     const isAdmin = await requireAdmin(session)
     if (!isAdmin) {

@@ -1,0 +1,59 @@
+import { RateLimiterMemory, RateLimiterRes } from 'rate-limiter-flexible'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+
+// AI endpoints — expensive per call (Groq API)
+export const aiLimiter = new RateLimiterMemory({ points: 20, duration: 3600 })
+
+// Moderation endpoint — public-facing; higher burst allowed
+export const moderationLimiter = new RateLimiterMemory({ points: 60, duration: 60 })
+
+// Auth endpoints — brute-force / credential stuffing protection
+export const authLimiter = new RateLimiterMemory({ points: 10, duration: 900 })
+
+// Write endpoints — POST/PATCH/DELETE mutations
+export const writeLimiter = new RateLimiterMemory({ points: 30, duration: 60 })
+
+// General authenticated endpoints
+export const generalLimiter = new RateLimiterMemory({ points: 100, duration: 60 })
+
+/**
+ * Extract the client IP from a NextRequest.
+ * Note: x-forwarded-for can be spoofed if not behind a trusted proxy.
+ */
+export function getClientIp(req: NextRequest): string {
+  const forwarded = req.headers.get('x-forwarded-for')
+  if (forwarded) {
+    return forwarded.split(',')[0].trim()
+  }
+  return req.headers.get('x-real-ip') ?? 'unknown'
+}
+
+/**
+ * Consume one point from the given limiter for `identifier`.
+ * Returns null when the request is allowed.
+ * Returns a 429 NextResponse when the limit is exceeded.
+ */
+export async function checkRateLimit(
+  identifier: string,
+  limiter: RateLimiterMemory
+): Promise<NextResponse | null> {
+  try {
+    await limiter.consume(identifier)
+    return null
+  } catch (err) {
+    if (err instanceof RateLimiterRes) {
+      const retryAfter = Math.ceil(err.msBeforeNext / 1000)
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(retryAfter) },
+        }
+      )
+    }
+    // Unexpected error — fail open (don't block the request)
+    console.error('[rate-limit] Unexpected error:', err)
+    return null
+  }
+}

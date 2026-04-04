@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
+import { aiLimiter, checkRateLimit } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,6 +10,9 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(user.id, aiLimiter)
+    if (limited) return limited
 
     const { thread } = await req.json()
 

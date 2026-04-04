@@ -2,6 +2,8 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sanitizeMarkdown } from '@/lib/sanitize'
+import { getSession } from '@/lib/auth'
+import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
 // GET /api/study-groups/[groupId]/messages
 export async function GET(req: NextRequest, context: { params: Promise<{ groupId: string }> }) {
@@ -27,10 +29,14 @@ export async function GET(req: NextRequest, context: { params: Promise<{ groupId
 
 // POST /api/study-groups/[groupId]/messages — send a message
 export async function POST(req: NextRequest, context: { params: Promise<{ groupId: string }> }) {
+  const session = await getSession()
   const { groupId } = await context.params
   const { userId, content } = await req.json()
   if (!userId || !content)
     return NextResponse.json({ error: 'userId and content required' }, { status: 400 })
+
+  const limited = await checkRateLimit(session?.id ?? userId, writeLimiter)
+  if (limited) return limited
 
   const sanitizedContent = sanitizeMarkdown(content)
   if (!sanitizedContent)
