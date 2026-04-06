@@ -1,4 +1,4 @@
-import { canModerate, requireAdmin, requireRole } from '@/lib/authorize'
+import { canModerate, requireAdmin, requireModerator, requireRole } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
 
 jest.mock('@/lib/prisma')
@@ -32,6 +32,26 @@ describe('authorize', () => {
     })
   })
 
+  describe('requireModerator', () => {
+    it('returns true for TUTOR role', async () => {
+      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'TUTOR' })
+      const result = await requireModerator({ id: 'tutor-1', email: 'tutor@test.com' })
+      expect(result).toBe(true)
+    })
+
+    it('returns true for ADMIN role', async () => {
+      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'ADMIN' })
+      const result = await requireModerator({ id: 'admin-1', email: 'admin@test.com' })
+      expect(result).toBe(true)
+    })
+
+    it('returns false for STUDENT role', async () => {
+      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'STUDENT' })
+      const result = await requireModerator({ id: 'student-1', email: 'student@test.com' })
+      expect(result).toBe(false)
+    })
+  })
+
   describe('canModerate', () => {
     it('allows resource owner', async () => {
       const result = await canModerate({ id: 'user1', email: 'test@test.com' }, 'user1')
@@ -50,6 +70,12 @@ describe('authorize', () => {
 
       const result = await canModerate({ id: 'user2', email: 'other@test.com' }, 'user1')
       expect(result).toBe(false)
+    })
+
+    it('allows TUTOR for non-owned resource', async () => {
+      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'TUTOR' })
+      const result = await canModerate({ id: 'tutor1', email: 'tutor@test.com' }, 'user1')
+      expect(result).toBe(true)
     })
   })
 })

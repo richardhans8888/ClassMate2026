@@ -103,6 +103,52 @@ describe('POST /api/auth/firebase', () => {
     expect(res.headers.get('set-cookie')).toContain('session=')
   })
 
+  it('sets sameSite=Strict on the session cookie to prevent CSRF', async () => {
+    adminAuth.verifyIdToken.mockResolvedValueOnce({
+      uid: 'firebase-uid-csrf',
+      email: 'csrf@binus.ac.id',
+      email_verified: true,
+    })
+    adminAuth.getUser.mockResolvedValueOnce({ displayName: 'CSRF Test', photoURL: null })
+    ;(prisma.user.upsert as jest.Mock).mockResolvedValueOnce({
+      id: 'csrf-user-id',
+      email: 'csrf@binus.ac.id',
+    })
+
+    const req = new NextRequest('http://localhost/api/auth/firebase', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer csrf-test-token' },
+    })
+    const res = await firebasePOST(req)
+
+    expect(res.status).toBe(200)
+    const setCookie = res.headers.get('set-cookie') ?? ''
+    expect(setCookie.toLowerCase()).toContain('samesite=strict')
+  })
+
+  it('sets Max-Age=3600 on the session cookie to match Firebase token expiry', async () => {
+    adminAuth.verifyIdToken.mockResolvedValueOnce({
+      uid: 'firebase-uid-maxage',
+      email: 'maxage@binus.ac.id',
+      email_verified: true,
+    })
+    adminAuth.getUser.mockResolvedValueOnce({ displayName: 'MaxAge Test', photoURL: null })
+    ;(prisma.user.upsert as jest.Mock).mockResolvedValueOnce({
+      id: 'maxage-user-id',
+      email: 'maxage@binus.ac.id',
+    })
+
+    const req = new NextRequest('http://localhost/api/auth/firebase', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer maxage-test-token' },
+    })
+    const res = await firebasePOST(req)
+
+    expect(res.status).toBe(200)
+    const setCookie = res.headers.get('set-cookie') ?? ''
+    expect(setCookie.toLowerCase()).toContain('max-age=3600')
+  })
+
   it('calls prisma.user.upsert with the email from the token', async () => {
     adminAuth.verifyIdToken.mockResolvedValueOnce({
       uid: 'uid-xyz',

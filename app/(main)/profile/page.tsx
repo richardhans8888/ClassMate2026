@@ -145,7 +145,20 @@ export default function ProfilePage() {
             {/* Info */}
             <div className="flex-1 space-y-4">
               <div>
-                <h1 className="text-foreground mb-2 text-3xl font-bold">{displayName}</h1>
+                <div className="mb-2 flex items-center gap-2">
+                  <h1 className="text-foreground text-3xl font-bold">{displayName}</h1>
+                  {session?.user?.role && session.user.role !== 'STUDENT' && (
+                    <span
+                      className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${
+                        session.user.role === 'ADMIN'
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
+                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+                      }`}
+                    >
+                      {session.user.role}
+                    </span>
+                  )}
+                </div>
                 <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
                   {major && (
                     <div className="flex items-center gap-1.5">

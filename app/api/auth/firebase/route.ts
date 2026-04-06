@@ -49,6 +49,8 @@ export async function POST(req: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       path: '/',
+      sameSite: 'strict',
+      maxAge: 60 * 60, // 1 hour — matches Firebase ID token expiry
     })
 
     return response

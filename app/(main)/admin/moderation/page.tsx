@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
-import { requireAdmin } from '@/lib/authorize'
+import { requireModerator } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
 
 export default async function AdminModerationPage() {
@@ -9,8 +9,8 @@ export default async function AdminModerationPage() {
     redirect('/login')
   }
 
-  const isAdmin = await requireAdmin(session)
-  if (!isAdmin) {
+  const isModerator = await requireModerator(session)
+  if (!isModerator) {
     redirect('/dashboard')
   }
 
@@ -24,7 +24,7 @@ export default async function AdminModerationPage() {
     <div className="container mx-auto px-6 py-8 md:px-8">
       <h1 className="text-foreground text-2xl font-bold">Moderation Dashboard</h1>
       <p className="text-muted-foreground mt-2 text-sm">
-        Pending flagged content requiring admin review.
+        Pending flagged content requiring moderator review.
       </p>
 
       <div className="border-border bg-card mt-6 overflow-x-auto rounded-lg border">

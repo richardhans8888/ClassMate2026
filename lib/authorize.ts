@@ -37,15 +37,22 @@ export async function requireAdmin(session: SessionUser): Promise<boolean> {
 }
 
 /**
- * Check if user can moderate a resource (is owner or admin)
+ * Check if user is a moderator (TUTOR or ADMIN)
+ */
+export async function requireModerator(session: SessionUser): Promise<boolean> {
+  return requireRole(session, ['TUTOR', 'ADMIN'])
+}
+
+/**
+ * Check if user can moderate a resource (is owner or moderator)
  */
 export async function canModerate(session: SessionUser, resourceOwnerId: string): Promise<boolean> {
   // User can always moderate their own resources
   if (session.id === resourceOwnerId) {
     return true
   }
-  // Otherwise, must be admin
-  return requireAdmin(session)
+  // Otherwise, must be a moderator (TUTOR or ADMIN)
+  return requireModerator(session)
 }
 
 /**

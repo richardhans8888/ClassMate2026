@@ -70,6 +70,19 @@ describe('GET /api/moderation/flagged', () => {
     const data = await res.json()
     expect(data.flags).toHaveLength(1)
   })
+
+  it('returns flagged list for TUTOR', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'tutor-1', email: 'tutor@test.com' })
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'TUTOR' })
+    ;(prisma.flaggedContent.findMany as jest.Mock).mockResolvedValue([{ id: 'flag-1' }])
+
+    const req = new NextRequest('http://localhost/api/moderation/flagged')
+    const res = await flaggedGET(req)
+
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.flags).toHaveLength(1)
+  })
 })
 
 describe('POST /api/moderation/resolve', () => {
@@ -92,5 +105,39 @@ describe('POST /api/moderation/resolve', () => {
 
     const res = await resolvePOST(req)
     expect(res.status).toBe(200)
+  })
+
+  it('resolves pending flags for TUTOR', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'tutor-1', email: 'tutor@test.com' })
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'TUTOR' })
+    ;(prisma.flaggedContent.findUnique as jest.Mock).mockResolvedValue({
+      id: 'flag-1',
+      status: 'pending',
+    })
+    ;(prisma.flaggedContent.update as jest.Mock).mockResolvedValue({
+      id: 'flag-1',
+      status: 'resolved',
+    })
+
+    const req = new NextRequest('http://localhost/api/moderation/resolve', {
+      method: 'POST',
+      body: JSON.stringify({ flagId: 'flag-1', action: 'dismiss' }),
+    })
+
+    const res = await resolvePOST(req)
+    expect(res.status).toBe(200)
+  })
+
+  it('returns 403 for STUDENT on resolve', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'student-1', email: 'student@test.com' })
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'STUDENT' })
+
+    const req = new NextRequest('http://localhost/api/moderation/resolve', {
+      method: 'POST',
+      body: JSON.stringify({ flagId: 'flag-1', action: 'remove' }),
+    })
+
+    const res = await resolvePOST(req)
+    expect(res.status).toBe(403)
   })
 })
