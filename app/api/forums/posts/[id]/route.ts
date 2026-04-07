@@ -163,6 +163,15 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       where: { id },
     })
 
+    void prisma.moderationLog.create({
+      data: {
+        actorId: session.id,
+        action: 'CONTENT_DELETED',
+        targetId: id,
+        targetType: 'ForumPost',
+      },
+    })
+
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error: unknown) {
     console.error('Delete post error:', error)

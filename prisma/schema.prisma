@@ -27,6 +27,12 @@ enum ConnectionStatus {
   REJECTED
 }
 
+enum ModerationAction {
+  FLAG_CREATED
+  FLAG_RESOLVED
+  CONTENT_DELETED
+}
+
 // USER & PROFILE MANAGEMENT
 
 model User {
@@ -54,6 +60,7 @@ model User {
   flaggedContents      FlaggedContent[]
   connectionsSent      Connection[]       @relation("connectionsSent")
   connectionsReceived  Connection[]       @relation("connectionsReceived")
+  moderationLogs       ModerationLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -349,4 +356,20 @@ model Connection {
   @@index([senderId])
   @@index([recipientId])
   @@index([status])
+}
+
+// MODERATION AUDIT LOG
+
+model ModerationLog {
+  id         String           @id @default(cuid())
+  actorId    String
+  actor      User             @relation(fields: [actorId], references: [id])
+  action     ModerationAction
+  targetId   String
+  targetType String
+  reason     String?
+  metadata   String?
+  createdAt  DateTime         @default(now())
+
+  @@index([actorId, action, createdAt])
 }

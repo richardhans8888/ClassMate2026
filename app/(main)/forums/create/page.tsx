@@ -97,7 +97,6 @@ export default function CreateForumPostPage() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What's your question or topic?"
               className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
-              required
               disabled={loading}
             />
           </div>
@@ -112,7 +111,6 @@ export default function CreateForumPostPage() {
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="border-border bg-muted text-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
-                required
                 disabled={loading}
               >
                 <option value="">Select a category</option>
@@ -154,7 +152,6 @@ export default function CreateForumPostPage() {
               onChange={(e) => setContent(e.target.value)}
               placeholder="Describe your question or discussion topic in detail..."
               className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
-              required
               disabled={loading}
             />
             <p className="text-muted-foreground mt-2 text-xs">Markdown is supported.</p>

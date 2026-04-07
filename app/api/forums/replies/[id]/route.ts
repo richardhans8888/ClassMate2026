@@ -90,6 +90,14 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
         where: { id: reply.postId },
         data: { repliesCount: { decrement: 1 } },
       })
+      await tx.moderationLog.create({
+        data: {
+          actorId: session.id,
+          action: 'CONTENT_DELETED',
+          targetId: id,
+          targetType: 'ForumReply',
+        },
+      })
     })
 
     return NextResponse.json({ success: true }, { status: 200 })

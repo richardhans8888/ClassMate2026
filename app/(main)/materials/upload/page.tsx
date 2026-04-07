@@ -177,7 +177,6 @@ export default function UploadMaterialPage() {
               ref={fileInputRef}
               type="file"
               className="hidden"
-              accept={ALLOWED_EXTENSIONS.map((ext) => `.${ext}`).join(',')}
               onChange={handleFileChange}
               disabled={loading}
             />
@@ -195,7 +194,6 @@ export default function UploadMaterialPage() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Calculus Chapter 5 Notes"
               className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
-              required
               disabled={loading}
             />
           </div>
@@ -210,7 +208,6 @@ export default function UploadMaterialPage() {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               className="border-border bg-muted text-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
-              required
               disabled={loading}
             >
               <option value="">Select a subject</option>
@@ -247,7 +244,7 @@ export default function UploadMaterialPage() {
             <Button
               type="submit"
               className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
-              disabled={loading || !file}
+              disabled={loading}
             >
               {loading ? (
                 <>

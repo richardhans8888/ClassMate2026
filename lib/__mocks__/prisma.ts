@@ -30,6 +30,7 @@ export const prisma = {
   studyMaterial: modelMethods(),
   event: modelMethods(),
   flaggedContent: modelMethods(),
+  moderationLog: modelMethods(),
   $transaction: jest.fn(),
   $connect: jest.fn(),
   $disconnect: jest.fn(),

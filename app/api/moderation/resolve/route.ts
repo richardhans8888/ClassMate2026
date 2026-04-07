@@ -66,6 +66,16 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    void prisma.moderationLog.create({
+      data: {
+        actorId: session.id,
+        action: 'FLAG_RESOLVED',
+        targetId: flagId,
+        targetType: 'FlaggedContent',
+        metadata: JSON.stringify({ resolution: action }),
+      },
+    })
+
     return NextResponse.json({ success: true, flag: updatedFlag }, { status: 200 })
   } catch (error: unknown) {
     console.error('Resolve flag error:', error)
