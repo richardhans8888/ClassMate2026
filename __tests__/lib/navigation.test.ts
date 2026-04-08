@@ -2,16 +2,18 @@ import { getNavigationByGroup, isNavigationItemVisible, navigationItems } from '
 
 describe('navigation config', () => {
   it('groups visible items into core and more', () => {
-    const { core, more } = getNavigationByGroup(null)
+    const { core } = getNavigationByGroup(null)
 
     expect(core.map((item) => item.href)).toEqual([
       '/',
       '/forums',
-      '/materials',
-      '/chat',
       '/groups',
+      '/chat',
+      '/materials',
+      '/schedule',
+      '/ai-tutor',
+      '/profile',
     ])
-    expect(more.some((item) => item.href === '/schedule')).toBe(true)
   })
 
   it('hides role-protected items when role is missing', () => {
@@ -24,8 +26,8 @@ describe('navigation config', () => {
   })
 
   it('shows role-protected items for allowed role', () => {
-    const { more } = getNavigationByGroup('ADMIN')
+    const { core } = getNavigationByGroup('ADMIN')
 
-    expect(more.some((item) => item.href === '/admin/moderation')).toBe(true)
+    expect(core.some((item) => item.href === '/admin/moderation')).toBe(true)
   })
 })

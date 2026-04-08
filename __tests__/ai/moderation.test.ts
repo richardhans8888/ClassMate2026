@@ -303,9 +303,9 @@ describe('AI Moderation — Failure Handling', () => {
     const res = await POST(makeRequest('some content'))
     const data = await res.json()
 
-    // The route falls back to approve on parse error (known issue documented)
-    expect(res.status).toBe(200)
-    expect(data.action).toBeDefined()
+    // Fail closed — parse failure returns 502, not a silent approve
+    expect(res.status).toBe(502)
+    expect(data.error).toBeDefined()
   })
 
   it('TC-AI-M-15: network error (fetch throws) returns 500', async () => {

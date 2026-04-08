@@ -96,8 +96,8 @@ describe('getClientIp', () => {
     expect(getClientIp(req)).toBe('9.10.11.12')
   })
 
-  it('returns "unknown" when no IP headers are present', () => {
+  it('returns null when no IP headers are present', () => {
     const req = makeRequest()
-    expect(getClientIp(req)).toBe('unknown')
+    expect(getClientIp(req)).toBe(null)
   })
 })

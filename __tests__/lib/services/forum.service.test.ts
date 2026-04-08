@@ -411,7 +411,7 @@ describe('deleteForumReply', () => {
   it('deletes reply and decrements post counter in a transaction', async () => {
     const txMock = {
       forumReply: { delete: jest.fn().mockResolvedValue({}) },
-      forumPost: { update: jest.fn().mockResolvedValue({}) },
+      forumPost: { updateMany: jest.fn().mockResolvedValue({}) },
     }
     mockPrisma.$transaction.mockImplementation((fn: (tx: typeof txMock) => Promise<void>) =>
       fn(txMock)
@@ -420,8 +420,8 @@ describe('deleteForumReply', () => {
     await deleteForumReply('r1', 'p1')
 
     expect(txMock.forumReply.delete).toHaveBeenCalledWith({ where: { id: 'r1' } })
-    expect(txMock.forumPost.update).toHaveBeenCalledWith({
-      where: { id: 'p1' },
+    expect(txMock.forumPost.updateMany).toHaveBeenCalledWith({
+      where: { id: 'p1', repliesCount: { gt: 0 } },
       data: { repliesCount: { decrement: 1 } },
     })
   })

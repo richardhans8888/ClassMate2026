@@ -19,6 +19,14 @@ import { POST } from '@/app/api/summarize/route'
 import { getSession } from '@/lib/auth'
 
 jest.mock('@/lib/auth', () => ({ getSession: jest.fn() }))
+jest.mock('@/lib/rate-limit', () => ({
+  checkRateLimit: jest.fn().mockResolvedValue(null),
+  aiLimiter: {},
+  moderationLimiter: {},
+  authLimiter: {},
+  writeLimiter: {},
+  generalLimiter: {},
+}))
 
 const mockFetch = jest.fn()
 global.fetch = mockFetch

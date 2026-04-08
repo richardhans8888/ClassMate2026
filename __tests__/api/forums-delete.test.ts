@@ -72,9 +72,9 @@ describe('DELETE /api/forums/replies/[id]', () => {
 
     expect(res.status).toBe(200)
     expect(prisma.forumReply.delete).toHaveBeenCalledWith({ where: { id: 'reply-1' } })
-    expect(prisma.forumPost.update).toHaveBeenCalledWith(
+    expect(prisma.forumPost.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 'post-1' },
+        where: expect.objectContaining({ id: 'post-1' }),
       })
     )
   })

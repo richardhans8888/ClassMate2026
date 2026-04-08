@@ -36,6 +36,7 @@ describe('POST /api/moderation/flag', () => {
       id: 'flag-1',
       status: 'pending',
     })
+    ;(prisma.moderationLog.create as jest.Mock).mockResolvedValue({})
 
     const req = new NextRequest('http://localhost/api/moderation/flag', {
       method: 'POST',
@@ -97,6 +98,7 @@ describe('POST /api/moderation/resolve', () => {
       id: 'flag-1',
       status: 'resolved',
     })
+    ;(prisma.moderationLog.create as jest.Mock).mockResolvedValue({})
 
     const req = new NextRequest('http://localhost/api/moderation/resolve', {
       method: 'POST',
@@ -118,6 +120,7 @@ describe('POST /api/moderation/resolve', () => {
       id: 'flag-1',
       status: 'resolved',
     })
+    ;(prisma.moderationLog.create as jest.Mock).mockResolvedValue({})
 
     const req = new NextRequest('http://localhost/api/moderation/resolve', {
       method: 'POST',

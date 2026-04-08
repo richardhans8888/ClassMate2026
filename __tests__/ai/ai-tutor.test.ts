@@ -18,6 +18,14 @@ import { prisma } from '@/lib/prisma'
 
 jest.mock('@/lib/auth', () => ({ getSession: jest.fn() }))
 jest.mock('@/lib/prisma')
+jest.mock('@/lib/rate-limit', () => ({
+  checkRateLimit: jest.fn().mockResolvedValue(null),
+  aiLimiter: {},
+  moderationLimiter: {},
+  authLimiter: {},
+  writeLimiter: {},
+  generalLimiter: {},
+}))
 jest.mock('@/lib/moderation', () => ({
   moderateContent: jest.fn().mockResolvedValue({
     safe: true,

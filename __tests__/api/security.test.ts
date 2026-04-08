@@ -15,8 +15,29 @@ import { PATCH } from '@/app/api/user/profile/route'
 import { POST as chatPOST } from '@/app/api/chat/route'
 import { POST as firebasePOST } from '@/app/api/auth/firebase/route'
 import { prisma } from '@/lib/prisma'
+import { getSession } from '@/lib/auth'
 
+jest.mock('@/lib/auth', () => ({ getSession: jest.fn() }))
 jest.mock('@/lib/prisma')
+jest.mock('@/lib/rate-limit', () => ({
+  checkRateLimit: jest.fn().mockResolvedValue(null),
+  getClientIp: jest.fn().mockReturnValue(null),
+  aiLimiter: {},
+  moderationLimiter: {},
+  authLimiter: {},
+  writeLimiter: {},
+  generalLimiter: {},
+}))
+jest.mock('@/lib/moderation', () => ({
+  moderateContent: jest.fn().mockResolvedValue({
+    safe: true,
+    toxicity_score: 0,
+    spam_score: 0,
+    categories: [],
+    action: 'approve',
+    reason: 'ok',
+  }),
+}))
 
 jest.mock('@/lib/firebase-admin', () => ({
   adminAuth: {
@@ -133,6 +154,12 @@ describe('authorization enforcement', () => {
 // ─── AI Chat Role Sanitization ────────────────────────────────────────────────
 
 describe('AI chat role sanitization', () => {
+  beforeEach(() => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1', email: 'test@test.com' })
+    ;(prisma.chatSession.create as jest.Mock).mockResolvedValue({ id: 'session-1' })
+    ;(prisma.chatMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-1' })
+  })
+
   it('normalizes unknown roles to "user" before forwarding to Groq', async () => {
     const encoder = new TextEncoder()
     const stream = new ReadableStream({

@@ -7,7 +7,7 @@ import { ForumCard } from '@/components/features/forums/ForumCard'
 import { MaterialCard } from '@/components/features/materials/MaterialCard'
 
 describe('Theme parity component guards', () => {
-  it('forum card keeps dark-mode container and text classes', () => {
+  it('forum card uses design token container and text classes', () => {
     const { container } = render(
       <ForumCard
         id="post-1"
@@ -23,11 +23,11 @@ describe('Theme parity component guards', () => {
     )
 
     expect(screen.getByText('Need help with calculus')).toBeInTheDocument()
-    expect(container.innerHTML).toContain('dark:bg-gray-800')
-    expect(container.innerHTML).toContain('dark:text-white')
+    expect(container.innerHTML).toContain('bg-card')
+    expect(container.innerHTML).toContain('text-foreground')
   })
 
-  it('material card keeps dark-mode container and metadata classes', () => {
+  it('material card uses design token container and metadata classes', () => {
     const { container } = render(
       <MaterialCard
         id="mat-1"
@@ -42,7 +42,7 @@ describe('Theme parity component guards', () => {
     )
 
     expect(screen.getByText('Linear Algebra Notes')).toBeInTheDocument()
-    expect(container.innerHTML).toContain('dark:bg-gray-800')
-    expect(container.innerHTML).toContain('dark:text-white')
+    expect(container.innerHTML).toContain('bg-card')
+    expect(container.innerHTML).toContain('text-foreground')
   })
 })

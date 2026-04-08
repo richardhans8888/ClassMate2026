@@ -72,7 +72,7 @@ describe('Chat pages integration', () => {
     await screen.findByText('No conversations yet.')
 
     expect(container.firstChild).toHaveClass('h-full')
-    expect(container.innerHTML).toContain('dark:bg-gray-900')
+    expect(container.innerHTML).toContain('bg-card')
   })
 
   it('sends a message and renders it in the thread', async () => {
@@ -147,7 +147,6 @@ describe('Chat pages integration', () => {
     const { container } = render(<ChatConversationPage params={{ userId: 'user-2' }} />)
 
     await screen.findByText('Bob')
-    expect(container.innerHTML).toContain('dark:bg-gray-900')
-    expect(container.innerHTML).toContain('dark:bg-gray-800')
+    expect(container.innerHTML).toContain('bg-card')
   })
 })

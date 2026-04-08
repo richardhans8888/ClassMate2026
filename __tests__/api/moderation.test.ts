@@ -197,9 +197,8 @@ describe('POST /api/moderation', () => {
     const response = await POST(req)
     const data = await response.json()
 
-    // Should fallback to approve
-    expect(response.status).toBe(200)
-    expect(data.safe).toBe(true)
-    expect(data.action).toBe('approve')
+    // Fail closed — parse failure returns 502, not a silent approve
+    expect(response.status).toBe(502)
+    expect(data.error).toBeDefined()
   })
 })

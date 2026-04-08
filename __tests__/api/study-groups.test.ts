@@ -2,6 +2,7 @@
 import { NextRequest } from 'next/server'
 import { GET, POST, DELETE } from '@/app/api/study-groups/route'
 
+jest.mock('@/lib/auth', () => ({ getSession: jest.fn() }))
 jest.mock('@/lib/prisma')
 import { prisma } from '@/lib/prisma'
 
