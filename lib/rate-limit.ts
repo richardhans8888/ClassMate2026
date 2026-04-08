@@ -21,12 +21,13 @@ export const generalLimiter = new RateLimiterMemory({ points: 100, duration: 60 
  * Extract the client IP from a NextRequest.
  * Note: x-forwarded-for can be spoofed if not behind a trusted proxy.
  */
-export function getClientIp(req: NextRequest): string {
+export function getClientIp(req: NextRequest): string | null {
   const forwarded = req.headers.get('x-forwarded-for')
   if (forwarded) {
-    return forwarded.split(',')[0].trim()
+    const first = forwarded.split(',')[0]
+    if (first) return first.trim()
   }
-  return req.headers.get('x-real-ip') ?? 'unknown'
+  return req.headers.get('x-real-ip')
 }
 
 /**

@@ -8,6 +8,7 @@ import {
   resolveFlag,
   FlagNotFoundError,
   FlagAlreadyResolvedError,
+  InvalidResolutionActionError,
 } from '@/lib/services/moderation.service'
 
 export async function POST(req: NextRequest) {
@@ -35,15 +36,17 @@ export async function POST(req: NextRequest) {
     try {
       const updatedFlag = await resolveFlag(flagId, action, session.id)
 
-      void prisma.moderationLog.create({
-        data: {
-          actorId: session.id,
-          action: 'FLAG_RESOLVED',
-          targetId: flagId,
-          targetType: 'FlaggedContent',
-          metadata: JSON.stringify({ resolution: action }),
-        },
-      })
+      prisma.moderationLog
+        .create({
+          data: {
+            actorId: session.id,
+            action: 'FLAG_RESOLVED',
+            targetId: flagId,
+            targetType: 'FlaggedContent',
+            metadata: JSON.stringify({ resolution: action }),
+          },
+        })
+        .catch((err: unknown) => console.error('[moderation-log] Failed to write audit log:', err))
 
       return NextResponse.json({ success: true, flag: updatedFlag }, { status: 200 })
     } catch (err) {
@@ -53,7 +56,7 @@ export async function POST(req: NextRequest) {
       if (err instanceof FlagAlreadyResolvedError) {
         return NextResponse.json({ error: 'Flag is already resolved' }, { status: 409 })
       }
-      if (err instanceof Error) {
+      if (err instanceof InvalidResolutionActionError) {
         return NextResponse.json({ error: err.message }, { status: 400 })
       }
       throw err

@@ -54,14 +54,3 @@ export async function canModerate(session: SessionUser, resourceOwnerId: string)
   // Otherwise, must be a moderator (TUTOR or ADMIN)
   return requireModerator(session)
 }
-
-/**
- * Check if user can modify a connection (is sender or recipient)
- */
-export async function canModifyConnection(
-  session: SessionUser,
-  senderId: string,
-  recipientId: string
-): Promise<boolean> {
-  return session.id === senderId || session.id === recipientId
-}

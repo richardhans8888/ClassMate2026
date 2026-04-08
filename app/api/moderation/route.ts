@@ -80,17 +80,10 @@ Categories can include: harassment, hate_speech, spam, off_topic, inappropriate,
       const jsonString = jsonMatch ? jsonMatch[1] : aiResponse
       moderationResult = JSON.parse(jsonString)
     } catch {
-      // Fallback if AI doesn't return valid JSON
+      // Fail closed — a parse failure must not silently approve content
       return NextResponse.json(
-        {
-          safe: true,
-          toxicity_score: 0,
-          spam_score: 0,
-          categories: [],
-          action: 'approve',
-          reason: 'Unable to parse moderation result, defaulting to approve',
-        },
-        { status: 200 }
+        { error: 'Unable to parse moderation result from AI' },
+        { status: 502 }
       )
     }
 

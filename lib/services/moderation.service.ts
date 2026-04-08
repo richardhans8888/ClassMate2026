@@ -41,6 +41,13 @@ export class FlagAlreadyResolvedError extends Error {
 const ALLOWED_ACTIONS = ['dismiss', 'remove', 'warn'] as const
 type ResolutionAction = (typeof ALLOWED_ACTIONS)[number]
 
+export class InvalidResolutionActionError extends Error {
+  constructor() {
+    super(`action must be one of: ${ALLOWED_ACTIONS.join(', ')}`)
+    this.name = 'InvalidResolutionActionError'
+  }
+}
+
 // --- Service functions ---
 
 export async function flagContent(
@@ -91,7 +98,7 @@ export async function flagContent(
 
 export async function resolveFlag(flagId: string, action: string, actorId: string) {
   if (!ALLOWED_ACTIONS.includes(action as ResolutionAction)) {
-    throw new Error(`action must be one of: ${ALLOWED_ACTIONS.join(', ')}`)
+    throw new InvalidResolutionActionError()
   }
 
   const flag = await prisma.flaggedContent.findUnique({

@@ -38,15 +38,17 @@ export async function POST(req: NextRequest) {
     try {
       const flag = await flagContent(session.id, contentType, contentId, reason)
 
-      void prisma.moderationLog.create({
-        data: {
-          actorId: session.id,
-          action: 'FLAG_CREATED',
-          targetId: flag.contentId,
-          targetType: flag.contentType,
-          reason: flag.reason,
-        },
-      })
+      prisma.moderationLog
+        .create({
+          data: {
+            actorId: session.id,
+            action: 'FLAG_CREATED',
+            targetId: flag.contentId,
+            targetType: flag.contentType,
+            reason: flag.reason,
+          },
+        })
+        .catch((err: unknown) => console.error('[moderation-log] Failed to write audit log:', err))
 
       return NextResponse.json({ flag }, { status: 201 })
     } catch (err) {

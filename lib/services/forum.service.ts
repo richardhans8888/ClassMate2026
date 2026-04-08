@@ -118,15 +118,15 @@ export async function createForumPost(userId: string, data: CreatePostInput) {
   const sanitizedContent = sanitizeMarkdown(content)
   const sanitizedCategory = sanitizeText(category)
 
-  if (containsXSSPatterns(String(title)) || containsXSSPatterns(String(content))) {
-    console.warn('XSS pattern detected in forum post submission', {
+  if (!sanitizedTitle || !sanitizedContent || !sanitizedCategory) {
+    throw new ServiceValidationError('title, content, and category must contain valid text')
+  }
+
+  if (containsXSSPatterns(sanitizedTitle) || containsXSSPatterns(sanitizedContent)) {
+    console.warn('XSS pattern survived sanitization in forum post submission', {
       userId,
       timestamp: new Date().toISOString(),
     })
-  }
-
-  if (!sanitizedTitle || !sanitizedContent || !sanitizedCategory) {
-    throw new ServiceValidationError('title, content, and category must contain valid text')
   }
 
   const moderationResult = await moderateContent(`${sanitizedTitle}\n\n${sanitizedContent}`)
@@ -144,7 +144,7 @@ export async function createForumPost(userId: string, data: CreatePostInput) {
       tags: tags
         ? {
             create: tags.map((tag: string) => ({
-              name: tag.trim().toLowerCase(),
+              name: sanitizeText(tag.trim().toLowerCase()) ?? '',
             })),
           }
         : undefined,
@@ -379,8 +379,8 @@ export async function updateForumReply(replyId: string, content: string) {
 export async function deleteForumReply(replyId: string, postId: string): Promise<void> {
   await prisma.$transaction(async (tx) => {
     await tx.forumReply.delete({ where: { id: replyId } })
-    await tx.forumPost.update({
-      where: { id: postId },
+    await tx.forumPost.updateMany({
+      where: { id: postId, repliesCount: { gt: 0 } },
       data: { repliesCount: { decrement: 1 } },
     })
   })
