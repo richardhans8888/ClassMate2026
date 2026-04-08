@@ -64,7 +64,7 @@ function NavGroup({
       {/* Section header — fades out when collapsed, takes no space */}
       <p
         className={cn(
-          'text-muted-foreground mb-1.5 overflow-hidden px-2 text-[10px] font-semibold tracking-widest whitespace-nowrap uppercase transition-all duration-200 ease-in-out',
+          'text-sidebar-foreground/40 mb-1.5 overflow-hidden px-2 text-[10px] font-semibold tracking-widest whitespace-nowrap uppercase transition-all duration-200 ease-in-out',
           collapsed ? 'max-h-0 opacity-0' : 'max-h-6 opacity-100'
         )}
       >
@@ -94,8 +94,8 @@ function NavGroup({
                   className={cn(
                     'flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150',
                     active
-                      ? 'bg-accent text-primary'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      ? 'bg-sidebar-accent text-sidebar-primary'
+                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'
                   )}
                 >
                   <Icon className="h-5 w-5" />
@@ -108,8 +108,8 @@ function NavGroup({
                   'absolute inset-0 flex items-center gap-2 rounded-lg px-2 text-sm font-medium transition-opacity duration-200',
                   collapsed ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100',
                   active
-                    ? 'bg-accent text-primary'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? 'bg-sidebar-accent text-sidebar-primary border-sidebar-primary border-l-2'
+                    : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
@@ -146,7 +146,7 @@ function SidebarContent({
           <button
             onClick={onToggleCollapse}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150"
+            className="text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150"
           >
             <Menu className="h-5 w-5 shrink-0" />
           </button>
@@ -168,7 +168,7 @@ function SidebarContent({
       </nav>
 
       {/* Settings pinned at bottom */}
-      <div className="border-border border-t p-2">
+      <div className="border-sidebar-border border-t p-2">
         <Link
           href="/settings"
           onClick={onNavigate}
@@ -182,7 +182,14 @@ function SidebarContent({
               collapsed ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
             )}
           >
-            <span className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150">
+            <span
+              className={cn(
+                'flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150',
+                isActive('/settings')
+                  ? 'bg-sidebar-accent text-sidebar-primary'
+                  : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'
+              )}
+            >
               <Settings className="h-5 w-5" />
             </span>
           </span>
@@ -192,7 +199,9 @@ function SidebarContent({
             className={cn(
               'absolute inset-0 flex items-center gap-2 rounded-lg px-2 text-sm font-medium transition-opacity duration-200',
               collapsed ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100',
-              'text-muted-foreground hover:bg-muted hover:text-foreground'
+              isActive('/settings')
+                ? 'bg-sidebar-accent text-sidebar-primary border-sidebar-primary border-l-2'
+                : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'
             )}
           >
             <Settings className="h-5 w-5 shrink-0" />

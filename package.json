@@ -92,6 +92,9 @@
     "tsx": "^4.21.0",
     "typescript": "^5"
   },
+  "ts-node": {
+    "project": "tsconfig.jest.json"
+  },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix --max-warnings=0",

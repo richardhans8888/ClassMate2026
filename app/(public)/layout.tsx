@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { BookOpen } from 'lucide-react'
 import { ModeToggle } from 'components/mode-toggle'
 import { PublicFooter } from 'components/public/PublicFooter'
+import { getSession } from '@/lib/auth'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -9,11 +10,13 @@ export const metadata: Metadata = {
   description: 'Connect, learn, and grow together with students worldwide.',
 }
 
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await getSession()
+
   return (
     <div className="bg-background flex min-h-screen flex-col">
       <header className="border-border bg-background/95 sticky top-0 z-50 border-b backdrop-blur-sm">
@@ -27,12 +30,21 @@ export default function PublicLayout({
 
           <div className="flex items-center gap-2">
             <ModeToggle />
-            <Link
-              href="/login"
-              className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
-            >
-              Sign In
-            </Link>
+            {session ? (
+              <Link
+                href="/dashboard"
+                className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+              >
+                ← Back to App
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </header>
