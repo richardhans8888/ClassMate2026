@@ -2,8 +2,8 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { requireModerator } from '@/lib/authorize'
-import { prisma } from '@/lib/prisma'
 import { checkRateLimit, generalLimiter } from '@/lib/rate-limit'
+import { listFlaggedContent } from '@/lib/services/moderation.service'
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,13 +21,9 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url)
-    const status = searchParams.get('status')
+    const status = searchParams.get('status') ?? undefined
 
-    const flags = await prisma.flaggedContent.findMany({
-      where: status ? { status } : undefined,
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-    })
+    const { flags } = await listFlaggedContent(status)
 
     return NextResponse.json({ flags }, { status: 200 })
   } catch (error: unknown) {

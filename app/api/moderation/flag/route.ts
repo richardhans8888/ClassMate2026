@@ -2,9 +2,13 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { sanitizeText } from '@/lib/sanitize'
-import { ALLOWED_CONTENT_TYPES, contentExists, type AllowedContentType } from '@/lib/content-exists'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
+import {
+  flagContent,
+  InvalidContentTypeError,
+  ContentNotFoundError,
+  DuplicateFlagError,
+} from '@/lib/services/moderation.service'
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,9 +26,7 @@ export async function POST(req: NextRequest) {
       reason?: string
     }
 
-    const contentType = body.contentType
-    const contentId = sanitizeText(body.contentId)
-    const reason = sanitizeText(body.reason)
+    const { contentType, contentId, reason } = body
 
     if (!contentType || !contentId || !reason) {
       return NextResponse.json(
@@ -33,60 +35,32 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!ALLOWED_CONTENT_TYPES.includes(contentType as AllowedContentType)) {
-      return NextResponse.json(
-        { error: `contentType must be one of: ${ALLOWED_CONTENT_TYPES.join(', ')}` },
-        { status: 400 }
-      )
+    try {
+      const flag = await flagContent(session.id, contentType, contentId, reason)
+
+      void prisma.moderationLog.create({
+        data: {
+          actorId: session.id,
+          action: 'FLAG_CREATED',
+          targetId: flag.contentId,
+          targetType: flag.contentType,
+          reason: flag.reason,
+        },
+      })
+
+      return NextResponse.json({ flag }, { status: 201 })
+    } catch (err) {
+      if (err instanceof InvalidContentTypeError) {
+        return NextResponse.json({ error: err.message }, { status: 400 })
+      }
+      if (err instanceof ContentNotFoundError) {
+        return NextResponse.json({ error: 'Content not found' }, { status: 404 })
+      }
+      if (err instanceof DuplicateFlagError) {
+        return NextResponse.json({ error: 'Content already flagged by this user' }, { status: 409 })
+      }
+      throw err
     }
-
-    const exists = await contentExists(contentType as AllowedContentType, contentId)
-    if (!exists) {
-      return NextResponse.json({ error: 'Content not found' }, { status: 404 })
-    }
-
-    const existing = await prisma.flaggedContent.findFirst({
-      where: {
-        reporterId: session.id,
-        contentType,
-        contentId,
-        status: 'pending',
-      },
-      select: { id: true },
-    })
-
-    if (existing) {
-      return NextResponse.json({ error: 'Content already flagged by this user' }, { status: 409 })
-    }
-
-    const flag = await prisma.flaggedContent.create({
-      data: {
-        reporterId: session.id,
-        contentType,
-        contentId,
-        reason,
-      },
-      select: {
-        id: true,
-        contentType: true,
-        contentId: true,
-        reason: true,
-        status: true,
-        createdAt: true,
-      },
-    })
-
-    void prisma.moderationLog.create({
-      data: {
-        actorId: session.id,
-        action: 'FLAG_CREATED',
-        targetId: flag.contentId,
-        targetType: flag.contentType,
-        reason,
-      },
-    })
-
-    return NextResponse.json({ flag }, { status: 201 })
   } catch (error: unknown) {
     console.error('Flag content error:', error)
     const message = error instanceof Error ? error.message : 'Failed to flag content'

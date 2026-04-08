@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { canModerate } from '@/lib/authorize'
-import { sanitizeMarkdown } from '@/lib/sanitize'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
+import { prisma } from '@/lib/prisma'
+import {
+  updateForumReply,
+  deleteForumReply,
+  ServiceValidationError,
+} from '@/lib/services/forum.service'
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -17,11 +21,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
     const { id } = await context.params
 
-    const reply = await prisma.forumReply.findUnique({
-      where: { id },
-      select: { userId: true },
-    })
-
+    const reply = await prisma.forumReply.findUnique({ where: { id }, select: { userId: true } })
     if (!reply) {
       return NextResponse.json({ error: 'Reply not found' }, { status: 404 })
     }
@@ -38,20 +38,15 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       return NextResponse.json({ error: 'content is required' }, { status: 400 })
     }
 
-    const sanitized = sanitizeMarkdown(contentRaw)
-    if (!sanitized) {
-      return NextResponse.json({ error: 'content must contain valid text' }, { status: 400 })
+    try {
+      const updated = await updateForumReply(id, contentRaw)
+      return NextResponse.json({ reply: updated }, { status: 200 })
+    } catch (err) {
+      if (err instanceof ServiceValidationError) {
+        return NextResponse.json({ error: err.message }, { status: 400 })
+      }
+      throw err
     }
-
-    const updated = await prisma.forumReply.update({
-      where: { id },
-      data: { content: sanitized },
-      include: {
-        user: { select: { id: true, email: true, profile: { select: { displayName: true } } } },
-      },
-    })
-
-    return NextResponse.json({ reply: updated }, { status: 200 })
   } catch (error: unknown) {
     console.error('Patch reply error:', error)
     return NextResponse.json({ error: 'Failed to update reply' }, { status: 500 })
@@ -74,7 +69,6 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
       where: { id },
       select: { userId: true, postId: true },
     })
-
     if (!reply) {
       return NextResponse.json({ error: 'Reply not found' }, { status: 404 })
     }
@@ -84,20 +78,15 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
       return NextResponse.json({ error: 'Not authorized to delete this reply' }, { status: 403 })
     }
 
-    await prisma.$transaction(async (tx) => {
-      await tx.forumReply.delete({ where: { id } })
-      await tx.forumPost.update({
-        where: { id: reply.postId },
-        data: { repliesCount: { decrement: 1 } },
-      })
-      await tx.moderationLog.create({
-        data: {
-          actorId: session.id,
-          action: 'CONTENT_DELETED',
-          targetId: id,
-          targetType: 'ForumReply',
-        },
-      })
+    await deleteForumReply(id, reply.postId)
+
+    void prisma.moderationLog.create({
+      data: {
+        actorId: session.id,
+        action: 'CONTENT_DELETED',
+        targetId: id,
+        targetType: 'ForumReply',
+      },
     })
 
     return NextResponse.json({ success: true }, { status: 200 })

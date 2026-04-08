@@ -4,10 +4,11 @@ import { getSession } from '@/lib/auth'
 import { requireModerator } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
-
-const ALLOWED_ACTIONS = ['dismiss', 'remove', 'warn'] as const
-
-type AllowedAction = (typeof ALLOWED_ACTIONS)[number]
+import {
+  resolveFlag,
+  FlagNotFoundError,
+  FlagAlreadyResolvedError,
+} from '@/lib/services/moderation.service'
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,59 +25,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const body = (await req.json()) as {
-      flagId?: string
-      action?: string
-    }
-
-    const flagId = body.flagId
-    const action = body.action
+    const body = (await req.json()) as { flagId?: string; action?: string }
+    const { flagId, action } = body
 
     if (!flagId || !action) {
       return NextResponse.json({ error: 'flagId and action are required' }, { status: 400 })
     }
 
-    if (!ALLOWED_ACTIONS.includes(action as AllowedAction)) {
-      return NextResponse.json(
-        { error: `action must be one of: ${ALLOWED_ACTIONS.join(', ')}` },
-        { status: 400 }
-      )
+    try {
+      const updatedFlag = await resolveFlag(flagId, action, session.id)
+
+      void prisma.moderationLog.create({
+        data: {
+          actorId: session.id,
+          action: 'FLAG_RESOLVED',
+          targetId: flagId,
+          targetType: 'FlaggedContent',
+          metadata: JSON.stringify({ resolution: action }),
+        },
+      })
+
+      return NextResponse.json({ success: true, flag: updatedFlag }, { status: 200 })
+    } catch (err) {
+      if (err instanceof FlagNotFoundError) {
+        return NextResponse.json({ error: 'Flag not found' }, { status: 404 })
+      }
+      if (err instanceof FlagAlreadyResolvedError) {
+        return NextResponse.json({ error: 'Flag is already resolved' }, { status: 409 })
+      }
+      if (err instanceof Error) {
+        return NextResponse.json({ error: err.message }, { status: 400 })
+      }
+      throw err
     }
-
-    const flag = await prisma.flaggedContent.findUnique({
-      where: { id: flagId },
-      select: { id: true, status: true },
-    })
-
-    if (!flag) {
-      return NextResponse.json({ error: 'Flag not found' }, { status: 404 })
-    }
-
-    if (flag.status !== 'pending') {
-      return NextResponse.json({ error: 'Flag is already resolved' }, { status: 409 })
-    }
-
-    const updatedFlag = await prisma.flaggedContent.update({
-      where: { id: flagId },
-      data: {
-        status: action === 'dismiss' ? 'dismissed' : 'resolved',
-        resolvedBy: session.id,
-        resolution: action,
-        resolvedAt: new Date(),
-      },
-    })
-
-    void prisma.moderationLog.create({
-      data: {
-        actorId: session.id,
-        action: 'FLAG_RESOLVED',
-        targetId: flagId,
-        targetType: 'FlaggedContent',
-        metadata: JSON.stringify({ resolution: action }),
-      },
-    })
-
-    return NextResponse.json({ success: true, flag: updatedFlag }, { status: 200 })
   } catch (error: unknown) {
     console.error('Resolve flag error:', error)
     const message = error instanceof Error ? error.message : 'Failed to resolve flag'

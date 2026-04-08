@@ -1,59 +1,23 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { sanitizeText, sanitizeMarkdown, containsXSSPatterns } from '@/lib/sanitize'
-import { moderateContent } from '@/lib/moderation'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
+import {
+  listForumPosts,
+  enrichPostsWithUpvotes,
+  createForumPost,
+  ModerationBlockedError,
+  ServiceValidationError,
+} from '@/lib/services/forum.service'
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const category = searchParams.get('category')
+    const category = searchParams.get('category') ?? undefined
 
-    const where = category && category !== 'all' ? { category } : {}
-
-    const posts = await prisma.forumPost.findMany({
-      where,
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            profile: {
-              select: {
-                displayName: true,
-                major: true,
-              },
-            },
-          },
-        },
-        tags: true,
-        _count: {
-          select: {
-            replies: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
-
+    const posts = await listForumPosts(category)
     const session = await getSession()
-    let upvotedPostIds = new Set<string>()
-    if (session) {
-      const userData = await prisma.user.findUnique({
-        where: { id: session.id },
-        select: { upvotedForumPosts: { select: { id: true } } },
-      })
-      upvotedPostIds = new Set((userData?.upvotedForumPosts ?? []).map((p) => p.id))
-    }
-
-    const postsWithUpvoted = posts.map((post) => ({
-      ...post,
-      hasUpvoted: upvotedPostIds.has(post.id),
-    }))
+    const postsWithUpvoted = await enrichPostsWithUpvotes(posts, session?.id)
 
     return NextResponse.json({ posts: postsWithUpvoted }, { status: 200 })
   } catch (error: unknown) {
@@ -64,7 +28,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Verify user is authenticated
     const user = await getSession()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -75,7 +38,6 @@ export async function POST(req: NextRequest) {
 
     const { title, content, category, tags } = await req.json()
 
-    // Validate required fields
     if (!title || !content || !category) {
       return NextResponse.json(
         { error: 'title, content, and category are required' },
@@ -83,90 +45,27 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const sanitizedTitle = sanitizeText(title)
-    const sanitizedContent = sanitizeMarkdown(content)
-    const sanitizedCategory = sanitizeText(category)
-
-    // Log suspicious payloads for monitoring while still allowing moderation to decide action.
-    if (containsXSSPatterns(String(title)) || containsXSSPatterns(String(content))) {
-      console.warn('XSS pattern detected in forum post submission', {
-        userId: user.id,
-        timestamp: new Date().toISOString(),
-      })
-    }
-
-    if (!sanitizedTitle || !sanitizedContent || !sanitizedCategory) {
+    try {
+      const result = await createForumPost(user.id, { title, content, category, tags })
       return NextResponse.json(
-        { error: 'title, content, and category must contain valid text' },
-        { status: 400 }
-      )
-    }
-
-    // Moderate the content
-    const moderationResult = await moderateContent(`${sanitizedTitle}\n\n${sanitizedContent}`)
-
-    // Block if content is unsafe
-    if (moderationResult.action === 'block') {
-      return NextResponse.json(
-        {
-          error: 'Content blocked by moderation',
-          moderation: {
-            action: 'block',
-            reason: moderationResult.reason,
-            categories: moderationResult.categories,
-          },
-        },
-        { status: 400 }
-      )
-    }
-
-    // Create the post
-    const post = await prisma.forumPost.create({
-      data: {
-        title: sanitizedTitle,
-        content: sanitizedContent,
-        category: sanitizedCategory,
-        userId: user.id,
-        tags: tags
-          ? {
-              create: tags.map((tag: string) => ({
-                name: tag.trim().toLowerCase(),
-              })),
-            }
-          : undefined,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            profile: {
-              select: {
-                displayName: true,
-              },
-            },
-          },
-        },
-        tags: true,
-      },
-    })
-
-    // Return warning if content is borderline
-    if (moderationResult.action === 'warn') {
-      return NextResponse.json(
-        {
-          post,
-          warning: {
-            message: 'Post created with warning',
-            reason: moderationResult.reason,
-            categories: moderationResult.categories,
-          },
-        },
+        { post: result.data, ...(result.warning && { warning: result.warning }) },
         { status: 201 }
       )
+    } catch (err) {
+      if (err instanceof ModerationBlockedError) {
+        return NextResponse.json(
+          {
+            error: 'Content blocked by moderation',
+            moderation: { action: 'block', reason: err.reason, categories: err.categories },
+          },
+          { status: 400 }
+        )
+      }
+      if (err instanceof ServiceValidationError) {
+        return NextResponse.json({ error: err.message }, { status: 400 })
+      }
+      throw err
     }
-
-    return NextResponse.json({ post }, { status: 201 })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json({ error: message }, { status: 500 })

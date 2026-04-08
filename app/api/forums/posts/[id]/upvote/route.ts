@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
+import {
+  togglePostUpvote,
+  PostNotFoundError,
+  CannotSelfUpvoteError,
+} from '@/lib/services/forum.service'
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -15,35 +19,18 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
     const { id } = await params
 
-    const post = await prisma.forumPost.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        userId: true,
-        upvoters: { where: { id: session.id }, select: { id: true } },
-      },
-    })
-
-    if (!post) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+    try {
+      const result = await togglePostUpvote(id, session.id)
+      return NextResponse.json(result)
+    } catch (err) {
+      if (err instanceof PostNotFoundError) {
+        return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+      }
+      if (err instanceof CannotSelfUpvoteError) {
+        return NextResponse.json({ error: 'Cannot upvote your own post' }, { status: 403 })
+      }
+      throw err
     }
-
-    if (post.userId === session.id) {
-      return NextResponse.json({ error: 'Cannot upvote your own post' }, { status: 403 })
-    }
-
-    const hasUpvoted = post.upvoters.length > 0
-
-    const updated = await prisma.forumPost.update({
-      where: { id },
-      data: {
-        upvotes: hasUpvoted ? { decrement: 1 } : { increment: 1 },
-        upvoters: hasUpvoted ? { disconnect: { id: session.id } } : { connect: { id: session.id } },
-      },
-      select: { upvotes: true },
-    })
-
-    return NextResponse.json({ upvotes: updated.upvotes, hasUpvoted: !hasUpvoted })
   } catch (error: unknown) {
     console.error('Upvote post error:', error)
     return NextResponse.json({ error: 'Failed to upvote post' }, { status: 500 })
