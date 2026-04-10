@@ -147,17 +147,20 @@ export default function ProfilePage() {
               <div>
                 <div className="mb-2 flex items-center gap-2">
                   <h1 className="text-foreground text-3xl font-bold">{displayName}</h1>
-                  {session?.user?.role && session.user.role !== 'STUDENT' && (
-                    <span
-                      className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${
-                        session.user.role === 'ADMIN'
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
-                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
-                      }`}
-                    >
-                      {session.user.role}
-                    </span>
-                  )}
+                  {(() => {
+                    const role = (session?.user as { role?: string } | undefined)?.role
+                    return role && role !== 'STUDENT' ? (
+                      <span
+                        className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${
+                          role === 'ADMIN'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+                        }`}
+                      >
+                        {role}
+                      </span>
+                    ) : null
+                  })()}
                 </div>
                 <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
                   {major && (

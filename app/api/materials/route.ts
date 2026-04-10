@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
     const subject = searchParams.get('subject')
     const userId = searchParams.get('userId')
     const sortBy = normalizeSortBy(searchParams.get('sortBy'))
+    const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '10', 10)))
 
     const where: { subject?: string; userId?: string } = {}
     if (subject) {
@@ -53,9 +55,13 @@ export async function GET(request: NextRequest) {
           ? { rating: 'desc' as const }
           : { createdAt: 'desc' as const }
 
+    const total = await prisma.studyMaterial.count({ where })
+
     const materials = await prisma.studyMaterial.findMany({
       where,
       orderBy,
+      take: limit,
+      skip: (page - 1) * limit,
       include: {
         user: {
           select: {
@@ -72,7 +78,10 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    return NextResponse.json({ materials })
+    return NextResponse.json({
+      materials,
+      meta: { total, page, limit, pages: Math.max(1, Math.ceil(total / limit)) },
+    })
   } catch (error) {
     console.error('Materials GET error:', error)
     return NextResponse.json({ error: 'Failed to fetch materials' }, { status: 500 })

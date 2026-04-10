@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { Button } from '@/components/ui/button'
+import { PaginationControls } from '@/components/ui/pagination-controls'
 import { MaterialCard } from 'components/features/materials/MaterialCard'
 import { Search, Filter, Upload, Download } from 'lucide-react'
 
@@ -41,13 +42,21 @@ export default function MaterialsPage() {
   const [selectedSubject, setSelectedSubject] = useState('All Subjects')
   const [selectedType, setSelectedType] = useState('All Types')
   const [sortBy, setSortBy] = useState<SortOption>('downloads')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
-  async function loadMaterials(activeSortBy: SortOption, activeSubject?: string) {
+  async function loadMaterials(
+    activeSortBy: SortOption,
+    activeSubject: string,
+    activePage: number
+  ) {
     setLoading(true)
     setError(null)
     try {
       const params = new URLSearchParams()
       params.set('sortBy', activeSortBy)
+      params.set('page', String(activePage))
+      params.set('limit', '10')
       if (activeSubject && activeSubject !== 'All Subjects') {
         params.set('subject', activeSubject)
       }
@@ -57,8 +66,12 @@ export default function MaterialsPage() {
         throw new Error('Failed to load materials')
       }
 
-      const data = (await response.json()) as { materials: MaterialApiItem[] }
+      const data = (await response.json()) as {
+        materials: MaterialApiItem[]
+        meta: { pages: number }
+      }
       setMaterials(Array.isArray(data.materials) ? data.materials : [])
+      setTotalPages(data.meta?.pages ?? 1)
     } catch (fetchError) {
       setError(fetchError instanceof Error ? fetchError.message : 'Failed to load materials')
       setMaterials([])
@@ -68,8 +81,8 @@ export default function MaterialsPage() {
   }
 
   useEffect(() => {
-    void loadMaterials(sortBy, selectedSubject)
-  }, [sortBy, selectedSubject])
+    void loadMaterials(sortBy, selectedSubject, page)
+  }, [sortBy, selectedSubject, page])
 
   const filteredMaterials = useMemo(() => {
     const normalizedSearch = search.toLowerCase().trim()
@@ -162,7 +175,10 @@ export default function MaterialsPage() {
                         id={`subject-${subject}`}
                         className="border-border text-primary focus:ring-ring rounded"
                         checked={selectedSubject === subject}
-                        onChange={() => setSelectedSubject(subject)}
+                        onChange={() => {
+                          setSelectedSubject(subject)
+                          setPage(1)
+                        }}
                       />
                       <label
                         htmlFor={`subject-${subject}`}
@@ -236,7 +252,10 @@ export default function MaterialsPage() {
             <select
               className="border-border bg-card text-foreground focus:border-ring focus:ring-ring rounded-md text-sm"
               value={sortBy}
-              onChange={(event) => setSortBy(event.target.value as SortOption)}
+              onChange={(event) => {
+                setSortBy(event.target.value as SortOption)
+                setPage(1)
+              }}
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -260,7 +279,9 @@ export default function MaterialsPage() {
 
           {!loading && !error && filteredMaterials.length === 0 && (
             <div className="border-border bg-card text-muted-foreground rounded-lg border p-6 text-sm">
-              No materials found for the current filters.
+              {page > 1
+                ? 'No materials on this page.'
+                : 'No materials found for the current filters.'}
             </div>
           )}
 
@@ -285,11 +306,15 @@ export default function MaterialsPage() {
             </div>
           )}
 
-          <div className="mt-10 flex justify-center">
-            <Button variant="outline" className="rounded-lg">
-              Load More Resources
-            </Button>
-          </div>
+          {totalPages > 1 && (
+            <PaginationControls
+              currentPage={page}
+              totalPages={totalPages}
+              onPrevious={() => setPage((p) => p - 1)}
+              onNext={() => setPage((p) => p + 1)}
+              isLoading={loading}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -63,6 +63,7 @@ beforeEach(() => {
 describe('listForumPosts', () => {
   it('fetches all posts when no category provided', async () => {
     const posts = [{ id: 'p1' }]
+    mockPrisma.forumPost.count.mockResolvedValue(1 as never)
     mockPrisma.forumPost.findMany.mockResolvedValue(posts as never)
 
     const result = await listForumPosts()
@@ -70,10 +71,12 @@ describe('listForumPosts', () => {
     expect(mockPrisma.forumPost.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: {} })
     )
-    expect(result).toBe(posts)
+    expect(result.posts).toBe(posts)
+    expect(result.total).toBe(1)
   })
 
   it('filters by category when provided', async () => {
+    mockPrisma.forumPost.count.mockResolvedValue(0 as never)
     mockPrisma.forumPost.findMany.mockResolvedValue([] as never)
 
     await listForumPosts('math')
@@ -84,6 +87,7 @@ describe('listForumPosts', () => {
   })
 
   it('treats "all" as no filter', async () => {
+    mockPrisma.forumPost.count.mockResolvedValue(0 as never)
     mockPrisma.forumPost.findMany.mockResolvedValue([] as never)
 
     await listForumPosts('all')

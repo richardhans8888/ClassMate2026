@@ -36,11 +36,11 @@ export function getClientIp(req: NextRequest): string | null {
  * Returns a 429 NextResponse when the limit is exceeded.
  */
 export async function checkRateLimit(
-  identifier: string,
+  identifier: string | null,
   limiter: RateLimiterMemory
 ): Promise<NextResponse | null> {
   try {
-    await limiter.consume(identifier)
+    await limiter.consume(identifier ?? 'unknown')
     return null
   } catch (err) {
     if (err instanceof RateLimiterRes) {

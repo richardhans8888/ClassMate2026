@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useMemo, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { PaginationControls } from '@/components/ui/pagination-controls'
 import {
   Users,
   Search,
@@ -105,9 +106,14 @@ export default function StudyGroupsPage() {
   const { data: session } = authClient.useSession()
   const userId = session?.user?.id
 
-  const [allGroups, setAllGroups] = useState<Group[]>([])
-  const [joinedGroupIds, setJoinedGroupIds] = useState<Set<string>>(new Set())
+  const [discoverGroups, setDiscoverGroups] = useState<Group[]>([])
+  const [joinedGroups, setJoinedGroups] = useState<Group[]>([])
   const [loadingGroups, setLoadingGroups] = useState(true)
+
+  const [discoverPage, setDiscoverPage] = useState(1)
+  const [discoverTotalPages, setDiscoverTotalPages] = useState(1)
+  const [yourGroupsPage, setYourGroupsPage] = useState(1)
+  const [yourGroupsTotalPages, setYourGroupsTotalPages] = useState(1)
 
   const [query, setQuery] = useState('')
   const [activeSubject, setActiveSubject] = useState('All Subjects')
@@ -124,39 +130,55 @@ export default function StudyGroupsPage() {
   const [formSchedule, setFormSchedule] = useState('TBD')
 
   useEffect(() => {
-    async function fetchGroups() {
+    async function fetchDiscover() {
       setLoadingGroups(true)
       try {
-        const [publicRes, myRes] = await Promise.all([
-          fetch('/api/study-groups'),
-          userId
-            ? fetch(`/api/study-groups?myGroups=true&userId=${userId}`)
-            : Promise.resolve(null),
-        ])
-
-        const publicData = await publicRes.json()
-        const mapped: Group[] = (publicData.groups ?? []).map((g: ApiGroup) => mapApiGroup(g))
-        setAllGroups(mapped)
-
-        if (myRes) {
-          const myData = await myRes.json()
-          const ids = new Set<string>((myData.groups ?? []).map((g: ApiGroup) => g.id))
-          setJoinedGroupIds(ids)
-        }
+        const params = new URLSearchParams()
+        params.set('page', String(discoverPage))
+        params.set('limit', '12')
+        if (activeSubject !== 'All Subjects') params.set('subject', activeSubject)
+        const res = await fetch(`/api/study-groups?${params.toString()}`)
+        const data = await res.json()
+        const mapped: Group[] = (data.groups ?? []).map((g: ApiGroup) => mapApiGroup(g))
+        setDiscoverGroups(mapped)
+        setDiscoverTotalPages(data.meta?.pages ?? 1)
       } catch (err) {
         console.error(err)
       } finally {
         setLoadingGroups(false)
       }
     }
-    fetchGroups()
-  }, [userId])
+    void fetchDiscover()
+  }, [discoverPage, activeSubject])
 
-  const filtered = useMemo(() => {
-    let list = allGroups.filter(
-      (g) =>
-        (activeSubject === 'All Subjects' || g.subject === activeSubject) &&
-        (query.trim().length === 0 || g.name.toLowerCase().includes(query.toLowerCase()))
+  useEffect(() => {
+    if (!userId) {
+      setJoinedGroups([])
+      return
+    }
+    async function fetchYourGroups() {
+      try {
+        const params = new URLSearchParams()
+        params.set('myGroups', 'true')
+        params.set('userId', userId!)
+        params.set('page', String(yourGroupsPage))
+        params.set('limit', '12')
+        if (activeSubject !== 'All Subjects') params.set('subject', activeSubject)
+        const res = await fetch(`/api/study-groups?${params.toString()}`)
+        const data = await res.json()
+        const mapped: Group[] = (data.groups ?? []).map((g: ApiGroup) => mapApiGroup(g))
+        setJoinedGroups(mapped)
+        setYourGroupsTotalPages(data.meta?.pages ?? 1)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    void fetchYourGroups()
+  }, [yourGroupsPage, activeSubject, userId])
+
+  const joined = useMemo(() => {
+    let list = joinedGroups.filter(
+      (g) => query.trim().length === 0 || g.name.toLowerCase().includes(query.toLowerCase())
     )
     if (activeSort === 'Most Popular') {
       list = [...list].sort((a, b) => b.capacity / b.max - a.capacity / a.max)
@@ -164,10 +186,19 @@ export default function StudyGroupsPage() {
       list = [...list].reverse()
     }
     return list
-  }, [activeSubject, activeSort, query, allGroups])
+  }, [joinedGroups, query, activeSort])
 
-  const joined = filtered.filter((g) => joinedGroupIds.has(g.id))
-  const discover = filtered.filter((g) => !joinedGroupIds.has(g.id))
+  const discover = useMemo(() => {
+    let list = discoverGroups.filter(
+      (g) => query.trim().length === 0 || g.name.toLowerCase().includes(query.toLowerCase())
+    )
+    if (activeSort === 'Most Popular') {
+      list = [...list].sort((a, b) => b.capacity / b.max - a.capacity / a.max)
+    } else if (activeSort === 'Newest') {
+      list = [...list].reverse()
+    }
+    return list
+  }, [discoverGroups, query, activeSort])
 
   async function handleCreate() {
     if (!userId || !formName.trim()) return
@@ -188,8 +219,7 @@ export default function StudyGroupsPage() {
       const data = await res.json()
       if (data.group) {
         const newGroup = mapApiGroup({ ...data.group, _count: { members: 1 } })
-        setAllGroups((prev) => [newGroup, ...prev])
-        setJoinedGroupIds((prev) => new Set([...prev, newGroup.id]))
+        setJoinedGroups((prev) => [newGroup, ...prev])
       }
       setCreateOpen(false)
       setFormName('')
@@ -250,7 +280,11 @@ export default function StudyGroupsPage() {
           {subjects.map((s) => (
             <button
               key={s}
-              onClick={() => setActiveSubject(s)}
+              onClick={() => {
+                setActiveSubject(s)
+                setDiscoverPage(1)
+                setYourGroupsPage(1)
+              }}
               className={`rounded-full border px-3 py-1.5 text-xs transition ${
                 activeSubject === s
                   ? 'border-ring/40 bg-muted text-foreground'
@@ -262,16 +296,8 @@ export default function StudyGroupsPage() {
           ))}
         </div>
 
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4">
           <h2 className="text-muted-foreground text-sm font-semibold">Your Groups</h2>
-          <Button
-            size="sm"
-            variant="outline"
-            className="rounded-lg"
-            onClick={() => setCreateOpen(true)}
-          >
-            Create Group
-          </Button>
         </div>
 
         {loadingGroups ? (
@@ -280,7 +306,7 @@ export default function StudyGroupsPage() {
           </div>
         ) : (
           <>
-            <div className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mb-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {joined.length === 0 ? (
                 <div className="border-border bg-card rounded-xl border border-dashed p-6 text-center">
                   <div className="mb-1 font-bold">No groups yet</div>
@@ -292,6 +318,15 @@ export default function StudyGroupsPage() {
                 joined.map((g) => <GroupCard key={g.id} g={g} joined />)
               )}
             </div>
+            {yourGroupsTotalPages > 1 && (
+              <PaginationControls
+                currentPage={yourGroupsPage}
+                totalPages={yourGroupsTotalPages}
+                onPrevious={() => setYourGroupsPage((p) => p - 1)}
+                onNext={() => setYourGroupsPage((p) => p + 1)}
+                isLoading={loadingGroups}
+              />
+            )}
 
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-muted-foreground text-sm font-semibold">Discover Groups</h2>
@@ -301,22 +336,16 @@ export default function StudyGroupsPage() {
               {discover.map((g) => (
                 <GroupCard key={g.id} g={g} joined={false} />
               ))}
-
-              <button
-                onClick={() => setCreateOpen(true)}
-                className="group border-border bg-card hover:border-border/80 flex items-center justify-center rounded-xl border border-dashed p-6"
-              >
-                <div className="text-center">
-                  <div className="bg-muted group-hover:bg-muted/80 mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
-                    <Plus className="text-muted-foreground group-hover:text-foreground h-5 w-5" />
-                  </div>
-                  <div className="font-bold">Create a New Group</div>
-                  <div className="text-muted-foreground mt-1 text-xs">
-                    Start your own study circle.
-                  </div>
-                </div>
-              </button>
             </div>
+            {discoverTotalPages > 1 && (
+              <PaginationControls
+                currentPage={discoverPage}
+                totalPages={discoverTotalPages}
+                onPrevious={() => setDiscoverPage((p) => p - 1)}
+                onNext={() => setDiscoverPage((p) => p + 1)}
+                isLoading={loadingGroups}
+              />
+            )}
           </>
         )}
       </div>

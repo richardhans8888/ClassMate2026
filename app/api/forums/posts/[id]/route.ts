@@ -99,7 +99,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
     await deleteForumPost(id)
 
-    void prisma.moderationLog.create({
+    void (
+      prisma as unknown as { moderationLog: { create: (args: unknown) => Promise<unknown> } }
+    ).moderationLog.create({
       data: {
         actorId: session.id,
         action: 'CONTENT_DELETED',

@@ -11,37 +11,51 @@ export async function GET(req: NextRequest) {
   const subject = searchParams.get('subject')
   const userId = searchParams.get('userId')
   const myGroups = searchParams.get('myGroups')
+  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
+  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '12', 10)))
 
   try {
     let groups
+    let total: number
 
     if (myGroups === 'true' && userId) {
+      const where = {
+        members: { some: { userId } },
+        ...(subject ? { subject } : {}),
+      }
+      total = await prisma.studyGroup.count({ where })
       groups = await prisma.studyGroup.findMany({
-        where: {
-          members: { some: { userId } },
-          ...(subject ? { subject } : {}),
-        },
+        where,
         include: {
           owner: { include: { profile: true } },
           _count: { select: { members: true } },
         },
         orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: (page - 1) * limit,
       })
     } else {
+      const where = {
+        isPrivate: false,
+        ...(subject ? { subject } : {}),
+      }
+      total = await prisma.studyGroup.count({ where })
       groups = await prisma.studyGroup.findMany({
-        where: {
-          isPrivate: false,
-          ...(subject ? { subject } : {}),
-        },
+        where,
         include: {
           owner: { include: { profile: true } },
           _count: { select: { members: true } },
         },
         orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: (page - 1) * limit,
       })
     }
 
-    return NextResponse.json({ groups })
+    return NextResponse.json({
+      groups,
+      meta: { total, page, limit, pages: Math.max(1, Math.ceil(total / limit)) },
+    })
   } catch (err) {
     console.error('[GET /api/study-groups]', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

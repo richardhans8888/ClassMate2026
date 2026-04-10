@@ -14,12 +14,20 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const category = searchParams.get('category') ?? undefined
+    const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '10', 10)))
 
-    const posts = await listForumPosts(category)
+    const { posts, total } = await listForumPosts(category, page, limit)
     const session = await getSession()
     const postsWithUpvoted = await enrichPostsWithUpvotes(posts, session?.id)
 
-    return NextResponse.json({ posts: postsWithUpvoted }, { status: 200 })
+    return NextResponse.json(
+      {
+        posts: postsWithUpvoted,
+        meta: { total, page, limit, pages: Math.max(1, Math.ceil(total / limit)) },
+      },
+      { status: 200 }
+    )
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json({ error: message }, { status: 500 })

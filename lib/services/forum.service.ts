@@ -69,10 +69,16 @@ export class ServiceValidationError extends Error {
 
 // --- Post functions ---
 
-export async function listForumPosts(category?: string) {
+export async function listForumPosts(
+  category?: string,
+  page = 1,
+  limit = 10
+): Promise<{ posts: Awaited<ReturnType<typeof prisma.forumPost.findMany>>; total: number }> {
   const where = category && category !== 'all' ? { category } : {}
 
-  return prisma.forumPost.findMany({
+  const total = await prisma.forumPost.count({ where })
+
+  const posts = await prisma.forumPost.findMany({
     where,
     include: {
       user: {
@@ -93,7 +99,11 @@ export async function listForumPosts(category?: string) {
       },
     },
     orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
   })
+
+  return { posts, total }
 }
 
 export async function enrichPostsWithUpvotes<T extends { id: string }>(

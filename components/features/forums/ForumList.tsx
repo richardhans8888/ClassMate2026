@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ForumCard } from './ForumCard'
 import { Loader2, AlertCircle, MessageSquarePlus, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PaginationControls } from '@/components/ui/pagination-controls'
 import { formatDate } from '@/lib/format'
 
 interface ForumPost {
@@ -45,6 +46,8 @@ export function ForumList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
     async function fetchPosts() {
@@ -52,14 +55,21 @@ export function ForumList() {
       setError(null)
 
       try {
-        const response = await fetch('/api/forums/posts')
+        const params = new URLSearchParams()
+        params.set('page', String(page))
+        params.set('limit', '10')
+        const response = await fetch(`/api/forums/posts?${params.toString()}`)
 
         if (!response.ok) {
           throw new Error('Failed to fetch posts')
         }
 
-        const data = (await response.json()) as { posts: ForumPost[] }
+        const data = (await response.json()) as {
+          posts: ForumPost[]
+          meta: { pages: number }
+        }
         setPosts(data.posts ?? [])
+        setTotalPages(data.meta?.pages ?? 1)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load posts')
       } finally {
@@ -68,7 +78,7 @@ export function ForumList() {
     }
 
     fetchPosts()
-  }, [])
+  }, [page])
 
   useEffect(() => {
     async function fetchRecommendations() {
@@ -125,7 +135,10 @@ export function ForumList() {
               type="text"
               placeholder="Search discussions..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setPage(1)
+              }}
               className="border-border bg-card text-foreground focus:ring-ring w-full rounded-lg border py-2 pr-4 pl-9 text-sm focus:ring-2 focus:outline-none"
             />
           </div>
@@ -203,7 +216,11 @@ export function ForumList() {
             <div className="border-border bg-muted flex flex-col items-center justify-center rounded-xl border py-12">
               <MessageSquarePlus className="text-muted-foreground h-12 w-12" />
               <p className="text-foreground mt-4 text-lg font-medium">
-                {searchQuery ? 'No discussions match your search' : 'No discussions yet'}
+                {searchQuery
+                  ? 'No discussions match your search'
+                  : page > 1
+                    ? 'No discussions on this page'
+                    : 'No discussions yet'}
               </p>
               <p className="text-muted-foreground mt-2 text-sm">
                 {searchQuery
@@ -241,6 +258,16 @@ export function ForumList() {
                 />
               ))}
             </div>
+          )}
+
+          {totalPages > 1 && (
+            <PaginationControls
+              currentPage={page}
+              totalPages={totalPages}
+              onPrevious={() => setPage((p) => p - 1)}
+              onNext={() => setPage((p) => p + 1)}
+              isLoading={loading}
+            />
           )}
         </div>
       </div>
