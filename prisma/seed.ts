@@ -44,6 +44,7 @@ async function main() {
   // ── Clear existing data (in FK-safe order) ─────────────────────────────────
   console.warn('  Clearing existing data...')
   await prisma.flaggedContent.deleteMany()
+  await prisma.connection.deleteMany()
   await prisma.chatMessage.deleteMany()
   await prisma.chatSession.deleteMany()
   await prisma.studyGroupMember.deleteMany()
@@ -1190,7 +1191,36 @@ async function main() {
     }),
   ])
 
-  // ── REMOVED: Point Transactions (gamification removed) ──────────────────────
+  // ── Connections ────────────────────────────────────────────────────────────
+  console.warn('  Creating user connections...')
+  await Promise.all([
+    // Accepted connections
+    prisma.connection.create({
+      data: { senderId: alice.id, recipientId: carol.id, status: 'ACCEPTED' },
+    }),
+    prisma.connection.create({
+      data: { senderId: alice.id, recipientId: fiona.id, status: 'ACCEPTED' },
+    }),
+    prisma.connection.create({
+      data: { senderId: bob.id, recipientId: george.id, status: 'ACCEPTED' },
+    }),
+    prisma.connection.create({
+      data: { senderId: bob.id, recipientId: fiona.id, status: 'ACCEPTED' },
+    }),
+    prisma.connection.create({
+      data: { senderId: diana.id, recipientId: carol.id, status: 'ACCEPTED' },
+    }),
+    prisma.connection.create({
+      data: { senderId: hannah.id, recipientId: alice.id, status: 'ACCEPTED' },
+    }),
+    // Pending requests
+    prisma.connection.create({
+      data: { senderId: diana.id, recipientId: george.id, status: 'PENDING' },
+    }),
+    prisma.connection.create({
+      data: { senderId: fiona.id, recipientId: evan.id, status: 'PENDING' },
+    }),
+  ])
 
   // ── Flagged Content (moderation demo) ─────────────────────────────────────
   console.warn('  Creating flagged content examples...')
@@ -1234,7 +1264,7 @@ async function main() {
   console.warn(`    7 direct messages`)
   console.warn(`    14 study group messages (React/Algo/DB groups)`)
   console.warn(`    5 events`)
-  console.warn(`    36 point transactions`)
+  console.warn(`    8 user connections (6 accepted, 2 pending)`)
   console.warn(`    2 flagged content records`)
   console.warn('\n  Login credentials (all accounts use password: Password123!)')
   console.warn('    admin  → evan@classmate.dev')
