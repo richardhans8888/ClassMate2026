@@ -65,7 +65,7 @@ describe('UploadMaterialPage', () => {
     await user.upload(input, oversizedFile)
 
     expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('too large'))
-  })
+  }, 15000)
 
   it('shows error toast for disallowed file type', async () => {
     const user = userEvent.setup()

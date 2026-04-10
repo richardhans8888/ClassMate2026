@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, use } from 'react'
 import { Button } from '@/components/ui/button'
 import { Phone, Video, MoreVertical, Send, ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
@@ -29,8 +29,8 @@ function formatMessageTime(value: string): string {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-export default function ChatConversationPage({ params }: { params: { userId: string } }) {
-  const userId = params.userId
+export default function ChatConversationPage({ params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = use(params)
   const [participant, setParticipant] = useState<Participant | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(true)
@@ -116,6 +116,7 @@ export default function ChatConversationPage({ params }: { params: { userId: str
   }
 
   useEffect(() => {
+    if (!userId) return
     void loadThread()
     void markRead()
 
@@ -126,7 +127,7 @@ export default function ChatConversationPage({ params }: { params: { userId: str
     }, POLL_INTERVAL_MS)
 
     return () => window.clearInterval(intervalId)
-  }, [loadThread, markRead])
+  }, [loadThread, markRead, userId])
 
   useEffect(() => {
     if (messagesContainerRef.current) {

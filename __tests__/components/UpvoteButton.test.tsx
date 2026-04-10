@@ -4,6 +4,14 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { UpvoteButton } from '@/components/features/forums/UpvoteButton'
+import { toast } from 'sonner'
+
+jest.mock('sonner', () => ({
+  toast: {
+    error: jest.fn(),
+    success: jest.fn(),
+  },
+}))
 
 describe('UpvoteButton component', () => {
   afterEach(() => {
@@ -198,6 +206,71 @@ describe('UpvoteButton component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('5')).toBeInTheDocument()
+    })
+  })
+
+  it('shows error toast when API returns non-ok response with error message', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({ error: 'Cannot upvote your own post' }),
+    })
+
+    render(
+      <UpvoteButton
+        contentId="post-1"
+        contentType="post"
+        initialUpvotes={3}
+        initialHasUpvoted={false}
+      />
+    )
+
+    fireEvent.click(screen.getByRole('button'))
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Cannot upvote your own post')
+    })
+  })
+
+  it('shows generic error toast when API error JSON parsing fails', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      json: async () => {
+        throw new Error('parse error')
+      },
+    })
+
+    render(
+      <UpvoteButton
+        contentId="post-1"
+        contentType="post"
+        initialUpvotes={3}
+        initialHasUpvoted={false}
+      />
+    )
+
+    fireEvent.click(screen.getByRole('button'))
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Failed to upvote')
+    })
+  })
+
+  it('shows network error toast on fetch error', async () => {
+    global.fetch = jest.fn().mockRejectedValue(new Error('Network failure'))
+
+    render(
+      <UpvoteButton
+        contentId="post-1"
+        contentType="post"
+        initialUpvotes={5}
+        initialHasUpvoted={false}
+      />
+    )
+
+    fireEvent.click(screen.getByRole('button'))
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Network error: could not upvote')
     })
   })
 

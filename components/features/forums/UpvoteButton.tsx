@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ThumbsUp } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface UpvoteButtonProps {
   contentId: string
@@ -39,9 +40,14 @@ export function UpvoteButton({
       const res = await fetch(endpoint, { method: 'POST' })
 
       if (!res.ok) {
-        // Revert on error
         setUpvotes(prevUpvotes)
         setHasUpvoted(prevHasUpvoted)
+        try {
+          const data = (await res.json()) as { error?: string }
+          toast.error(data.error ?? 'Failed to upvote')
+        } catch {
+          toast.error('Failed to upvote')
+        }
         return
       }
 
@@ -49,9 +55,9 @@ export function UpvoteButton({
       setUpvotes(data.upvotes)
       setHasUpvoted(data.hasUpvoted)
     } catch {
-      // Revert on network error
       setUpvotes(prevUpvotes)
       setHasUpvoted(prevHasUpvoted)
+      toast.error('Network error: could not upvote')
     } finally {
       setLoading(false)
     }

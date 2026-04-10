@@ -13,6 +13,14 @@ jest.mock('next/link', () => {
   }
 })
 
+// React's use() checks for status/value on thenables to avoid suspending
+function fulfilledParams<T>(value: T): Promise<T> {
+  const p = Promise.resolve(value) as Promise<T> & { status: string; value: T }
+  p.status = 'fulfilled'
+  p.value = value
+  return p
+}
+
 describe('Chat pages integration', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -108,7 +116,7 @@ describe('Chat pages integration', () => {
         }),
       })
 
-    render(<ChatConversationPage params={{ userId: 'user-2' }} />)
+    render(<ChatConversationPage params={fulfilledParams({ userId: 'user-2' })} />)
 
     expect(await screen.findByText('Bob')).toBeInTheDocument()
 
@@ -144,7 +152,9 @@ describe('Chat pages integration', () => {
         json: async () => ({ updatedCount: 0 }),
       })
 
-    const { container } = render(<ChatConversationPage params={{ userId: 'user-2' }} />)
+    const { container } = render(
+      <ChatConversationPage params={fulfilledParams({ userId: 'user-2' })} />
+    )
 
     await screen.findByText('Bob')
     expect(container.innerHTML).toContain('bg-card')
