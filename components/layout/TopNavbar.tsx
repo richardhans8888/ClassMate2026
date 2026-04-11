@@ -112,6 +112,7 @@ export function TopNavbar({ onMobileMenuOpen, userImage, userName, userEmail }: 
                     width={36}
                     height={36}
                     className="h-full w-full rounded-full object-cover"
+                    unoptimized
                   />
                 ) : (
                   <div

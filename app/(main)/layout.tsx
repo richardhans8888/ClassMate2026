@@ -52,7 +52,7 @@ export default function MainLayout({
     (pathname.startsWith('/groups/') && pathname !== '/groups')
 
   return (
-    <div className="bg-background flex min-h-screen">
+    <div className="bg-background flex h-screen overflow-hidden">
       <Sidebar
         userRole={userRole}
         collapsed={collapsed}
@@ -63,7 +63,7 @@ export default function MainLayout({
 
       {/* Content area — offset by sidebar width on desktop */}
       <div
-        className={`flex flex-1 flex-col transition-all duration-300 ${collapsed ? 'md:ml-16' : 'md:ml-64'}`}
+        className={`flex h-screen flex-1 flex-col transition-all duration-300 ${collapsed ? 'md:ml-16' : 'md:ml-64'}`}
       >
         <TopNavbar
           onMobileMenuOpen={() => setMobileOpen(true)}
@@ -71,8 +71,10 @@ export default function MainLayout({
           userName={userName}
           userEmail={userEmail}
         />
-        <main className="flex-1">{children}</main>
-        {!hideFooter && <Footer />}
+        <main className="flex-1 overflow-y-auto">
+          {children}
+          {!hideFooter && <Footer />}
+        </main>
       </div>
     </div>
   )

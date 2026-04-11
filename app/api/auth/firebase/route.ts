@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
     }
 
     const userRecord = await adminAuth.getUser(uid)
-    const name = userRecord.displayName ?? decodedToken.name ?? null
+    const displayName = userRecord.displayName ?? decodedToken.name ?? null
+    const name = displayName ?? email.split('@')[0]
     const image = userRecord.photoURL ?? (decodedToken as { picture?: string }).picture ?? null
 
     const user = await prisma.user.upsert({

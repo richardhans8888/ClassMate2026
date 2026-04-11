@@ -171,8 +171,8 @@ export default function MySchedulePage() {
   }
 
   return (
-    <div className="bg-background min-h-screen">
-      <div className="mx-auto max-w-5xl px-6 py-8 md:px-8">
+    <div className="bg-background">
+      <div className="px-12 py-6 md:px-16">
         <CalendarHeader
           monthLabel={monthLabel}
           onPrev={prevMonth}

@@ -129,7 +129,7 @@ export default function MaterialsPage() {
   ).sort()
 
   return (
-    <div className="container mx-auto px-6 py-8 md:px-8">
+    <div className="px-12 py-6 md:px-16">
       <div className="mb-8 flex flex-col items-center justify-between gap-4 md:flex-row">
         <div>
           <h1 className="text-foreground text-2xl font-bold">Study Materials</h1>

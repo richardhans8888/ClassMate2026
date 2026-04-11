@@ -14,10 +14,11 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const category = searchParams.get('category') ?? undefined
+    const userId = searchParams.get('userId') ?? undefined
     const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '10', 10)))
 
-    const { posts, total } = await listForumPosts(category, page, limit)
+    const { posts, total } = await listForumPosts(category, page, limit, userId)
     const session = await getSession()
     const postsWithUpvoted = await enrichPostsWithUpvotes(posts, session?.id)
 

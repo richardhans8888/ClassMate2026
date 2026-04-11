@@ -24,7 +24,7 @@ const item = {
 export default function Dashboard() {
   const router = useRouter()
   return (
-    <div className="bg-background min-h-screen transition-colors duration-300">
+    <div className="bg-background transition-colors duration-300">
       {/* Hero Section */}
       <section className="border-border border-b px-5 pt-12 pb-12 sm:px-6 sm:pt-14 sm:pb-14 md:px-12 md:pt-16 md:pb-14">
         <div className="mx-auto max-w-7xl">

@@ -23,7 +23,7 @@ export default function AITutorPage() {
   }
 
   return (
-    <div className="bg-muted h-[calc(100vh-64px)] w-full overflow-hidden px-6 py-4 transition-colors duration-300 md:px-8 lg:py-6">
+    <div className="bg-muted h-full w-full overflow-hidden px-6 py-4 transition-colors duration-300 md:px-8 lg:py-6">
       <div className="relative z-10 mx-auto h-full max-w-5xl">
         <div className="border-border bg-card flex h-full overflow-hidden rounded-2xl border shadow-sm">
           {/* Session Sidebar — desktop only */}

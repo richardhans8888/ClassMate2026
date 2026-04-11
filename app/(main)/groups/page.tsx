@@ -237,8 +237,23 @@ export default function StudyGroupsPage() {
   }
 
   return (
-    <div className="bg-background text-foreground flex h-[calc(100vh-64px)] flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-6 py-6 md:px-8">
+    <div className="bg-background text-foreground flex h-full flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-12 py-6 md:px-16">
+        <div className="mb-8 flex flex-col items-center justify-between gap-4 md:flex-row">
+          <div>
+            <h1 className="text-foreground text-2xl font-bold">Study Groups</h1>
+            <p className="text-muted-foreground mt-1">
+              Find and join study groups to collaborate with peers.
+            </p>
+          </div>
+          <Button
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Create Group
+          </Button>
+        </div>
+
         <div className="mb-6 flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-3">
             <DropdownMenu>
@@ -266,13 +281,6 @@ export default function StudyGroupsPage() {
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            <Button
-              size="sm"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
-              onClick={() => setCreateOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" /> Create Group
-            </Button>
           </div>
         </div>
 
