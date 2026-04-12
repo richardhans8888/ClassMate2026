@@ -154,7 +154,7 @@ function SidebarContent({
       )}
 
       {/* Nav groups */}
-      <nav className="flex-1 overflow-y-auto px-2 py-2">
+      <nav className={cn('flex-1 overflow-y-auto px-2 py-2', !onToggleCollapse && 'pt-6')}>
         {(['Main', 'Learning', 'Account'] as SidebarSection[]).map((section) => (
           <NavGroup
             key={section}

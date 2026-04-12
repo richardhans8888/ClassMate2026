@@ -3,27 +3,27 @@ import { moderateContent } from '@/lib/moderation'
 import { sanitizeText, sanitizeMarkdown, containsXSSPatterns } from '@/lib/sanitize'
 
 // --- Input types ---
-export interface CreatePostInput {
+interface CreatePostInput {
   title: string
   content: string
   category: string
   tags?: string[]
 }
 
-export interface UpdatePostInput {
+interface UpdatePostInput {
   title?: string
   content?: string
   category?: string
 }
 
 // --- Output types ---
-export interface ModerationWarning {
+interface ModerationWarning {
   message: string
   reason: string
   categories: string[]
 }
 
-export interface CreateContentResult<T> {
+interface CreateContentResult<T> {
   data: T
   warning?: ModerationWarning
 }
@@ -72,9 +72,13 @@ export class ServiceValidationError extends Error {
 export async function listForumPosts(
   category?: string,
   page = 1,
-  limit = 10
+  limit = 10,
+  userId?: string
 ): Promise<{ posts: Awaited<ReturnType<typeof prisma.forumPost.findMany>>; total: number }> {
-  const where = category && category !== 'all' ? { category } : {}
+  const where = {
+    ...(category && category !== 'all' ? { category } : {}),
+    ...(userId ? { userId } : {}),
+  }
 
   const total = await prisma.forumPost.count({ where })
 

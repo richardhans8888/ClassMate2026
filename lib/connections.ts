@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma'
 
-export type ConnectionStatus = 'connected' | 'pending_sent' | 'pending_received' | 'not_connected'
+type ConnectionStatus = 'connected' | 'pending_sent' | 'pending_received' | 'not_connected'
 
-export interface ConnectionStatusResult {
+interface ConnectionStatusResult {
   status: ConnectionStatus
   connectionId: string | null
 }

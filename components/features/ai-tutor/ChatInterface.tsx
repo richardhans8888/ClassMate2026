@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
-import { Send, Image as ImageIcon, Plus, Bot } from 'lucide-react'
+import { Send, Image as ImageIcon, Plus, Bot, History } from 'lucide-react'
 import { motion } from 'framer-motion'
 import type { Message } from '../../../hooks/useChat'
 
@@ -13,6 +13,7 @@ interface ChatInterfaceProps {
   error: string | null
   sendMessage: (content: string) => void
   onNewChat?: () => void
+  onOpenSessions?: () => void
 }
 
 export function ChatInterface({
@@ -22,6 +23,7 @@ export function ChatInterface({
   error,
   sendMessage,
   onNewChat,
+  onOpenSessions,
 }: ChatInterfaceProps) {
   const [input, setInput] = useState('')
   const chatBoxRef = useRef<HTMLDivElement>(null)
@@ -86,15 +88,27 @@ export function ChatInterface({
           <div className="bg-semantic-success h-2 w-2 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
           <span className="text-foreground font-medium">AI Tutor Online</span>
         </div>
-        {onNewChat && (
-          <button
-            onClick={onNewChat}
-            className="border-border hover:bg-muted text-muted-foreground flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors md:hidden"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            New Chat
-          </button>
-        )}
+        <div className="flex items-center gap-2 md:hidden">
+          {onOpenSessions && (
+            <button
+              onClick={onOpenSessions}
+              className="border-border hover:bg-muted text-muted-foreground flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors"
+              aria-label="Open chat history"
+            >
+              <History className="h-3.5 w-3.5" />
+              History
+            </button>
+          )}
+          {onNewChat && (
+            <button
+              onClick={onNewChat}
+              className="border-border hover:bg-muted text-muted-foreground flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              New Chat
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Chat Area */}

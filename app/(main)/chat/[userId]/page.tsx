@@ -5,6 +5,27 @@ import { Button } from '@/components/ui/button'
 import { Phone, Video, MoreVertical, Send, ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
+const AVATAR_COLORS = [
+  'bg-violet-500',
+  'bg-blue-500',
+  'bg-emerald-500',
+  'bg-rose-500',
+  'bg-amber-500',
+  'bg-cyan-500',
+  'bg-fuchsia-500',
+  'bg-orange-500',
+  'bg-teal-500',
+  'bg-indigo-500',
+]
+
+function getAvatarColor(seed: string): string {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0
+  }
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length] ?? 'bg-violet-500'
+}
+
 const POLL_INTERVAL_MS = 5000
 
 type Message = {
@@ -145,7 +166,9 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="bg-muted text-muted-foreground flex h-10 w-10 items-center justify-center rounded-full font-bold">
+          <div
+            className={`${getAvatarColor(participantName)} flex h-10 w-10 items-center justify-center rounded-full font-bold text-white`}
+          >
             {participantInitial}
           </div>
           <div>
@@ -193,7 +216,7 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
             return (
               <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`max-w-[70%] rounded-2xl px-4 py-2 shadow-sm ${
+                  className={`max-w-[75%] rounded-2xl px-4 py-2 shadow-sm ${
                     isMe
                       ? 'bg-primary text-primary-foreground rounded-br-none'
                       : 'border-border bg-card text-foreground rounded-bl-none border'

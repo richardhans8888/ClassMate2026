@@ -252,6 +252,13 @@ async function main() {
     'web-development',
     'data-structures',
     'javascript',
+    'machine-learning',
+    'security',
+    'css',
+    'git',
+    'linux',
+    'study-tips',
+    'math',
   ]
   const tags = await Promise.all(tagNames.map((name) => prisma.forumTag.create({ data: { name } })))
   const t = Object.fromEntries(
@@ -363,6 +370,85 @@ async function main() {
         isAnswered: true,
         repliesCount: 3,
         tags: { connect: [{ id: t['python']!.id }] },
+      },
+    }),
+    // ── Additional posts (page 2 demo + variety) ───────────────────────────────
+    prisma.forumPost.create({
+      data: {
+        userId: bob.id,
+        title: 'How does JWT authentication work under the hood?',
+        content: `I'm implementing login for my web project and everyone says to use JWT, but I don't really understand how it works. How does the server verify the token? Where should I store it on the client — localStorage or cookies? And what makes it "stateless"?`,
+        category: 'cs',
+        upvotes: 18,
+        views: 234,
+        isAnswered: false,
+        repliesCount: 0,
+        tags: { connect: [{ id: t['security']!.id }, { id: t['web-development']!.id }] },
+      },
+    }),
+    prisma.forumPost.create({
+      data: {
+        userId: diana.id,
+        title: 'CSS Flexbox vs Grid — when to use which?',
+        content: `I keep going back and forth between Flexbox and CSS Grid and I'm not sure I'm picking the right one. My understanding:\n- Flexbox = one-dimensional (row or column)\n- Grid = two-dimensional (rows AND columns)\n\nBut in practice they seem interchangeable a lot of the time. Can someone give me clear rules for when to reach for each?`,
+        category: 'cs',
+        upvotes: 11,
+        views: 167,
+        isAnswered: true,
+        repliesCount: 0,
+        tags: { connect: [{ id: t['css']!.id }, { id: t['web-development']!.id }] },
+      },
+    }),
+    prisma.forumPost.create({
+      data: {
+        userId: fiona.id,
+        title: 'Getting started with Machine Learning — best first steps?',
+        content: `I want to learn Machine Learning but the field feels overwhelming. There are so many frameworks (TensorFlow, PyTorch, scikit-learn), math prerequisites (linear algebra, stats, calculus), and online courses. Where should an intermediate Python developer actually start? What's the logical learning path?`,
+        category: 'cs',
+        upvotes: 22,
+        views: 318,
+        isAnswered: false,
+        repliesCount: 0,
+        tags: { connect: [{ id: t['machine-learning']!.id }, { id: t['python']!.id }] },
+      },
+    }),
+    prisma.forumPost.create({
+      data: {
+        userId: alice.id,
+        title: 'Git branching strategies for small team projects',
+        content: `Our team of 3 is building a web app for our final project and we keep stepping on each other with Git. We've had merge conflicts on main twice this week. What branching strategy is practical for a small team? Is Git Flow overkill for 3 people, or should we just use feature branches off main?`,
+        category: 'general',
+        upvotes: 9,
+        views: 121,
+        isAnswered: true,
+        repliesCount: 0,
+        tags: { connect: [{ id: t['git']!.id }] },
+      },
+    }),
+    prisma.forumPost.create({
+      data: {
+        userId: carol.id,
+        title: 'Study tips that actually worked for me in CS — share yours!',
+        content: `After two years of CS I've figured out what actually works for me:\n\n1. **Active recall over passive reading** — close the notes and try to explain it from memory\n2. **Pomodoro for coding** — 25 min focus, 5 min break keeps me sharp\n3. **Rubber duck debugging** — explaining the problem out loud catches more bugs than staring at the screen\n4. **Spaced repetition** — Anki for flashcards of algorithms and patterns\n5. **Build something real** — tutorials alone don't stick; build a project using what you learned\n\nWhat are your go-to study strategies?`,
+        category: 'general',
+        upvotes: 27,
+        views: 445,
+        isAnswered: false,
+        repliesCount: 0,
+        tags: { connect: [{ id: t['study-tips']!.id }] },
+      },
+    }),
+    prisma.forumPost.create({
+      data: {
+        userId: george.id,
+        title: 'Probability & statistics resources for CS students',
+        content: `Probability and stats keep coming up in my CS coursework (machine learning, algorithm analysis, networking) and my maths background is weak. Which resources do you recommend that are specifically aimed at CS applications rather than pure maths? I want intuition, not proofs.`,
+        category: 'math',
+        upvotes: 14,
+        views: 198,
+        isAnswered: false,
+        repliesCount: 0,
+        tags: { connect: [{ id: t['math']!.id }, { id: t['machine-learning']!.id }] },
       },
     }),
   ])
@@ -625,11 +711,134 @@ async function main() {
         isAccepted: false,
       },
     }),
+
+    // Post 8: JWT authentication
+    prisma.forumReply.create({
+      data: {
+        postId: posts[8].id,
+        userId: carol.id,
+        content:
+          'JWT is a signed token with 3 base64-encoded parts: **header** (algorithm), **payload** (claims like userId, expiry), and **signature**.\n\nThe server signs it with a secret key. On each request, the server re-signs the payload and checks if it matches — no database lookup needed, hence "stateless".\n\n**Storage**: use HttpOnly cookies (not localStorage) — localStorage is vulnerable to XSS. HttpOnly cookies cannot be read by JavaScript at all.',
+        upvotes: 14,
+        isAccepted: true,
+      },
+    }),
+    prisma.forumReply.create({
+      data: {
+        postId: posts[8].id,
+        userId: george.id,
+        content:
+          'One thing to know: JWTs cannot be invalidated before expiry unless you maintain a blocklist (which defeats the stateless benefit). For most apps, short expiry (15 min) + refresh tokens is the right pattern.',
+        upvotes: 8,
+        isAccepted: false,
+      },
+    }),
+
+    // Post 9: CSS Flexbox vs Grid
+    prisma.forumReply.create({
+      data: {
+        postId: posts[9].id,
+        userId: fiona.id,
+        content:
+          "My rule of thumb:\n- **Flexbox** when you have a list of things in a row or column and you want them to flow naturally (nav links, card rows, button groups)\n- **Grid** when you're designing a page layout where items need to align across both axes simultaneously (header/sidebar/main/footer, image galleries)\n\nIf you're only thinking in one dimension, Flexbox. If you're thinking about rows AND columns at once, Grid.",
+        upvotes: 13,
+        isAccepted: true,
+      },
+    }),
+    prisma.forumReply.create({
+      data: {
+        postId: posts[9].id,
+        userId: alice.id,
+        content:
+          'CSS Tricks has the definitive guides for both. Flexbox guide and Grid guide — I keep both bookmarked.',
+        upvotes: 5,
+        isAccepted: false,
+      },
+    }),
+
+    // Post 10: Machine Learning
+    prisma.forumReply.create({
+      data: {
+        postId: posts[10].id,
+        userId: george.id,
+        content:
+          "Recommended path for a Python developer:\n1. **Statistics & linear algebra basics** — 3Blue1Brown's Essence of Linear Algebra (YouTube, free)\n2. **scikit-learn** — start here, not PyTorch. It handles the boring parts so you can focus on understanding models\n3. **Andrew Ng's ML Specialisation** (Coursera) — still the gold standard intro course\n4. **Build a project** — Kaggle competitions for practise with real datasets\n5. **Then** move to deep learning (PyTorch is now preferred over TensorFlow for new learners)\n\nDon't try to learn everything at once.",
+        upvotes: 19,
+        isAccepted: false,
+      },
+    }),
+
+    // Post 11: Git branching
+    prisma.forumReply.create({
+      data: {
+        postId: posts[11].id,
+        userId: evan.id,
+        content:
+          'For 3 people, a simple **GitHub Flow** is perfect:\n1. `main` is always deployable\n2. Create a feature branch for each task: `feature/user-auth`, `fix/login-bug`\n3. Open a pull request when done, have one teammate review\n4. Merge and delete the branch\n\nGit Flow (with develop, release, hotfix branches) is overkill until you have scheduled releases and multiple parallel workstreams.',
+        upvotes: 11,
+        isAccepted: true,
+      },
+    }),
+    prisma.forumReply.create({
+      data: {
+        postId: posts[11].id,
+        userId: carol.id,
+        content:
+          'Also: set branch protection on `main` so nobody can push directly — only merges via PR. It takes 30 seconds in GitHub settings and saves a lot of pain.',
+        upvotes: 7,
+        isAccepted: false,
+      },
+    }),
+
+    // Post 12: Study tips
+    prisma.forumReply.create({
+      data: {
+        postId: posts[12].id,
+        userId: bob.id,
+        content:
+          "The rubber duck method is underrated. I actually keep a small rubber duck on my desk. My housemates think I'm weird but I solve more bugs talking to it than staring at the screen.",
+        upvotes: 9,
+        isAccepted: false,
+      },
+    }),
+    prisma.forumReply.create({
+      data: {
+        postId: posts[12].id,
+        userId: diana.id,
+        content:
+          "I use the Feynman technique: after studying something, I try to explain it in a paragraph like I'm teaching a beginner. The gaps in my explanation show exactly what I haven't actually understood yet.",
+        upvotes: 12,
+        isAccepted: false,
+      },
+    }),
+
+    // Post 13: Probability & stats
+    prisma.forumReply.create({
+      data: {
+        postId: posts[13].id,
+        userId: carol.id,
+        content:
+          '"Probability for the Enthusiastic Beginner" by Morin is excellent — very intuitive, written specifically to build understanding rather than rigour. Also "Think Stats" by Allen Downey (free online) takes a code-first approach using Python, which suits CS students well.',
+        upvotes: 10,
+        isAccepted: false,
+      },
+    }),
   ])
 
   // ── Study Groups ───────────────────────────────────────────────────────────
   console.warn('  Creating study groups...')
-  const [groupReact, groupAlgo, groupDB] = await Promise.all([
+  const [
+    groupReact,
+    groupAlgo,
+    groupDB,
+    groupPython,
+    groupML,
+    groupSecurity,
+    groupTypeScript,
+    groupMath,
+    groupWebDev,
+    groupOSS,
+  ] = await Promise.all([
     prisma.studyGroup.create({
       data: {
         ownerId: carol.id,
@@ -664,6 +873,90 @@ async function main() {
         maxMembers: 12,
         memberCount: 5,
         inviteCode: 'DB26',
+      },
+    }),
+    prisma.studyGroup.create({
+      data: {
+        ownerId: hannah.id,
+        name: 'Python Basics',
+        description:
+          'A beginner-friendly group for students learning Python from scratch. We work through problems together and share tips for writing clean, Pythonic code.',
+        subject: 'Python',
+        maxMembers: 15,
+        memberCount: 4,
+        inviteCode: 'PY26',
+      },
+    }),
+    prisma.studyGroup.create({
+      data: {
+        ownerId: fiona.id,
+        name: 'Machine Learning Study Circle',
+        description:
+          "Reading group working through Andrew Ng's ML Specialisation and building small projects. We meet weekly to discuss concepts and code together.",
+        subject: 'Machine Learning',
+        maxMembers: 8,
+        memberCount: 3,
+        inviteCode: 'ML26',
+      },
+    }),
+    prisma.studyGroup.create({
+      data: {
+        ownerId: evan.id,
+        name: 'Web Security & OWASP',
+        description:
+          'Learning web application security: XSS, CSRF, SQL injection, authentication flaws, and how to defend against them. We review real CVEs and run CTF-style exercises.',
+        subject: 'Security',
+        maxMembers: 10,
+        memberCount: 3,
+        inviteCode: 'SEC26',
+      },
+    }),
+    prisma.studyGroup.create({
+      data: {
+        ownerId: alice.id,
+        name: 'TypeScript Deep Dive',
+        description:
+          'For developers who know basic TypeScript and want to go further: generics, conditional types, decorators, and building type-safe APIs. Project-driven learning.',
+        subject: 'TypeScript',
+        maxMembers: 8,
+        memberCount: 3,
+        inviteCode: 'TS26',
+      },
+    }),
+    prisma.studyGroup.create({
+      data: {
+        ownerId: george.id,
+        name: 'Mathematics for CS',
+        description:
+          'Discrete mathematics, linear algebra, and probability theory with a CS focus. We work through problem sets and explain concepts to each other.',
+        subject: 'Mathematics',
+        maxMembers: 10,
+        memberCount: 4,
+        inviteCode: 'MATH26',
+      },
+    }),
+    prisma.studyGroup.create({
+      data: {
+        ownerId: carol.id,
+        name: 'Full-Stack Web Development',
+        description:
+          'Building complete web applications from database to UI. Current stack: Next.js + Prisma + PostgreSQL. Weekly project builds and code reviews.',
+        subject: 'Web Development',
+        maxMembers: 12,
+        memberCount: 5,
+        inviteCode: 'FULL26',
+      },
+    }),
+    prisma.studyGroup.create({
+      data: {
+        ownerId: bob.id,
+        name: 'Open Source Contributors',
+        description:
+          'Finding and contributing to open-source projects. Learn git collaboration, PR workflows, and how to navigate large codebases.',
+        subject: 'Software Engineering',
+        maxMembers: 20,
+        memberCount: 3,
+        inviteCode: 'OSS26',
       },
     }),
   ])
@@ -709,6 +1002,95 @@ async function main() {
     }),
     prisma.studyGroupMember.create({
       data: { groupId: groupDB.id, userId: hannah.id, role: 'member' },
+    }),
+
+    // Python Basics: hannah (owner) + alice, bob, diana
+    prisma.studyGroupMember.create({
+      data: { groupId: groupPython.id, userId: hannah.id, role: 'admin' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupPython.id, userId: alice.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupPython.id, userId: bob.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupPython.id, userId: diana.id, role: 'member' },
+    }),
+
+    // ML Study Circle: fiona (owner) + george, bob
+    prisma.studyGroupMember.create({
+      data: { groupId: groupML.id, userId: fiona.id, role: 'admin' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupML.id, userId: george.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupML.id, userId: bob.id, role: 'member' },
+    }),
+
+    // Web Security & OWASP: evan (owner) + alice, carol
+    prisma.studyGroupMember.create({
+      data: { groupId: groupSecurity.id, userId: evan.id, role: 'admin' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupSecurity.id, userId: alice.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupSecurity.id, userId: carol.id, role: 'member' },
+    }),
+
+    // TypeScript Deep Dive: alice (owner) + fiona, carol
+    prisma.studyGroupMember.create({
+      data: { groupId: groupTypeScript.id, userId: alice.id, role: 'admin' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupTypeScript.id, userId: fiona.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupTypeScript.id, userId: carol.id, role: 'member' },
+    }),
+
+    // Mathematics for CS: george (owner) + bob, diana, hannah
+    prisma.studyGroupMember.create({
+      data: { groupId: groupMath.id, userId: george.id, role: 'admin' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupMath.id, userId: bob.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupMath.id, userId: diana.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupMath.id, userId: hannah.id, role: 'member' },
+    }),
+
+    // Full-Stack Web Dev: carol (owner) + alice, fiona, diana, evan
+    prisma.studyGroupMember.create({
+      data: { groupId: groupWebDev.id, userId: carol.id, role: 'admin' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupWebDev.id, userId: alice.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupWebDev.id, userId: fiona.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupWebDev.id, userId: diana.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupWebDev.id, userId: evan.id, role: 'member' },
+    }),
+
+    // Open Source Contributors: bob (owner) + alice, fiona
+    prisma.studyGroupMember.create({
+      data: { groupId: groupOSS.id, userId: bob.id, role: 'admin' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupOSS.id, userId: alice.id, role: 'member' },
+    }),
+    prisma.studyGroupMember.create({
+      data: { groupId: groupOSS.id, userId: fiona.id, role: 'member' },
     }),
   ])
 
@@ -785,16 +1167,106 @@ async function main() {
         reviewCount: 19,
       },
     }),
+    prisma.studyMaterial.create({
+      data: {
+        userId: george.id,
+        title: 'Machine Learning Fundamentals — Beginner Guide',
+        description:
+          'Introduction to supervised and unsupervised learning, linear regression, classification, and model evaluation metrics. Includes Python code examples with scikit-learn.',
+        fileUrl: 'https://storage.classmate.dev/materials/ml-fundamentals.pdf',
+        subject: 'Machine Learning',
+        fileType: 'pdf',
+        downloads: 95,
+        rating: 4.7,
+        reviewCount: 28,
+      },
+    }),
+    prisma.studyMaterial.create({
+      data: {
+        userId: evan.id,
+        title: 'Web Security Essentials — OWASP Top 10',
+        description:
+          'Practical guide to the OWASP Top 10 vulnerabilities: XSS, SQL injection, CSRF, broken authentication, and more. Includes code samples showing vulnerable vs. secure implementations.',
+        fileUrl: 'https://storage.classmate.dev/materials/web-security-owasp.pdf',
+        subject: 'Security',
+        fileType: 'pdf',
+        downloads: 58,
+        rating: 4.8,
+        reviewCount: 15,
+      },
+    }),
+    prisma.studyMaterial.create({
+      data: {
+        userId: alice.id,
+        title: 'Git Workflow for Teams',
+        description:
+          'Complete guide to Git branching strategies, pull requests, code review workflows, and resolving merge conflicts. Practical for any team size.',
+        fileUrl: 'https://storage.classmate.dev/materials/git-workflow-teams.pdf',
+        subject: 'Software Engineering',
+        fileType: 'pdf',
+        downloads: 41,
+        rating: 4.3,
+        reviewCount: 10,
+      },
+    }),
+    prisma.studyMaterial.create({
+      data: {
+        userId: george.id,
+        title: 'Discrete Mathematics for CS Students',
+        description:
+          'Covering logic, set theory, relations, graph theory, and combinatorics with CS-focused examples and practice problems. Great supplementary material for algorithm analysis.',
+        fileUrl: 'https://storage.classmate.dev/materials/discrete-math-cs.pdf',
+        subject: 'Mathematics',
+        fileType: 'pdf',
+        downloads: 67,
+        rating: 4.5,
+        reviewCount: 21,
+      },
+    }),
+    prisma.studyMaterial.create({
+      data: {
+        userId: carol.id,
+        title: 'CSS Layout Mastery — Flexbox & Grid',
+        description:
+          'Hands-on workbook for mastering CSS Flexbox and Grid. Includes 20 layout challenges with solutions, a quick-reference cheat sheet, and common responsive design patterns.',
+        fileUrl: 'https://storage.classmate.dev/materials/css-layout-mastery.pdf',
+        subject: 'Web Development',
+        fileType: 'pdf',
+        downloads: 52,
+        rating: 4.6,
+        reviewCount: 13,
+      },
+    }),
+    prisma.studyMaterial.create({
+      data: {
+        userId: fiona.id,
+        title: 'Linux & Command Line for Developers',
+        description:
+          'Essential Linux commands, shell scripting basics, file permissions, process management, and SSH. Everything a developer needs to be productive on the command line.',
+        fileUrl: 'https://storage.classmate.dev/materials/linux-cli-developers.pdf',
+        subject: 'Linux',
+        fileType: 'pdf',
+        downloads: 34,
+        rating: 4.4,
+        reviewCount: 9,
+      },
+    }),
   ])
 
   // ── Chat Sessions & AI Tutor Messages ─────────────────────────────────────
   console.warn('  Creating AI tutor chat sessions...')
-  const [sessionReact, sessionDB] = await Promise.all([
+  const [sessionReact, sessionDB, sessionTS, sessionRecursion] = await Promise.all([
     prisma.chatSession.create({
       data: { userId: alice.id, title: 'React useEffect Questions', subject: 'React' },
     }),
     prisma.chatSession.create({
       data: { userId: bob.id, title: 'Database Indexing Help', subject: 'Database' },
+    }),
+    prisma.chatSession.create({
+      data: { userId: fiona.id, title: 'TypeScript Generics Deep Dive', subject: 'TypeScript' },
+    }),
+    prisma.chatSession.create({
+      data: { userId: diana.id, title: 'Understanding Recursion', subject: 'Algorithms' },
     }),
   ])
 
@@ -884,6 +1356,96 @@ async function main() {
         sessionId: sessionDB.id,
         content:
           '```sql\n-- Basic index on a single column\nCREATE INDEX idx_users_email ON users(email);\n\n-- Unique index (also enforces uniqueness)\nCREATE UNIQUE INDEX idx_users_email_unique ON users(email);\n\n-- Composite index (order matters — put the most selective column first)\nCREATE INDEX idx_posts_user_created ON forum_posts(user_id, created_at);\n\n-- Partial index (only index rows that match a condition)\nCREATE INDEX idx_posts_published ON forum_posts(created_at) WHERE is_deleted = false;\n```\n\nAlways test with `EXPLAIN ANALYZE` before and after to confirm the index is being used.',
+        role: 'assistant',
+        isRead: false,
+      },
+    }),
+
+    // Fiona's TypeScript generics session
+    prisma.chatMessage.create({
+      data: {
+        senderId: fiona.id,
+        recipientId: aiTutor.id,
+        sessionId: sessionTS.id,
+        content:
+          "Can you explain TypeScript generics? I understand the basic syntax but I'm not sure when to actually use them.",
+        role: 'user',
+        isRead: true,
+      },
+    }),
+    prisma.chatMessage.create({
+      data: {
+        senderId: aiTutor.id,
+        recipientId: fiona.id,
+        sessionId: sessionTS.id,
+        content:
+          "Generics let you write functions and classes that work with any type while still being type-safe. The key question is: **does the output type depend on the input type?** If yes, use generics.\n\n```typescript\n// Without generics — loses type information\nfunction first(arr: any[]): any {\n  return arr[0]\n}\n\n// With generics — type flows through\nfunction first<T>(arr: T[]): T | undefined {\n  return arr[0]\n}\n\nconst num = first([1, 2, 3])       // TypeScript knows: number | undefined\nconst str = first(['a', 'b', 'c']) // TypeScript knows: string | undefined\n```\n\nCommon use cases:\n- Utility functions (first, last, filter, map)\n- API response wrappers: `ApiResponse<User>`, `ApiResponse<Post>`\n- React components that accept typed data: `List<T>`",
+        role: 'assistant',
+        isRead: true,
+      },
+    }),
+    prisma.chatMessage.create({
+      data: {
+        senderId: fiona.id,
+        recipientId: aiTutor.id,
+        sessionId: sessionTS.id,
+        content: 'That makes sense! What about generic constraints — when do I use `extends`?',
+        role: 'user',
+        isRead: true,
+      },
+    }),
+    prisma.chatMessage.create({
+      data: {
+        senderId: aiTutor.id,
+        recipientId: fiona.id,
+        sessionId: sessionTS.id,
+        content:
+          'Use `extends` when your function needs to access a specific property on the generic type:\n\n```typescript\n// Without constraint — TypeScript doesn\'t know T has .length\nfunction logLength<T>(value: T) {\n  console.log(value.length) // Error!\n}\n\n// With constraint — T must have a length property\nfunction logLength<T extends { length: number }>(value: T) {\n  console.log(value.length) // Works!\n}\n\nlogLength("hello")   // 5\nlogLength([1, 2, 3]) // 3\nlogLength(42)        // Error — number has no .length\n```\n\nAnother common pattern: `keyof` constraint to ensure type-safe property access:\n\n```typescript\nfunction getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key]\n}\n```',
+        role: 'assistant',
+        isRead: false,
+      },
+    }),
+
+    // Diana's recursion session
+    prisma.chatMessage.create({
+      data: {
+        senderId: diana.id,
+        recipientId: aiTutor.id,
+        sessionId: sessionRecursion.id,
+        content:
+          "I keep reading about recursion but I just don't get it. Can you explain it simply?",
+        role: 'user',
+        isRead: true,
+      },
+    }),
+    prisma.chatMessage.create({
+      data: {
+        senderId: aiTutor.id,
+        recipientId: diana.id,
+        sessionId: sessionRecursion.id,
+        content:
+          'Recursion is when a function calls itself to solve a smaller version of the same problem. Every recursive function needs two things:\n\n1. **Base case** — when to stop (no more self-calling)\n2. **Recursive case** — call yourself with a smaller input\n\n```python\ndef factorial(n):\n    # Base case: stop here\n    if n <= 1:\n        return 1\n    # Recursive case: n! = n × (n-1)!\n    return n * factorial(n - 1)\n\nfactorial(4)\n# → 4 * factorial(3)\n# → 4 * 3 * factorial(2)\n# → 4 * 3 * 2 * factorial(1)\n# → 4 * 3 * 2 * 1  ← base case reached\n# → 24\n```\n\nMental model: **trust that the function works for smaller inputs**, then figure out how to reduce your current problem to a smaller one.',
+        role: 'assistant',
+        isRead: true,
+      },
+    }),
+    prisma.chatMessage.create({
+      data: {
+        senderId: diana.id,
+        recipientId: aiTutor.id,
+        sessionId: sessionRecursion.id,
+        content: 'OK that makes sense for factorial. But how do I apply this to trees?',
+        role: 'user',
+        isRead: false,
+      },
+    }),
+    prisma.chatMessage.create({
+      data: {
+        senderId: aiTutor.id,
+        recipientId: diana.id,
+        sessionId: sessionRecursion.id,
+        content:
+          "Trees are actually the most natural use of recursion because **a tree is made of smaller trees**. Each node is the root of its own subtree.\n\n```python\nclass Node:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef sum_tree(node):\n    # Base case: empty node contributes 0\n    if node is None:\n        return 0\n    # Recursive case: this node + sum of left subtree + sum of right subtree\n    return node.val + sum_tree(node.left) + sum_tree(node.right)\n```\n\nThe key insight: **you don't need to think about the whole tree**. Just think about what to do with the current node, then trust the recursive calls to handle everything else.",
         role: 'assistant',
         isRead: false,
       },
@@ -1189,6 +1751,54 @@ async function main() {
         category: 'Workshop',
       },
     }),
+    prisma.event.create({
+      data: {
+        userId: fiona.id,
+        title: 'ML Study Circle — scikit-learn Hands-on',
+        description:
+          'Building our first classification model with scikit-learn. Bring a laptop with Python and the starter notebook. No prior ML experience required.',
+        date: daysFromNow(6),
+        startTime: '15:00',
+        endTime: '17:00',
+        category: 'Study Group',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        userId: hannah.id,
+        title: 'Python Basics — Lists, Loops & Functions',
+        description:
+          'Beginner-friendly session covering Python fundamentals: lists, for loops, while loops, and writing your first functions. Perfect for first-year students.',
+        date: daysFromNow(1),
+        startTime: '10:00',
+        endTime: '11:30',
+        category: 'Study Group',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        userId: evan.id,
+        title: 'Security CTF Challenge Night',
+        description:
+          "Capture The Flag challenge evening! We'll work through web exploitation and cryptography challenges as a team. No experience needed — great intro to security.",
+        date: daysFromNow(10),
+        startTime: '19:00',
+        endTime: '21:00',
+        category: 'Workshop',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        userId: carol.id,
+        title: 'Tutoring: React Hooks & State Management',
+        description:
+          'Open tutoring session on React state management patterns: useState, useReducer, Context API, and when to use each. Bring your code if you have specific questions.',
+        date: daysFromNow(8),
+        startTime: '14:00',
+        endTime: '15:00',
+        category: 'Tutoring',
+      },
+    }),
   ])
 
   // ── Connections ────────────────────────────────────────────────────────────
@@ -1256,14 +1866,14 @@ async function main() {
   console.warn(`    ${8} user profiles`)
   console.warn(`    ${8} auth accounts`)
   console.warn(`    ${tagNames.length} forum tags`)
-  console.warn(`    ${posts.length} forum posts`)
+  console.warn(`    ${posts.length} forum posts (2 pages at limit=10)`)
   console.warn(`    ${replies.length} forum replies`)
-  console.warn(`    3 study groups + members`)
-  console.warn(`    ${materials.length} study materials`)
-  console.warn(`    2 AI tutor chat sessions + messages`)
+  console.warn(`    10 study groups + members`)
+  console.warn(`    ${materials.length} study materials (2 pages at limit=10)`)
+  console.warn(`    4 AI tutor chat sessions + messages`)
   console.warn(`    7 direct messages`)
   console.warn(`    14 study group messages (React/Algo/DB groups)`)
-  console.warn(`    5 events`)
+  console.warn(`    10 events`)
   console.warn(`    8 user connections (6 accepted, 2 pending)`)
   console.warn(`    2 flagged content records`)
   console.warn('\n  Login credentials (all accounts use password: Password123!)')

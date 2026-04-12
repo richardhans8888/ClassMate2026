@@ -142,17 +142,17 @@ export function ForumList() {
               className="border-border bg-card text-foreground focus:ring-ring w-full rounded-lg border py-2 pr-4 pl-9 text-sm focus:ring-2 focus:outline-none"
             />
           </div>
-          <Link href="/forums/create">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 rounded-lg">
+          <Link href="/forums/create" className="w-full sm:w-auto">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg sm:w-auto">
               <MessageSquarePlus className="mr-2 h-4 w-4" /> New Discussion
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="flex gap-6">
-        {/* Recommended Threads — left column, static */}
-        <div className="w-1/4 shrink-0">
+      <div className="flex flex-col-reverse gap-6 lg:flex-row">
+        {/* Recommended Threads — below on mobile, left column on desktop */}
+        <div className="w-full lg:w-1/4 lg:shrink-0">
           <div className="border-border bg-card rounded-xl border p-4">
             <h3 className="text-foreground text-sm font-semibold">Recommended Threads</h3>
             {recommendationsLoading && (
@@ -190,8 +190,8 @@ export function ForumList() {
           </div>
         </div>
 
-        {/* Forum Posts — right column, scrollable */}
-        <div className="w-3/4">
+        {/* Forum Posts — top on mobile, right column on desktop */}
+        <div className="w-full lg:w-3/4">
           {/* Loading State */}
           {loading && (
             <div className="flex items-center justify-center py-12">

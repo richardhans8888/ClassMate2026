@@ -78,17 +78,7 @@ export function TopNavbar({ onMobileMenuOpen, userImage, userName, userEmail }: 
 
   return (
     <header className="bg-background sticky top-0 z-40 flex h-16 items-center gap-4 px-4">
-      {/* Logo */}
-      <div className="flex items-center gap-3">
-        <div className="bg-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-          <BookOpen className="h-4 w-4 text-white" />
-        </div>
-        <span className="text-foreground hidden text-base font-bold tracking-tight md:block">
-          ClassMate
-        </span>
-      </div>
-
-      {/* Mobile hamburger */}
+      {/* Mobile hamburger — leftmost on mobile only */}
       <Button
         variant="ghost"
         size="icon"
@@ -98,6 +88,14 @@ export function TopNavbar({ onMobileMenuOpen, userImage, userName, userEmail }: 
         <Menu className="h-5 w-5" />
         <span className="sr-only">Open navigation</span>
       </Button>
+
+      {/* Logo — desktop only (sidebar handles branding on mobile) */}
+      <div className="hidden items-center gap-3 md:flex">
+        <div className="bg-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+          <BookOpen className="h-4 w-4 text-white" />
+        </div>
+        <span className="text-foreground text-base font-bold tracking-tight">ClassMate</span>
+      </div>
 
       {/* Right side */}
       <div className="ml-auto flex items-center gap-2">

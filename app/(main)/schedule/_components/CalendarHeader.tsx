@@ -18,7 +18,7 @@ export function CalendarHeader({ monthLabel, onPrev, onNext, onNewEvent }: Calen
           <Calendar className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="text-foreground text-xl font-bold">My Schedule</h1>
+          <h1 className="text-foreground text-base font-bold sm:text-xl">My Schedule</h1>
           <p className="text-muted-foreground text-sm">{monthLabel}</p>
         </div>
       </div>
@@ -33,8 +33,8 @@ export function CalendarHeader({ monthLabel, onPrev, onNext, onNewEvent }: Calen
           className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
           onClick={onNewEvent}
         >
-          <Plus className="mr-2 h-4 w-4" />
-          New Event
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">New Event</span>
         </Button>
       </div>
     </div>

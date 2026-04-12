@@ -40,7 +40,6 @@ export default function MaterialsPage() {
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('All Subjects')
-  const [selectedType, setSelectedType] = useState('All Types')
   const [sortBy, setSortBy] = useState<SortOption>('downloads')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -88,19 +87,14 @@ export default function MaterialsPage() {
     const normalizedSearch = search.toLowerCase().trim()
 
     return materials.filter((material) => {
-      const matchesSearch =
+      return (
         !normalizedSearch ||
         material.title.toLowerCase().includes(normalizedSearch) ||
         material.subject.toLowerCase().includes(normalizedSearch) ||
         (material.description ?? '').toLowerCase().includes(normalizedSearch)
-
-      const matchesType =
-        selectedType === 'All Types' ||
-        (material.fileType ?? 'unknown').toLowerCase() === selectedType.toLowerCase()
-
-      return matchesSearch && matchesType
+      )
     })
-  }, [materials, search, selectedType])
+  }, [materials, search])
 
   async function handleDownload(materialId: number | string) {
     const response = await fetch(`/api/materials/${materialId}/download`, {
@@ -124,21 +118,18 @@ export default function MaterialsPage() {
   }
 
   const dynamicSubjects = Array.from(new Set(materials.map((material) => material.subject))).sort()
-  const dynamicTypes = Array.from(
-    new Set(materials.map((material) => (material.fileType ?? 'Unknown').toUpperCase()))
-  ).sort()
 
   return (
-    <div className="px-12 py-6 md:px-16">
-      <div className="mb-8 flex flex-col items-center justify-between gap-4 md:flex-row">
+    <div className="px-4 py-4 sm:px-6 md:px-12 lg:px-16">
+      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-foreground text-2xl font-bold">Study Materials</h1>
           <p className="text-muted-foreground mt-1">
             Share and discover resources to boost your learning.
           </p>
         </div>
-        <Link href="/materials/upload">
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg">
+        <Link href="/materials/upload" className="w-full sm:w-auto">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg sm:w-auto">
             <Upload className="mr-2 h-4 w-4" />
             Upload Material
           </Button>
@@ -146,8 +137,8 @@ export default function MaterialsPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-        {/* Sidebar Filters */}
-        <div className="space-y-6 lg:col-span-1">
+        {/* Sidebar Filters — below content on mobile, left column on desktop */}
+        <div className="order-2 space-y-6 lg:order-1 lg:col-span-1">
           <div className="border-border bg-card rounded-xl border p-5 shadow-sm">
             <div className="relative mb-4">
               <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
@@ -190,30 +181,6 @@ export default function MaterialsPage() {
                   ))}
                 </div>
               </div>
-
-              <div>
-                <h3 className="text-foreground mb-3 font-semibold">File Type</h3>
-                <div className="space-y-2">
-                  {['All Types', ...dynamicTypes].map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="type"
-                        id={`type-${type}`}
-                        className="border-border text-primary focus:ring-ring rounded"
-                        checked={selectedType === type}
-                        onChange={() => setSelectedType(type)}
-                      />
-                      <label
-                        htmlFor={`type-${type}`}
-                        className="text-foreground cursor-pointer text-sm select-none"
-                      >
-                        {type}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
 
@@ -242,7 +209,7 @@ export default function MaterialsPage() {
         </div>
 
         {/* Materials Grid */}
-        <div className="lg:col-span-3">
+        <div className="order-1 lg:order-2 lg:col-span-3">
           <div className="border-border bg-card mb-6 flex items-center justify-between rounded-lg border p-4 shadow-sm">
             <div className="text-muted-foreground text-sm">
               Showing{' '}

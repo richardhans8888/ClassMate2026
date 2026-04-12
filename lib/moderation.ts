@@ -1,4 +1,4 @@
-export interface ModerationResult {
+interface ModerationResult {
   safe: boolean
   toxicity_score: number
   spam_score: number

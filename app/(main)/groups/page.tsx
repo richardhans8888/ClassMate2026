@@ -238,8 +238,8 @@ export default function StudyGroupsPage() {
 
   return (
     <div className="bg-background text-foreground flex h-full flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-12 py-6 md:px-16">
-        <div className="mb-8 flex flex-col items-center justify-between gap-4 md:flex-row">
+      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:px-12 lg:px-16">
+        <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h1 className="text-foreground text-2xl font-bold">Study Groups</h1>
             <p className="text-muted-foreground mt-1">
@@ -247,14 +247,14 @@ export default function StudyGroupsPage() {
             </p>
           </div>
           <Button
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg sm:w-auto"
             onClick={() => setCreateOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" /> Create Group
           </Button>
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center gap-2">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <div className="flex items-center gap-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -271,12 +271,12 @@ export default function StudyGroupsPage() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-none">
               <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search groups..."
-                className="border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-ring/40 w-64 rounded-lg border py-2 pr-4 pl-10 text-sm focus:ring-2 focus:outline-none"
+                className="border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-ring/40 w-full rounded-lg border py-2 pr-4 pl-10 text-sm focus:ring-2 focus:outline-none sm:w-64"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
