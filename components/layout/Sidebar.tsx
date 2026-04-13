@@ -11,7 +11,6 @@ import {
   Bot,
   User,
   Shield,
-  Settings,
   Menu,
   type LucideIcon,
 } from 'lucide-react'
@@ -33,7 +32,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Bot,
   User,
   Shield,
-  Settings,
 }
 
 interface SidebarProps {
@@ -166,49 +164,6 @@ function SidebarContent({
           />
         ))}
       </nav>
-
-      {/* Settings pinned at bottom */}
-      <div className="border-sidebar-border border-t p-2">
-        <Link
-          href="/settings"
-          onClick={onNavigate}
-          title={collapsed ? 'Settings' : undefined}
-          className="relative flex h-10 items-center"
-        >
-          {/* Collapsed view */}
-          <span
-            className={cn(
-              'absolute inset-0 flex items-center justify-center transition-opacity duration-200',
-              collapsed ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
-            )}
-          >
-            <span
-              className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150',
-                isActive('/settings')
-                  ? 'bg-sidebar-accent text-sidebar-primary'
-                  : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'
-              )}
-            >
-              <Settings className="h-5 w-5" />
-            </span>
-          </span>
-
-          {/* Expanded view */}
-          <span
-            className={cn(
-              'absolute inset-0 flex items-center gap-2 rounded-lg px-2 text-sm font-medium transition-opacity duration-200',
-              collapsed ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100',
-              isActive('/settings')
-                ? 'bg-sidebar-accent text-sidebar-primary border-sidebar-primary border-l-2'
-                : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'
-            )}
-          >
-            <Settings className="h-5 w-5 shrink-0" />
-            <span className="truncate">Settings</span>
-          </span>
-        </Link>
-      </div>
     </div>
   )
 }

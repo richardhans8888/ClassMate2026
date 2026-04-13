@@ -63,11 +63,6 @@ jest.mock('lucide-react', () => ({
       Admin
     </span>
   ),
-  Settings: ({ className }: { className?: string }) => (
-    <span data-testid="settings-icon" className={className}>
-      Settings
-    </span>
-  ),
   Menu: ({ className }: { className?: string }) => (
     <span data-testid="menu-icon" className={className}>
       Menu
@@ -224,20 +219,6 @@ describe('Sidebar component', () => {
     )
 
     expect(screen.queryAllByTestId('admin-icon')).not.toHaveLength(0)
-  })
-
-  it('renders Settings link at the bottom', () => {
-    render(
-      <Sidebar
-        userRole="STUDENT"
-        collapsed={false}
-        onToggleCollapse={jest.fn()}
-        mobileOpen={false}
-        onMobileClose={jest.fn()}
-      />
-    )
-
-    expect(screen.queryAllByTestId('settings-icon')).not.toHaveLength(0)
   })
 
   it('calls onToggleCollapse when hamburger button is clicked', async () => {

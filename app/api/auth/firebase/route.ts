@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       where: { email },
       update: {
         name,
-        image,
+        ...(image !== null ? { image } : {}),
       },
       create: {
         email,

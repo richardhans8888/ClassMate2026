@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Menu, User, LogOut, Settings, Sun, Moon, Loader2, BookOpen } from 'lucide-react'
+import { Menu, User, LogOut, Sun, Moon, Loader2, BookOpen } from 'lucide-react'
 import Image from 'next/image'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
@@ -140,12 +140,6 @@ export function TopNavbar({ onMobileMenuOpen, userImage, userName, userEmail }: 
               <Link href="/profile" className="cursor-pointer">
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/settings" className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem

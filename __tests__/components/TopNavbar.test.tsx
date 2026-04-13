@@ -253,26 +253,6 @@ describe('TopNavbar component', () => {
     expect(profileLink).toHaveAttribute('href', '/profile')
   })
 
-  it('shows Settings menu item that links to /settings', async () => {
-    const onMobileMenuOpen = jest.fn()
-    const user = userEvent.setup()
-    render(
-      <TopNavbar
-        onMobileMenuOpen={onMobileMenuOpen}
-        userName="Test User"
-        userEmail="test@example.com"
-      />
-    )
-
-    // Open dropdown
-    const avatarButton = screen.getAllByRole('button')[1]
-    await user.click(avatarButton)
-
-    // Settings link should be visible
-    const settingsLink = screen.getByRole('menuitem', { name: /settings/i })
-    expect(settingsLink).toHaveAttribute('href', '/settings')
-  })
-
   it('shows Sign Out button', async () => {
     const onMobileMenuOpen = jest.fn()
     const user = userEvent.setup()

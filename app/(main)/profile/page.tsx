@@ -143,11 +143,28 @@ export default function ProfilePage() {
   const university = profile?.university ?? null
   const major = profile?.major ?? null
   const role = profile?.role ?? me?.role ?? null
-  const avatarSrc =
-    profile?.avatarUrl ??
-    me?.avatarUrl ??
-    me?.image ??
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}`
+  const avatarSrc = profile?.avatarUrl ?? me?.avatarUrl ?? me?.image ?? null
+
+  const AVATAR_COLORS = [
+    'bg-violet-500',
+    'bg-blue-500',
+    'bg-emerald-500',
+    'bg-rose-500',
+    'bg-amber-500',
+    'bg-cyan-500',
+    'bg-fuchsia-500',
+    'bg-orange-500',
+    'bg-teal-500',
+    'bg-indigo-500',
+  ]
+  function getAvatarColor(seed: string): string {
+    let hash = 0
+    for (let i = 0; i < seed.length; i++) {
+      hash = (hash * 31 + seed.charCodeAt(i)) >>> 0
+    }
+    return AVATAR_COLORS[hash % AVATAR_COLORS.length] as string
+  }
+  const avatarColor = getAvatarColor(me?.id ?? displayName)
 
   if (loading) {
     return (
@@ -169,14 +186,24 @@ export default function ProfilePage() {
             {/* Avatar overlapping cover */}
             <div className="bg-primary -mt-12 mb-4 inline-block rounded-full p-1">
               <div className="bg-card rounded-full p-1">
-                <Image
-                  src={avatarSrc}
-                  alt={displayName}
-                  width={80}
-                  height={80}
-                  className="bg-muted h-20 w-20 rounded-full object-cover"
-                  unoptimized
-                />
+                {avatarSrc ? (
+                  <Image
+                    src={avatarSrc}
+                    alt={displayName}
+                    width={80}
+                    height={80}
+                    className="bg-muted h-20 w-20 rounded-full object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div
+                    className={`flex h-20 w-20 items-center justify-center rounded-full ${avatarColor}`}
+                  >
+                    <span className="text-2xl font-bold text-white">
+                      {displayName.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
