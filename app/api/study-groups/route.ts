@@ -65,12 +65,19 @@ export async function GET(req: NextRequest) {
 // POST /api/study-groups — create a group
 export async function POST(req: NextRequest) {
   const session = await getSession()
-  const { name, description, subject, ownerId, maxMembers, isPrivate } = await req.json()
-  if (!name || !subject || !ownerId)
-    return NextResponse.json({ error: 'name, subject, ownerId required' }, { status: 400 })
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
-  const limited = await checkRateLimit(session?.id ?? ownerId, writeLimiter)
+  const limited = await checkRateLimit(session.id, writeLimiter)
   if (limited) return limited
+
+  const { name, description, subject, maxMembers, isPrivate } = await req.json()
+  if (!name || !subject)
+    return NextResponse.json({ error: 'name and subject are required' }, { status: 400 })
+
+  // Always use the authenticated session user as the owner — never trust client-supplied ownerId
+  const ownerId = session.id
 
   try {
     const inviteCode = randomBytes(3).toString('hex').toUpperCase()
@@ -103,17 +110,21 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE /api/study-groups?groupId=xxx&userId=xxx
+// DELETE /api/study-groups?groupId=xxx
 export async function DELETE(req: NextRequest) {
+  const session = await getSession()
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { searchParams } = new URL(req.url)
   const groupId = searchParams.get('groupId')
-  const userId = searchParams.get('userId')
-  if (!groupId || !userId)
-    return NextResponse.json({ error: 'groupId and userId required' }, { status: 400 })
+  if (!groupId) return NextResponse.json({ error: 'groupId is required' }, { status: 400 })
 
   try {
+    // Only delete if the authenticated user is the owner — no client-supplied userId needed
     await prisma.studyGroup.deleteMany({
-      where: { id: groupId, ownerId: userId },
+      where: { id: groupId, ownerId: session.id },
     })
     return NextResponse.json({ success: true })
   } catch (err) {

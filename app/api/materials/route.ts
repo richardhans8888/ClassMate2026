@@ -33,6 +33,11 @@ function normalizeSortBy(input: string | null): SortBy {
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const subject = searchParams.get('subject')
     const userId = searchParams.get('userId')
