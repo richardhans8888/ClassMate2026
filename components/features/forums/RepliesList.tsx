@@ -2,6 +2,8 @@
 
 import { formatDate } from '@/lib/format'
 import { UpvoteButton } from './UpvoteButton'
+import { RoleGate } from '@/components/ui/role-gate'
+import { ModeratorContentActions } from './ModeratorContentActions'
 
 export interface Reply {
   id: string
@@ -51,12 +53,17 @@ export function RepliesList({ replies }: RepliesListProps) {
                   <p className="text-muted-foreground text-xs">{formatDate(reply.createdAt)}</p>
                 </div>
               </div>
-              <UpvoteButton
-                contentId={reply.id}
-                contentType="reply"
-                initialUpvotes={reply.upvotes}
-                initialHasUpvoted={reply.hasUpvoted}
-              />
+              <div className="flex items-center gap-1">
+                <UpvoteButton
+                  contentId={reply.id}
+                  contentType="reply"
+                  initialUpvotes={reply.upvotes}
+                  initialHasUpvoted={reply.hasUpvoted}
+                />
+                <RoleGate allowedRoles={['MODERATOR', 'ADMIN']}>
+                  <ModeratorContentActions contentId={reply.id} contentType="reply" />
+                </RoleGate>
+              </div>
             </div>
 
             <div className="text-foreground text-sm leading-relaxed whitespace-pre-line">

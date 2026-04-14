@@ -11,16 +11,13 @@ import {
   Bot,
   User,
   Shield,
+  UserCog,
   Menu,
   type LucideIcon,
 } from 'lucide-react'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
-import {
-  getNavigationBySection,
-  type NavigationItem,
-  type SidebarSection,
-  type UserRole,
-} from '@/lib/navigation'
+import { getNavigationBySection, type NavigationItem, type SidebarSection } from '@/lib/navigation'
+import { useUserRole } from '@/lib/contexts/user-role-context'
 import { cn } from '@/lib/utils'
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -32,10 +29,10 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Bot,
   User,
   Shield,
+  UserCog,
 }
 
 interface SidebarProps {
-  userRole: UserRole | null
   collapsed: boolean
   onToggleCollapse: () => void
   mobileOpen: boolean
@@ -122,19 +119,18 @@ function NavGroup({
 }
 
 function SidebarContent({
-  userRole,
   collapsed,
   onToggleCollapse,
   isActive,
   onNavigate,
 }: {
-  userRole: UserRole | null
   collapsed: boolean
   onToggleCollapse?: () => void
   isActive: (href: string) => boolean
   onNavigate?: () => void
 }) {
-  const sections = getNavigationBySection(userRole)
+  const { role } = useUserRole()
+  const sections = getNavigationBySection(role)
 
   return (
     <div className="flex h-full flex-col">
@@ -168,13 +164,7 @@ function SidebarContent({
   )
 }
 
-export function Sidebar({
-  userRole,
-  collapsed,
-  onToggleCollapse,
-  mobileOpen,
-  onMobileClose,
-}: SidebarProps) {
+export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname()
 
   function isActive(href: string) {
@@ -192,7 +182,6 @@ export function Sidebar({
         )}
       >
         <SidebarContent
-          userRole={userRole}
           collapsed={collapsed}
           onToggleCollapse={onToggleCollapse}
           isActive={isActive}
@@ -202,12 +191,7 @@ export function Sidebar({
       {/* Mobile sidebar — Sheet */}
       <Sheet open={mobileOpen} onOpenChange={(open) => !open && onMobileClose()}>
         <SheetContent side="left" className="bg-card w-64 p-0">
-          <SidebarContent
-            userRole={userRole}
-            collapsed={false}
-            isActive={isActive}
-            onNavigate={onMobileClose}
-          />
+          <SidebarContent collapsed={false} isActive={isActive} onNavigate={onMobileClose} />
         </SheetContent>
       </Sheet>
     </>

@@ -1,4 +1,4 @@
-export type UserRole = 'STUDENT' | 'TUTOR' | 'ADMIN'
+export type UserRole = 'STUDENT' | 'MODERATOR' | 'ADMIN'
 
 type NavigationGroup = 'core' | 'more'
 export type SidebarSection = 'Main' | 'Learning' | 'Account'
@@ -21,11 +21,21 @@ export const navigationItems: NavigationItem[] = [
   { href: '/schedule', label: 'Schedule', group: 'core', icon: 'Calendar', section: 'Learning' },
   { href: '/ai-tutor', label: 'Learn with AI', group: 'core', icon: 'Bot', section: 'Learning' },
   { href: '/profile', label: 'Profile', group: 'core', icon: 'User', section: 'Account' },
+  // Moderation — visible to MODERATOR and ADMIN (logs section shown only to ADMIN within the page)
   {
     href: '/admin/moderation',
     label: 'Moderation',
     group: 'core',
     icon: 'Shield',
+    section: 'Account',
+    roles: ['MODERATOR', 'ADMIN'],
+  },
+  // User Management — ADMIN only
+  {
+    href: '/admin/users',
+    label: 'Users',
+    group: 'core',
+    icon: 'UserCog',
     section: 'Account',
     roles: ['ADMIN'],
   },

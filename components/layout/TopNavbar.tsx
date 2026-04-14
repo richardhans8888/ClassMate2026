@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Menu, User, LogOut, Sun, Moon, Loader2, BookOpen } from 'lucide-react'
+import { Menu, User, LogOut, Sun, Moon, Loader2, BookOpen, Shield, UserCog } from 'lucide-react'
 import Image from 'next/image'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/auth-client'
+import { useUserRole } from '@/lib/contexts/user-role-context'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,18 +40,27 @@ function getAvatarColor(seed: string): string {
   return AVATAR_COLORS[hash % AVATAR_COLORS.length] as string
 }
 
-interface TopNavbarProps {
-  onMobileMenuOpen: () => void
-  userImage?: string | null
-  userName?: string | null
-  userEmail?: string | null
+const ROLE_BADGE: Record<string, { label: string; className: string }> = {
+  ADMIN: {
+    label: 'Admin',
+    className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+  },
+  MODERATOR: {
+    label: 'Moderator',
+    className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  },
 }
 
-export function TopNavbar({ onMobileMenuOpen, userImage, userName, userEmail }: TopNavbarProps) {
+interface TopNavbarProps {
+  onMobileMenuOpen: () => void
+}
+
+export function TopNavbar({ onMobileMenuOpen }: TopNavbarProps) {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const { role, userName, userEmail, userImage } = useUserRole()
 
   useEffect(() => {
     setMounted(true)
@@ -59,6 +69,7 @@ export function TopNavbar({ onMobileMenuOpen, userImage, userName, userEmail }: 
   const name = userName ?? userEmail?.split('@')[0] ?? 'User'
   const email = userEmail ?? ''
   const avatarColor = getAvatarColor(userEmail ?? userName ?? 'user')
+  const roleBadge = role ? ROLE_BADGE[role] : null
 
   async function handleLogout() {
     setIsLoggingOut(true)
@@ -99,6 +110,16 @@ export function TopNavbar({ onMobileMenuOpen, userImage, userName, userEmail }: 
 
       {/* Right side */}
       <div className="ml-auto flex items-center gap-2">
+        {/* Role badge — only visible to elevated roles */}
+        {roleBadge && (
+          <span
+            className={`hidden items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold sm:flex ${roleBadge.className}`}
+          >
+            <Shield className="h-3 w-3" />
+            {roleBadge.label}
+          </span>
+        )}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="group focus-visible:ring-ring rounded-full outline-none focus-visible:ring-2">
@@ -153,6 +174,30 @@ export function TopNavbar({ onMobileMenuOpen, userImage, userName, userEmail }: 
               )}
               <span>Dark Mode</span>
             </DropdownMenuItem>
+
+            {/* Moderation Queue — visible to MODERATOR and ADMIN */}
+            {(role === 'MODERATOR' || role === 'ADMIN') && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/moderation" className="cursor-pointer">
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Moderation Queue</span>
+                  </Link>
+                </DropdownMenuItem>
+              </>
+            )}
+
+            {/* Admin-only shortcuts */}
+            {role === 'ADMIN' && (
+              <DropdownMenuItem asChild>
+                <Link href="/admin/users" className="cursor-pointer">
+                  <UserCog className="mr-2 h-4 w-4" />
+                  <span>Users</span>
+                </Link>
+              </DropdownMenuItem>
+            )}
+
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-semantic-error cursor-pointer"

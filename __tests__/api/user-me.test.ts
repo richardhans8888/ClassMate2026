@@ -81,7 +81,7 @@ describe('GET /api/user/me', () => {
       email: 'tutor@example.com',
       name: 'Test Tutor',
       image: null,
-      role: 'TUTOR',
+      role: 'MODERATOR',
     })
     ;(prisma.userProfile.findUnique as jest.Mock).mockResolvedValueOnce({
       userId: 'user-id-456',
@@ -97,7 +97,7 @@ describe('GET /api/user/me', () => {
       email: 'tutor@example.com',
       name: 'Test Tutor',
       image: null,
-      role: 'TUTOR',
+      role: 'MODERATOR',
       avatarUrl: 'https://example.com/custom-avatar.png',
     })
   })

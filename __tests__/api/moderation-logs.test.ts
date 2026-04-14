@@ -55,9 +55,9 @@ describe('GET /api/moderation/logs', () => {
     expect(body.error).toBe('Forbidden')
   })
 
-  it('returns 403 if user is TUTOR', async () => {
+  it('returns 403 if user is MODERATOR', async () => {
     ;(getSession as jest.Mock).mockResolvedValue(tutorSession)
-    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'TUTOR' })
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'MODERATOR' })
 
     const req = new NextRequest('http://localhost/api/moderation/logs')
     const res = await GET(req)

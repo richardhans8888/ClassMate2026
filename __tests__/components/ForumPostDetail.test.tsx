@@ -64,14 +64,14 @@ describe('ForumPostDetail component', () => {
     expect(screen.getByText('Alice Johnson')).toBeInTheDocument()
   })
 
-  it('displays the author role as "Tutor" when user is TUTOR', () => {
-    const tutorPost = {
+  it('displays the author role as "Moderator" when user is MODERATOR', () => {
+    const moderatorPost = {
       ...mockPost,
-      user: { ...mockPost.user, role: 'TUTOR' },
+      user: { ...mockPost.user, role: 'MODERATOR' },
     }
-    render(<ForumPostDetail post={tutorPost} />)
+    render(<ForumPostDetail post={moderatorPost} />)
 
-    expect(screen.getByText(/tutor/i)).toBeInTheDocument()
+    expect(screen.getByText(/moderator/i)).toBeInTheDocument()
   })
 
   it('displays the author role as "Student" when user is STUDENT', () => {

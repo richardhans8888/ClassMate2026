@@ -191,10 +191,10 @@ describe('Sidebar component', () => {
     expect(screen.queryAllByTestId('ai-icon')).not.toHaveLength(0)
   })
 
-  it('renders navigation items for TUTOR role', () => {
+  it('renders navigation items for MODERATOR role', () => {
     render(
       <Sidebar
-        userRole="TUTOR"
+        userRole="MODERATOR"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}

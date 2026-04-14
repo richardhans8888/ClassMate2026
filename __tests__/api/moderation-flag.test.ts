@@ -72,9 +72,9 @@ describe('GET /api/moderation/flagged', () => {
     expect(data.flags).toHaveLength(1)
   })
 
-  it('returns flagged list for TUTOR', async () => {
-    ;(getSession as jest.Mock).mockResolvedValue({ id: 'tutor-1', email: 'tutor@test.com' })
-    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'TUTOR' })
+  it('returns flagged list for MODERATOR', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'moderator-1', email: 'moderator@test.com' })
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'MODERATOR' })
     ;(prisma.flaggedContent.findMany as jest.Mock).mockResolvedValue([{ id: 'flag-1' }])
 
     const req = new NextRequest('http://localhost/api/moderation/flagged')
@@ -109,9 +109,9 @@ describe('POST /api/moderation/resolve', () => {
     expect(res.status).toBe(200)
   })
 
-  it('resolves pending flags for TUTOR', async () => {
-    ;(getSession as jest.Mock).mockResolvedValue({ id: 'tutor-1', email: 'tutor@test.com' })
-    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'TUTOR' })
+  it('resolves pending flags for MODERATOR', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'moderator-1', email: 'moderator@test.com' })
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'MODERATOR' })
     ;(prisma.flaggedContent.findUnique as jest.Mock).mockResolvedValue({
       id: 'flag-1',
       status: 'pending',

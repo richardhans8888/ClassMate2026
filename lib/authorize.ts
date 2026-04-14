@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 
-type UserRole = 'STUDENT' | 'TUTOR' | 'ADMIN'
+type UserRole = 'STUDENT' | 'MODERATOR' | 'ADMIN'
 
 interface SessionUser {
   id: string
@@ -37,10 +37,10 @@ export async function requireAdmin(session: SessionUser): Promise<boolean> {
 }
 
 /**
- * Check if user is a moderator (TUTOR or ADMIN)
+ * Check if user is a moderator (MODERATOR or ADMIN)
  */
 export async function requireModerator(session: SessionUser): Promise<boolean> {
-  return requireRole(session, ['TUTOR', 'ADMIN'])
+  return requireRole(session, ['MODERATOR', 'ADMIN'])
 }
 
 /**
@@ -51,6 +51,6 @@ export async function canModerate(session: SessionUser, resourceOwnerId: string)
   if (session.id === resourceOwnerId) {
     return true
   }
-  // Otherwise, must be a moderator (TUTOR or ADMIN)
+  // Otherwise, must be a moderator (MODERATOR or ADMIN)
   return requireModerator(session)
 }

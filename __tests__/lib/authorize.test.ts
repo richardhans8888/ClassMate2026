@@ -33,9 +33,9 @@ describe('authorize', () => {
   })
 
   describe('requireModerator', () => {
-    it('returns true for TUTOR role', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'TUTOR' })
-      const result = await requireModerator({ id: 'tutor-1', email: 'tutor@test.com' })
+    it('returns true for MODERATOR role', async () => {
+      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'MODERATOR' })
+      const result = await requireModerator({ id: 'moderator-1', email: 'moderator@test.com' })
       expect(result).toBe(true)
     })
 
@@ -72,9 +72,9 @@ describe('authorize', () => {
       expect(result).toBe(false)
     })
 
-    it('allows TUTOR for non-owned resource', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'TUTOR' })
-      const result = await canModerate({ id: 'tutor1', email: 'tutor@test.com' }, 'user1')
+    it('allows MODERATOR for non-owned resource', async () => {
+      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'MODERATOR' })
+      const result = await canModerate({ id: 'moderator1', email: 'moderator@test.com' }, 'user1')
       expect(result).toBe(true)
     })
   })

@@ -3,6 +3,8 @@
 import { MessageSquare, Eye } from 'lucide-react'
 import { formatDate } from '@/lib/format'
 import { UpvoteButton } from './UpvoteButton'
+import { RoleGate } from '@/components/ui/role-gate'
+import { ModeratorContentActions } from './ModeratorContentActions'
 
 interface ForumPostDetailProps {
   post: {
@@ -33,7 +35,7 @@ interface ForumPostDetailProps {
 
 export function ForumPostDetail({ post }: ForumPostDetailProps) {
   const authorName = post.user.profile?.displayName ?? post.user.email.split('@')[0] ?? 'Anonymous'
-  const authorRole = post.user.role === 'TUTOR' ? 'Tutor' : 'Student'
+  const authorRole = post.user.role === 'MODERATOR' ? 'Moderator' : 'Student'
 
   return (
     <div className="border-border bg-card overflow-hidden rounded-xl border shadow-sm">
@@ -50,9 +52,14 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
               </p>
             </div>
           </div>
-          <span className="bg-accent text-accent-foreground rounded px-2.5 py-0.5 text-xs font-semibold">
-            {post.category}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="bg-accent text-accent-foreground rounded px-2.5 py-0.5 text-xs font-semibold">
+              {post.category}
+            </span>
+            <RoleGate allowedRoles={['MODERATOR', 'ADMIN']}>
+              <ModeratorContentActions contentId={post.id} contentType="post" />
+            </RoleGate>
+          </div>
         </div>
 
         <h1 className="text-foreground mb-4 text-2xl font-bold md:text-3xl">{post.title}</h1>
