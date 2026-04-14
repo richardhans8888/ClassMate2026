@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 import { requireModerator } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
@@ -6,12 +6,12 @@ import { prisma } from '@/lib/prisma'
 export default async function AdminModerationPage() {
   const session = await getSession()
   if (!session) {
-    redirect('/login')
+    notFound()
   }
 
   const isModerator = await requireModerator(session)
   if (!isModerator) {
-    redirect('/dashboard')
+    notFound()
   }
 
   const flags = await prisma.flaggedContent.findMany({

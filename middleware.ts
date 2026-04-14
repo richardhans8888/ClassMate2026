@@ -42,7 +42,7 @@ export function middleware(request: NextRequest) {
     const betterAuthSession = request.cookies.get('better-auth.session_token')
 
     if (!firebaseSession && !betterAuthSession) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      return NextResponse.rewrite(new URL('/_not-found', request.url))
     }
     // Role check is handled server-side in the page (requireModerator() for /admin/*)
   }
