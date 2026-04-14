@@ -5,6 +5,7 @@ import { GET, POST, DELETE } from '@/app/api/study-groups/route'
 jest.mock('@/lib/auth', () => ({ getSession: jest.fn() }))
 jest.mock('@/lib/prisma')
 import { prisma } from '@/lib/prisma'
+import { getSession } from '@/lib/auth'
 
 afterEach(() => {
   jest.clearAllMocks()
@@ -24,9 +25,10 @@ describe('GET /api/study-groups', () => {
 
 describe('POST /api/study-groups', () => {
   it('returns 400 when name is missing', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1' })
     const req = new NextRequest('http://localhost/api/study-groups', {
       method: 'POST',
-      body: JSON.stringify({ ownerId: 'user-1' }), // no name
+      body: JSON.stringify({ subject: 'Math' }), // no name
       headers: { 'Content-Type': 'application/json' },
     })
     const res = await POST(req)
@@ -34,10 +36,11 @@ describe('POST /api/study-groups', () => {
     expect(res.status).toBe(400)
   })
 
-  it('returns 400 when ownerId is missing', async () => {
+  it('returns 400 when subject is missing', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1' })
     const req = new NextRequest('http://localhost/api/study-groups', {
       method: 'POST',
-      body: JSON.stringify({ name: 'Test Group' }), // no ownerId
+      body: JSON.stringify({ name: 'Test Group' }), // no subject
       headers: { 'Content-Type': 'application/json' },
     })
     const res = await POST(req)
@@ -48,6 +51,7 @@ describe('POST /api/study-groups', () => {
 
 describe('DELETE /api/study-groups', () => {
   it('returns 400 when groupId is missing', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1' })
     const req = new NextRequest(
       'http://localhost/api/study-groups?userId=user-1'
       // groupId intentionally omitted
@@ -59,17 +63,20 @@ describe('DELETE /api/study-groups', () => {
     expect(body.error).toMatch(/groupId/i)
   })
 
-  it('returns 400 when userId is missing', async () => {
+  it('returns 200 when only groupId is provided (userId not required)', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1' })
+    ;(prisma.studyGroup.deleteMany as jest.Mock).mockResolvedValue({ count: 1 })
     const req = new NextRequest(
       'http://localhost/api/study-groups?groupId=group-1'
-      // userId intentionally omitted
+      // userId not needed — handler uses session.id
     )
     const res = await DELETE(req)
 
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(200)
   })
 
-  it('returns 400 when both groupId and userId are missing', async () => {
+  it('returns 400 when groupId is missing entirely', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1' })
     const req = new NextRequest('http://localhost/api/study-groups')
     const res = await DELETE(req)
 

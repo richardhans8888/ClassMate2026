@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { usePathname } from 'next/navigation'
+import { useUserRole } from '@/lib/contexts/user-role-context'
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -116,10 +117,25 @@ jest.mock('@/lib/utils', () => ({
   cn: (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(' '),
 }))
 
+// Mock user-role context
+jest.mock('@/lib/contexts/user-role-context', () => ({
+  useUserRole: jest.fn(),
+}))
+
 const mockUsePathname = usePathname as jest.MockedFunction<typeof usePathname>
 
 beforeEach(() => {
   mockUsePathname.mockReturnValue('/')
+  ;(useUserRole as jest.Mock).mockReturnValue({
+    role: null,
+    isLoaded: true,
+    isAdmin: false,
+    isModerator: false,
+    userId: null,
+    userName: null,
+    userEmail: null,
+    userImage: null,
+  })
 })
 
 afterEach(() => {
@@ -208,6 +224,16 @@ describe('Sidebar component', () => {
   })
 
   it('renders Admin Panel for ADMIN role', () => {
+    ;(useUserRole as jest.Mock).mockReturnValue({
+      role: 'ADMIN',
+      isLoaded: true,
+      isAdmin: true,
+      isModerator: false,
+      userId: 'user-1',
+      userName: null,
+      userEmail: null,
+      userImage: null,
+    })
     render(
       <Sidebar
         userRole="ADMIN"

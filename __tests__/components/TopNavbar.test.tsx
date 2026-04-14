@@ -9,6 +9,7 @@ import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { authClient } from '@/lib/auth-client'
+import { useUserRole } from '@/lib/contexts/user-role-context'
 
 // Mock next-themes
 jest.mock('next-themes', () => ({
@@ -42,6 +43,11 @@ jest.mock('next/image', () => ({
     // eslint-disable-next-line @next/next/no-img-element
     <img {...props} alt={props.alt ?? ''} />
   ),
+}))
+
+// Mock user-role context
+jest.mock('@/lib/contexts/user-role-context', () => ({
+  useUserRole: jest.fn(),
 }))
 
 // Mock lucide-react icons
@@ -79,6 +85,16 @@ beforeEach(() => {
     push: mockPush,
     refresh: mockRefresh,
   } as ReturnType<typeof useRouter>)
+  ;(useUserRole as jest.Mock).mockReturnValue({
+    role: null,
+    isLoaded: true,
+    isAdmin: false,
+    isModerator: false,
+    userId: null,
+    userName: null,
+    userEmail: null,
+    userImage: null,
+  })
 })
 
 afterEach(() => {
@@ -132,15 +148,19 @@ describe('TopNavbar component', () => {
   })
 
   it('displays user name from props when provided', async () => {
+    ;(useUserRole as jest.Mock).mockReturnValue({
+      role: null,
+      isLoaded: true,
+      isAdmin: false,
+      isModerator: false,
+      userId: null,
+      userName: 'John Doe',
+      userEmail: 'john@example.com',
+      userImage: null,
+    })
     const onMobileMenuOpen = jest.fn()
     const user = userEvent.setup()
-    render(
-      <TopNavbar
-        onMobileMenuOpen={onMobileMenuOpen}
-        userName="John Doe"
-        userEmail="john@example.com"
-      />
-    )
+    render(<TopNavbar onMobileMenuOpen={onMobileMenuOpen} />)
 
     // Open dropdown to see the name
     const avatarButton = screen.getAllByRole('button')[1]
@@ -151,15 +171,19 @@ describe('TopNavbar component', () => {
   })
 
   it('displays email from props when provided', async () => {
+    ;(useUserRole as jest.Mock).mockReturnValue({
+      role: null,
+      isLoaded: true,
+      isAdmin: false,
+      isModerator: false,
+      userId: null,
+      userName: 'Jane Smith',
+      userEmail: 'jane@example.com',
+      userImage: null,
+    })
     const onMobileMenuOpen = jest.fn()
     const user = userEvent.setup()
-    render(
-      <TopNavbar
-        onMobileMenuOpen={onMobileMenuOpen}
-        userName="Jane Smith"
-        userEmail="jane@example.com"
-      />
-    )
+    render(<TopNavbar onMobileMenuOpen={onMobileMenuOpen} />)
 
     const avatarButton = screen.getAllByRole('button')[1]
     await user.click(avatarButton)
@@ -168,9 +192,19 @@ describe('TopNavbar component', () => {
   })
 
   it('extracts name from email when userName is not provided', async () => {
+    ;(useUserRole as jest.Mock).mockReturnValue({
+      role: null,
+      isLoaded: true,
+      isAdmin: false,
+      isModerator: false,
+      userId: null,
+      userName: null,
+      userEmail: 'john.doe@example.com',
+      userImage: null,
+    })
     const onMobileMenuOpen = jest.fn()
     const user = userEvent.setup()
-    render(<TopNavbar onMobileMenuOpen={onMobileMenuOpen} userEmail="john.doe@example.com" />)
+    render(<TopNavbar onMobileMenuOpen={onMobileMenuOpen} />)
 
     const avatarButton = screen.getAllByRole('button')[1]
     await user.click(avatarButton)
@@ -188,29 +222,36 @@ describe('TopNavbar component', () => {
   })
 
   it('renders user avatar with initials when userImage is not provided', () => {
+    ;(useUserRole as jest.Mock).mockReturnValue({
+      role: null,
+      isLoaded: true,
+      isAdmin: false,
+      isModerator: false,
+      userId: null,
+      userName: 'Alice Brown',
+      userEmail: 'alice@example.com',
+      userImage: null,
+    })
     const onMobileMenuOpen = jest.fn()
-    render(
-      <TopNavbar
-        onMobileMenuOpen={onMobileMenuOpen}
-        userName="Alice Brown"
-        userEmail="alice@example.com"
-      />
-    )
+    render(<TopNavbar onMobileMenuOpen={onMobileMenuOpen} />)
 
     // Avatar should show the first letter initial
     expect(screen.getByText('A')).toBeInTheDocument()
   })
 
   it('renders user avatar image when userImage is provided', () => {
+    ;(useUserRole as jest.Mock).mockReturnValue({
+      role: null,
+      isLoaded: true,
+      isAdmin: false,
+      isModerator: false,
+      userId: null,
+      userName: 'Bob Wilson',
+      userEmail: 'bob@example.com',
+      userImage: 'https://example.com/bob-avatar.jpg',
+    })
     const onMobileMenuOpen = jest.fn()
-    render(
-      <TopNavbar
-        onMobileMenuOpen={onMobileMenuOpen}
-        userName="Bob Wilson"
-        userEmail="bob@example.com"
-        userImage="https://example.com/bob-avatar.jpg"
-      />
-    )
+    render(<TopNavbar onMobileMenuOpen={onMobileMenuOpen} />)
 
     const avatar = screen.getByAltText('Bob Wilson')
     expect(avatar).toBeInTheDocument()

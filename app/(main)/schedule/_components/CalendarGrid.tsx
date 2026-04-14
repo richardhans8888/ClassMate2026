@@ -27,9 +27,12 @@ export function CalendarGrid({
   events,
   onCellClick,
 }: CalendarGridProps) {
+  const now = new Date()
+  const todayISO = toISO(now.getFullYear(), now.getMonth(), now.getDate())
+
   return (
     <>
-      <div className="mb-2 grid grid-cols-7 gap-2">
+      <div className="mb-2 grid grid-cols-7 gap-1.5">
         {DAYS.map((d) => (
           <div key={d} className="text-muted-foreground text-center text-xs">
             {d[0]}
@@ -38,46 +41,61 @@ export function CalendarGrid({
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1.5">
         {monthMatrix.map((cell) => {
           const dateISO = toISO(cell.year, cell.month, cell.day)
           const cellEvents = events.filter((e) => e.date === dateISO)
           const inCurrent = cell.month === currentMonth && cell.year === currentYear
+          const isToday = dateISO === todayISO
 
           return (
             <button
               key={dateISO}
               onClick={() => onCellClick(dateISO)}
-              className={`h-14 rounded-xl border p-2 text-left transition-colors sm:h-20 lg:h-28 ${
+              className={`h-16 rounded-xl border p-1.5 text-left transition-colors sm:h-20 lg:h-24 ${
                 inCurrent
-                  ? 'border-border bg-card hover:border-primary'
+                  ? isToday
+                    ? 'border-primary bg-card ring-primary hover:border-primary ring-2'
+                    : 'border-border bg-card hover:border-primary'
                   : 'border-border bg-muted opacity-70'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div
-                  className={`text-xs font-medium ${inCurrent ? 'text-foreground' : 'text-muted-foreground'}`}
+                  className={`text-xs ${
+                    inCurrent
+                      ? isToday
+                        ? 'text-primary font-bold'
+                        : 'text-foreground font-medium'
+                      : 'text-muted-foreground font-medium'
+                  }`}
                 >
                   {cell.day}
                 </div>
-                <div className="flex gap-1">
-                  {cellEvents.slice(0, 3).map((e) => (
-                    <span key={e.id} className={`inline-block h-2 w-2 rounded-full ${e.color}`} />
+                <div className="flex gap-0.5">
+                  {cellEvents.slice(0, 2).map((e) => (
+                    <span
+                      key={e.id}
+                      className={`inline-block h-1.5 w-1.5 rounded-full ${e.color}`}
+                    />
                   ))}
                 </div>
               </div>
-              <div className="mt-2 hidden space-y-1 sm:block">
-                {cellEvents.slice(0, 3).map((e) => (
-                  <div key={e.id} className={`rounded px-2 py-1 text-[11px] ${e.color} text-white`}>
+              <div className="mt-1 hidden space-y-0.5 sm:block">
+                {cellEvents.slice(0, 2).map((e) => (
+                  <div
+                    key={e.id}
+                    className={`rounded px-1.5 py-0.5 text-[10px] ${e.color} truncate text-white`}
+                  >
                     {e.title}{' '}
                     {formatEventTime(e.startTime, e.endTime)
                       ? `• ${formatEventTime(e.startTime, e.endTime)}`
                       : ''}
                   </div>
                 ))}
-                {cellEvents.length > 3 && (
-                  <div className="text-muted-foreground text-[11px]">
-                    +{cellEvents.length - 3} more
+                {cellEvents.length > 2 && (
+                  <div className="text-muted-foreground text-[10px]">
+                    +{cellEvents.length - 2} more
                   </div>
                 )}
               </div>

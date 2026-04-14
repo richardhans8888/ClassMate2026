@@ -36,7 +36,9 @@ function makePdfFile(name = 'test.pdf', sizeOverride?: number): File {
 
 describe('/api/materials GET', () => {
   it('returns materials list', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user1' })
     const mockMaterials = [{ id: '1', title: 'Test Material', subject: 'Math' }]
+    ;(prisma.studyMaterial.count as jest.Mock).mockResolvedValue(1)
     ;(prisma.studyMaterial.findMany as jest.Mock).mockResolvedValue(mockMaterials)
 
     const request = new NextRequest('http://localhost/api/materials')
@@ -48,6 +50,8 @@ describe('/api/materials GET', () => {
   })
 
   it('filters by subject', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user1' })
+    ;(prisma.studyMaterial.count as jest.Mock).mockResolvedValue(0)
     ;(prisma.studyMaterial.findMany as jest.Mock).mockResolvedValue([])
 
     const request = new NextRequest('http://localhost/api/materials?subject=Physics')

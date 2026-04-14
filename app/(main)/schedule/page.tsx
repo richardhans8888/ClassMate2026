@@ -163,6 +163,10 @@ export default function MySchedulePage() {
       return m > 11 ? { year: c.year + 1, month: 0 } : { year: c.year, month: m }
     })
   }
+  function goToday() {
+    const d = new Date()
+    setCurrent({ year: d.getFullYear(), month: d.getMonth() })
+  }
 
   // Keep color in sync when category changes
   function handleCategoryChange(v: string) {
@@ -177,6 +181,7 @@ export default function MySchedulePage() {
           monthLabel={monthLabel}
           onPrev={prevMonth}
           onNext={nextMonth}
+          onToday={goToday}
           onNewEvent={() => openNew(toISO(current.year, current.month, new Date().getDate()))}
         />
 
@@ -186,26 +191,34 @@ export default function MySchedulePage() {
           </div>
         )}
 
-        {loading ? (
-          <div className="border-border bg-card text-muted-foreground flex items-center justify-center rounded-xl border p-8">
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading schedule...
+        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-6">
+          {/* Calendar — takes up remaining width */}
+          <div className="min-w-0 flex-1">
+            {loading ? (
+              <div className="border-border bg-card text-muted-foreground flex items-center justify-center rounded-xl border p-8">
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading schedule...
+              </div>
+            ) : (
+              <CalendarGrid
+                monthMatrix={monthMatrix}
+                currentYear={current.year}
+                currentMonth={current.month}
+                events={events}
+                onCellClick={openNew}
+              />
+            )}
           </div>
-        ) : (
-          <CalendarGrid
-            monthMatrix={monthMatrix}
-            currentYear={current.year}
-            currentMonth={current.month}
-            events={events}
-            onCellClick={openNew}
-          />
-        )}
 
-        <EventList
-          events={events}
-          loading={loading}
-          onEdit={openEdit}
-          onDelete={(id) => void deleteEvent(id)}
-        />
+          {/* Sidebar — event list */}
+          <aside className="mt-6 w-full shrink-0 lg:mt-0 lg:w-80 xl:w-96">
+            <EventList
+              events={events}
+              loading={loading}
+              onEdit={openEdit}
+              onDelete={(id) => void deleteEvent(id)}
+            />
+          </aside>
+        </div>
 
         <EventDialog
           open={open}
