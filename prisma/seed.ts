@@ -6,7 +6,7 @@
  *
  * Seeded accounts (all use password: Password123!)
  *   admin   → evan@classmate.dev   (ADMIN)
- *   tutors  → carol@classmate.dev, george@classmate.dev (TUTOR)
+ *   moderators → carol@classmate.dev, george@classmate.dev (MODERATOR)
  *   students→ alice, bob, diana, fiona, hannah @classmate.dev (STUDENT)
  *
  * Run: npx prisma db seed
@@ -43,6 +43,7 @@ async function main() {
 
   // ── Clear existing data (in FK-safe order) ─────────────────────────────────
   console.warn('  Clearing existing data...')
+  await prisma.moderationLog.deleteMany()
   await prisma.flaggedContent.deleteMany()
   await prisma.connection.deleteMany()
   await prisma.chatMessage.deleteMany()
@@ -86,7 +87,7 @@ async function main() {
         name: 'Carol Williams',
         image: avatarUrl('Carol Williams'),
         emailVerified: true,
-        role: 'TUTOR',
+        role: 'MODERATOR',
       },
     }),
     prisma.user.create({
@@ -122,7 +123,7 @@ async function main() {
         name: 'George Patel',
         image: avatarUrl('George Patel'),
         emailVerified: true,
-        role: 'TUTOR',
+        role: 'MODERATOR',
       },
     }),
     prisma.user.create({
@@ -1859,6 +1860,116 @@ async function main() {
     }),
   ])
 
+  // ── Moderation Logs ────────────────────────────────────────────────────────
+  console.warn('  Creating moderation logs...')
+  const daysAgo = (n: number) => {
+    const d = new Date()
+    d.setDate(d.getDate() - n)
+    return d
+  }
+  await Promise.all([
+    prisma.moderationLog.create({
+      data: {
+        actorId: carol.id,
+        action: 'FLAG_CREATED',
+        targetId: posts[1].id,
+        targetType: 'ForumPost',
+        reason: 'Possible spam — post contains multiple promotional links.',
+        createdAt: daysAgo(14),
+      },
+    }),
+    prisma.moderationLog.create({
+      data: {
+        actorId: evan.id,
+        action: 'FLAG_RESOLVED',
+        targetId: posts[1].id,
+        targetType: 'ForumPost',
+        reason: 'Reviewed — no policy violation found. Flag dismissed.',
+        createdAt: daysAgo(13),
+      },
+    }),
+    prisma.moderationLog.create({
+      data: {
+        actorId: george.id,
+        action: 'FLAG_CREATED',
+        targetId: replies[4].id,
+        targetType: 'ForumReply',
+        reason: 'Reply contains offensive language towards the original poster.',
+        createdAt: daysAgo(10),
+      },
+    }),
+    prisma.moderationLog.create({
+      data: {
+        actorId: evan.id,
+        action: 'CONTENT_DELETED',
+        targetId: replies[4].id,
+        targetType: 'ForumReply',
+        reason: 'Removed after review — confirmed community guidelines violation.',
+        createdAt: daysAgo(9),
+      },
+    }),
+    prisma.moderationLog.create({
+      data: {
+        actorId: carol.id,
+        action: 'FLAG_CREATED',
+        targetId: posts[8].id,
+        targetType: 'ForumPost',
+        reason: 'Duplicate post — identical content already exists.',
+        createdAt: daysAgo(7),
+      },
+    }),
+    prisma.moderationLog.create({
+      data: {
+        actorId: carol.id,
+        action: 'FLAG_RESOLVED',
+        targetId: posts[8].id,
+        targetType: 'ForumPost',
+        reason: 'Checked — posts cover different angles. Flag dismissed.',
+        createdAt: daysAgo(6),
+      },
+    }),
+    prisma.moderationLog.create({
+      data: {
+        actorId: george.id,
+        action: 'FLAG_CREATED',
+        targetId: posts[12].id,
+        targetType: 'ForumPost',
+        reason: 'Off-topic content unrelated to academics.',
+        createdAt: daysAgo(4),
+      },
+    }),
+    prisma.moderationLog.create({
+      data: {
+        actorId: evan.id,
+        action: 'FLAG_RESOLVED',
+        targetId: posts[12].id,
+        targetType: 'ForumPost',
+        reason: 'Study strategies are on-topic. Flag dismissed.',
+        createdAt: daysAgo(3),
+      },
+    }),
+    prisma.moderationLog.create({
+      data: {
+        actorId: carol.id,
+        action: 'FLAG_CREATED',
+        targetId: replies[14].id,
+        targetType: 'ForumReply',
+        reason: 'Suspected AI-generated content without disclosure.',
+        createdAt: daysAgo(2),
+      },
+    }),
+    prisma.moderationLog.create({
+      data: {
+        actorId: evan.id,
+        action: 'CONTENT_DELETED',
+        targetId: replies[14].id,
+        targetType: 'ForumReply',
+        reason: 'Removed per platform policy on undisclosed AI-generated responses.',
+        createdAt: daysAgo(1),
+      },
+    }),
+  ])
+
   // ── Summary ────────────────────────────────────────────────────────────────
   console.warn('\n✅  Seed complete!\n')
   console.warn('  Seeded:')
@@ -1876,6 +1987,7 @@ async function main() {
   console.warn(`    10 events`)
   console.warn(`    8 user connections (6 accepted, 2 pending)`)
   console.warn(`    2 flagged content records`)
+  console.warn(`    10 moderation log entries`)
   console.warn('\n  Login credentials (all accounts use password: Password123!)')
   console.warn('    admin  → evan@classmate.dev')
   console.warn('    tutor  → carol@classmate.dev or george@classmate.dev')
