@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma'
-
-type UserRole = 'STUDENT' | 'MODERATOR' | 'ADMIN'
+import type { UserRole } from '../generated/prisma/enums'
 
 interface SessionUser {
   id: string

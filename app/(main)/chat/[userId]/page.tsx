@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, use } from 'react'
 import { Button } from '@/components/ui/button'
-import { Phone, Video, MoreVertical, Send, ArrowLeft, Loader2 } from 'lucide-react'
+import { Send, ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 const AVATAR_COLORS = [
@@ -175,17 +175,6 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
             <h3 className="text-foreground font-semibold">{participantName}</h3>
             <span className="text-muted-foreground text-xs">Direct messages</span>
           </div>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="text-muted-foreground rounded-lg">
-            <Phone className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground rounded-lg">
-            <Video className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground rounded-lg">
-            <MoreVertical className="h-5 w-5" />
-          </Button>
         </div>
       </div>
 

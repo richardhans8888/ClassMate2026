@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Send, Search, Edit } from 'lucide-react'
+import { NewMessageModal } from './_components/NewMessageModal'
 
 const AVATAR_COLORS = [
   'bg-violet-500',
@@ -62,10 +64,12 @@ function formatTime(value: string): string {
 }
 
 export default function ChatPage() {
+  const router = useRouter()
   const [query, setQuery] = useState('')
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [newMessageOpen, setNewMessageOpen] = useState(false)
 
   async function loadConversations(silent = false) {
     if (!silent) setLoading(true)
@@ -118,13 +122,13 @@ export default function ChatPage() {
         <div className="border-border bg-card sticky top-0 z-10 border-b p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-foreground text-xl font-bold">Messages</h2>
-            <Link
-              href="/chat/new"
+            <button
+              onClick={() => setNewMessageOpen(true)}
               className="text-muted-foreground hover:text-foreground rounded-lg p-1 transition-colors"
               aria-label="New message"
             >
               <Edit className="h-4 w-4" />
-            </Link>
+            </button>
           </div>
           <div className="relative">
             <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
@@ -166,7 +170,6 @@ export default function ChatPage() {
                       >
                         {initial}
                       </div>
-                      <div className="bg-semantic-success border-card absolute right-0 bottom-0 h-3 w-3 rounded-full border-2" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="mb-0.5 flex items-baseline justify-between">
@@ -208,6 +211,15 @@ export default function ChatPage() {
           Choose a contact from the list to start chatting.
         </p>
       </div>
+
+      <NewMessageModal
+        open={newMessageOpen}
+        onClose={() => setNewMessageOpen(false)}
+        onSelectUser={(userId) => {
+          setNewMessageOpen(false)
+          router.push(`/chat/${userId}`)
+        }}
+      />
     </div>
   )
 }

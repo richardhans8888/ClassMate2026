@@ -13,6 +13,14 @@ jest.mock('next/link', () => {
   }
 })
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}))
+
+jest.mock('@/app/(main)/chat/_components/NewMessageModal', () => ({
+  NewMessageModal: () => null,
+}))
+
 // React's use() checks for status/value on thenables to avoid suspending
 function fulfilledParams<T>(value: T): Promise<T> {
   const p = Promise.resolve(value) as Promise<T> & { status: string; value: T }
