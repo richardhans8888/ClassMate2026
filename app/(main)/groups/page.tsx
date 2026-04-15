@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useMemo, useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { PaginationControls } from '@/components/ui/pagination-controls'
 import {
@@ -323,7 +325,7 @@ export default function StudyGroupsPage() {
                   </div>
                 </div>
               ) : (
-                joined.map((g) => <GroupCard key={g.id} g={g} joined />)
+                joined.map((g) => <GroupCard key={g.id} g={g} joined userId={userId} />)
               )}
             </div>
             {yourGroupsTotalPages > 1 && (
@@ -342,7 +344,7 @@ export default function StudyGroupsPage() {
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {discover.map((g) => (
-                <GroupCard key={g.id} g={g} joined={false} />
+                <GroupCard key={g.id} g={g} joined={false} userId={userId} />
               ))}
             </div>
             {discoverTotalPages > 1 && (
@@ -470,16 +472,41 @@ export default function StudyGroupsPage() {
   )
 }
 
-function GroupCard({ g, joined }: { g: Group; joined: boolean }) {
+function GroupCard({ g, joined, userId }: { g: Group; joined: boolean; userId?: string }) {
+  const router = useRouter()
   const accentClass = 'bg-primary'
   const isFull = g.status === 'Full'
   const isActive = g.status === 'Active'
+  const [joiningId, setJoiningId] = useState<string | null>(null)
   const SubjectIcon = (() => {
     if (g.subject === 'Science') return FlaskConical
     if (g.subject === 'Computer Science') return Code
     if (g.subject === 'History') return BookOpen
     return BookOpen
   })()
+
+  async function handleJoin() {
+    if (!userId) return
+    setJoiningId(g.id)
+    try {
+      const res = await fetch(`/api/study-groups/${g.id}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      })
+      const data = (await res.json()) as { error?: string }
+      if (!res.ok) {
+        toast.error(data.error ?? 'Failed to join group')
+        return
+      }
+      toast.success('Joined group!')
+      router.push(`/groups/${g.id}`)
+    } catch {
+      toast.error('Failed to join group')
+    } finally {
+      setJoiningId(null)
+    }
+  }
 
   return (
     <div className="group border-border bg-card overflow-hidden rounded-xl border">
@@ -525,11 +552,19 @@ function GroupCard({ g, joined }: { g: Group; joined: boolean }) {
             Group Full
           </button>
         ) : (
-          <Link href={`/groups/${g.id}`}>
-            <button className="border-primary text-primary hover:bg-primary/10 flex h-10 w-full items-center justify-center rounded-lg border bg-transparent font-semibold">
-              Join Group <ArrowRight className="ml-2 h-4 w-4" />
-            </button>
-          </Link>
+          <button
+            onClick={handleJoin}
+            disabled={joiningId === g.id || !userId}
+            className="border-primary text-primary hover:bg-primary/10 flex h-10 w-full items-center justify-center rounded-lg border bg-transparent font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {joiningId === g.id ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                Join Group <ArrowRight className="ml-2 h-4 w-4" />
+              </>
+            )}
+          </button>
         )}
       </div>
     </div>

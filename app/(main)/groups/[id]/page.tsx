@@ -1,204 +1,128 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import { GroupNavSidebar } from './_components/GroupNavSidebar'
-import { GroupHeader } from './_components/GroupHeader'
-import { GroupMessageFeed } from './_components/GroupMessageFeed'
-import { GroupComposer } from './_components/GroupComposer'
-import { GroupMembersSidebar } from './_components/GroupMembersSidebar'
-import { GroupFilesSidebar } from './_components/GroupFilesSidebar'
-import type { ChatMessage, GroupInfo, Member } from './_components/types'
+import { useCallback, useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
+import { authClient } from '@/lib/auth-client'
+import { GroupDetailHeader } from './_components/GroupDetailHeader'
+import { GroupActions } from './_components/GroupActions'
+import { MembersSection } from './_components/MembersSection'
 
-const groupInfo: GroupInfo = {
-  id: '404',
-  name: 'Advanced Macroeconomics',
-  subtitle: 'Prepare for Midterm Exam',
-  membersOnline: 12,
+interface GroupMember {
+  id: string
+  role: string
+  joinedAt: string
+  userId: string
+  user: { id: string; name: string | null; image: string | null }
 }
 
-const members: Member[] = [
-  {
-    id: 1,
-    name: 'Alex',
-    role: 'Scholar',
-    status: 'online',
-    avatar: '/avatars/alex.jpg',
-    isSpeaking: true,
-  },
-  {
-    id: 2,
-    name: 'Sarah',
-    role: 'Novice',
-    status: 'online',
-    avatar: '/avatars/sarah.jpg',
-    isSpeaking: false,
-  },
-  {
-    id: 3,
-    name: 'Mike',
-    role: 'Member',
-    status: 'online',
-    avatar: '/avatars/mike.jpg',
-    isSpeaking: false,
-  },
-  {
-    id: 4,
-    name: 'Jessica',
-    role: 'Member',
-    status: 'online',
-    avatar: '/avatars/jessica.jpg',
-    isSpeaking: false,
-  },
-  {
-    id: 5,
-    name: 'David',
-    role: 'Scholar',
-    status: 'online',
-    avatar: '/avatars/david.jpg',
-    isSpeaking: false,
-  },
-  {
-    id: 6,
-    name: 'Emily',
-    role: 'Novice',
-    status: 'offline',
-    avatar: '/avatars/emily.jpg',
-    isSpeaking: false,
-  },
-]
+interface GroupDetail {
+  id: string
+  name: string
+  subject: string
+  description: string | null
+  maxMembers: number | null
+  memberCount: number
+  isPrivate: boolean
+  ownerId: string
+  owner: { id: string; name: string | null; image: string | null }
+  members: GroupMember[]
+  isCurrentUserMember: boolean
+  isCurrentUserOwner: boolean
+}
 
-const initialMessages: ChatMessage[] = [
-  {
-    id: 'system-1',
-    type: 'system',
-    content: 'Session started at 14:00 by Alex (Scholar)',
-    timestamp: '14:00',
-  },
-  {
-    id: 1,
-    type: 'text',
-    sender: { name: 'Alex', role: 'Scholar', avatar: '/avatars/alex.jpg' },
-    content:
-      "Has anyone started on the IS-LM model problem set yet? I'm getting stuck on question 3 regarding the liquidity trap.",
-    timestamp: '14:02',
-  },
-  {
-    id: 2,
-    type: 'text',
-    sender: { name: 'You', role: 'Novice', avatar: '/avatars/me.jpg' },
-    content:
-      'Yeah, I just finished it. The trick is to account for the government spending multiplier first before shifting the curve.',
-    timestamp: '14:05',
-    isMe: true,
-  },
-  {
-    id: 3,
-    type: 'file',
-    sender: { name: 'Sarah', role: 'Novice', avatar: '/avatars/sarah.jpg' },
-    content: 'Here is a helpful PDF I found that explains the shifts in the curve visually.',
-    attachment: { type: 'pdf', name: 'IS-LM_Model_Explained.pdf', size: '2.4 MB' },
-    timestamp: '14:08',
-  },
-  {
-    id: 4,
-    type: 'text',
-    sender: { name: 'Mike', role: 'Member', avatar: '/avatars/mike.jpg' },
-    content: "I'm hopping into the voice channel if anyone wants to discuss the graph live.",
-    timestamp: '14:15',
-  },
-]
-
-export default function GroupChatPage() {
+export default function GroupDetailPage() {
+  const params = useParams()
   const router = useRouter()
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
-  const [inputValue, setInputValue] = useState('')
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [showSidebar, setShowSidebar] = useState(true)
-  const [showFiles, setShowFiles] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
+  const groupId = params.id as string
 
-  const files = messages.filter((m) => !!m.attachment)
-  const filteredMessages = searchQuery.trim()
-    ? messages.filter((m) => {
-        const text = (m.content ?? '') + ' ' + (m.attachment?.name ?? '')
-        return text.toLowerCase().includes(searchQuery.toLowerCase())
-      })
-    : messages
+  const { data: session } = authClient.useSession()
+  const userId = session?.user?.id
+
+  const [group, setGroup] = useState<GroupDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchGroup = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/study-groups/${groupId}`)
+      if (res.status === 404) {
+        setError('Group not found')
+        return
+      }
+      if (!res.ok) {
+        setError('Failed to load group')
+        return
+      }
+      const data = (await res.json()) as GroupDetail
+      setGroup(data)
+    } catch {
+      setError('Failed to load group')
+    } finally {
+      setLoading(false)
+    }
+  }, [groupId])
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
-  }, [messages])
+    void fetchGroup()
+  }, [fetchGroup])
 
-  function handleSendMessage() {
-    if (!inputValue.trim()) return
-    const newMessage: ChatMessage = {
-      id: messages.length + 1,
-      type: 'text',
-      sender: { name: 'You', role: 'Novice', avatar: '/avatars/me.jpg' },
-      content: inputValue,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isMe: true,
-    }
-    setMessages([...messages, newMessage])
-    setInputValue('')
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="text-primary h-6 w-6 animate-spin" />
+      </div>
+    )
   }
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
-    }
+  if (error || !group) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <p className="text-muted-foreground">{error ?? 'Group not found'}</p>
+        <button
+          onClick={() => router.push('/groups')}
+          className="text-primary text-sm hover:underline"
+        >
+          Back to Groups
+        </button>
+      </div>
+    )
   }
+
+  const isFull = group.maxMembers != null && group.memberCount >= group.maxMembers
 
   return (
-    <div className="bg-card text-foreground flex h-screen w-full overflow-hidden font-sans">
-      <GroupNavSidebar
-        onBack={() => router.push('/groups')}
-        onToggleSidebar={() => setShowSidebar((s) => !s)}
-        onToggleFiles={() => setShowFiles((s) => !s)}
-      />
+    <div className="bg-background text-foreground flex h-full flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-2xl">
+          <GroupDetailHeader
+            name={group.name}
+            subject={group.subject}
+            description={group.description}
+            memberCount={group.memberCount}
+            maxMembers={group.maxMembers}
+            isPrivate={group.isPrivate}
+            onBack={() => router.push('/groups')}
+          />
 
-      <div className="relative flex flex-1 flex-col">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="bg-primary/5 absolute top-[-20%] left-[-10%] h-[50%] w-[50%] rounded-full blur-[120px]"></div>
-          <div className="bg-primary/5 absolute right-[-10%] bottom-[-20%] h-[50%] w-[50%] rounded-full blur-[120px]"></div>
+          {userId && (
+            <GroupActions
+              groupId={group.id}
+              userId={userId}
+              isCurrentUserMember={group.isCurrentUserMember}
+              isCurrentUserOwner={group.isCurrentUserOwner}
+              isFull={isFull}
+              onJoined={fetchGroup}
+              onLeft={fetchGroup}
+              onDeleted={() => router.push('/groups')}
+            />
+          )}
+
+          <MembersSection members={group.members} ownerId={group.ownerId} />
         </div>
-
-        <GroupHeader
-          groupInfo={groupInfo}
-          searchOpen={searchOpen}
-          searchQuery={searchQuery}
-          filteredCount={filteredMessages.length}
-          onSearchOpen={() => setSearchOpen(true)}
-          onSearchClose={() => {
-            setSearchOpen(false)
-            setSearchQuery('')
-          }}
-          onSearchChange={setSearchQuery}
-          onToggleSidebar={() => setShowSidebar((s) => !s)}
-          onToggleFiles={() => setShowFiles(true)}
-          onBack={() => router.push('/groups')}
-        />
-
-        <GroupMessageFeed messages={filteredMessages} scrollRef={scrollRef} />
-
-        <GroupComposer
-          inputValue={inputValue}
-          onChange={setInputValue}
-          onSend={handleSendMessage}
-          onKeyDown={handleKeyDown}
-        />
       </div>
-
-      {showSidebar && (
-        <GroupMembersSidebar members={members} membersOnline={groupInfo.membersOnline} />
-      )}
-
-      {showFiles && <GroupFilesSidebar files={files} onClose={() => setShowFiles(false)} />}
     </div>
   )
 }

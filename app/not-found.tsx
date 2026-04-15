@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { FileQuestion } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { BackButton } from '@/components/ui/back-button'
 
 export default function NotFound() {
   return (
@@ -18,12 +17,9 @@ export default function NotFound() {
           view it.
         </p>
 
-        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Button asChild>
-            <Link href="/">Go Home</Link>
-          </Button>
-          <BackButton />
-        </div>
+        <Button asChild>
+          <Link href="/">Go Home</Link>
+        </Button>
       </div>
     </div>
   )
