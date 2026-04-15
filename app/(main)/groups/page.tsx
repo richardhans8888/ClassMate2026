@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState, useEffect } from 'react'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { PaginationControls } from '@/components/ui/pagination-controls'
 import {
@@ -12,11 +11,11 @@ import {
   Plus,
   ChevronDown,
   ArrowRight,
-  Clock,
   FlaskConical,
   BookOpen,
   Code,
   Loader2,
+  CheckCircle2,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -31,7 +30,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from 'components/ui/dialog'
-import { authClient } from '@/lib/auth-client'
 
 type Group = {
   id: string
@@ -39,11 +37,8 @@ type Group = {
   subject: string
   capacity: number
   max: number
-  schedule: string
-  status: 'Active' | 'Full' | 'Recruiting'
-  accent: 'blue' | 'indigo' | 'emerald' | 'rose' | 'purple'
+  isFull: boolean
   desc: string
-  privacy?: 'Public' | 'Private'
 }
 
 type ApiGroup = {
@@ -56,61 +51,38 @@ type ApiGroup = {
   _count: { members: number }
 }
 
-function subjectToAccent(subject: string | null): Group['accent'] {
-  switch (subject) {
-    case 'Mathematics':
-      return 'blue'
-    case 'Computer Science':
-      return 'indigo'
-    case 'History':
-      return 'rose'
-    case 'Physics':
-      return 'purple'
-    case 'Science':
-      return 'emerald'
-    default:
-      return 'purple'
-  }
-}
-
 function mapApiGroup(g: ApiGroup): Group {
   const capacity = g._count.members
   const max = g.maxMembers ?? 99
-  const status: Group['status'] = capacity >= max && max > 0 ? 'Full' : 'Active'
   return {
     id: g.id,
     name: g.name,
     subject: g.subject ?? 'General',
     capacity,
     max,
-    schedule: 'TBD',
-    status,
-    accent: subjectToAccent(g.subject),
+    isFull: capacity >= max && max > 0,
     desc: g.description ?? 'No description provided.',
-    privacy: g.isPrivate ? 'Private' : 'Public',
   }
 }
 
-const subjects = [
-  'All Subjects',
+const createSubjects = [
   'Mathematics',
   'Computer Science',
-  'Literature',
-  'History',
+  'Web Development',
+  'Algorithms',
+  'Database',
   'Physics',
   'Science',
-  'Psychology',
-  'Law',
+  'History',
+  'Other',
 ]
 const sortOptions = ['Most Popular', 'Newest', 'Soonest']
 
 export default function StudyGroupsPage() {
-  const { data: session } = authClient.useSession()
-  const userId = session?.user?.id
-
   const [discoverGroups, setDiscoverGroups] = useState<Group[]>([])
   const [joinedGroups, setJoinedGroups] = useState<Group[]>([])
-  const [loadingGroups, setLoadingGroups] = useState(true)
+  const [loadingDiscover, setLoadingDiscover] = useState(true)
+  const [loadingJoined, setLoadingJoined] = useState(true)
 
   const [discoverPage, setDiscoverPage] = useState(1)
   const [discoverTotalPages, setDiscoverTotalPages] = useState(1)
@@ -118,27 +90,23 @@ export default function StudyGroupsPage() {
   const [yourGroupsTotalPages, setYourGroupsTotalPages] = useState(1)
 
   const [query, setQuery] = useState('')
-  const [activeSubject, setActiveSubject] = useState('All Subjects')
   const [activeSort, setActiveSort] = useState('Most Popular')
   const [createOpen, setCreateOpen] = useState(false)
   const [creating, setCreating] = useState(false)
 
   const [formName, setFormName] = useState('')
   const [formSubject, setFormSubject] = useState('Mathematics')
-  const [formTheme, setFormTheme] = useState<Group['accent']>('purple')
-  const [formPrivacy, setFormPrivacy] = useState<'Public' | 'Private'>('Public')
   const [formDesc, setFormDesc] = useState('')
   const [formMax, setFormMax] = useState(12)
-  const [formSchedule, setFormSchedule] = useState('TBD')
 
   useEffect(() => {
     async function fetchDiscover() {
-      setLoadingGroups(true)
+      setLoadingDiscover(true)
       try {
         const params = new URLSearchParams()
         params.set('page', String(discoverPage))
         params.set('limit', '12')
-        if (activeSubject !== 'All Subjects') params.set('subject', activeSubject)
+        params.set('excludeMyGroups', 'true')
         const res = await fetch(`/api/study-groups?${params.toString()}`)
         const data = await res.json()
         const mapped: Group[] = (data.groups ?? []).map((g: ApiGroup) => mapApiGroup(g))
@@ -147,25 +115,20 @@ export default function StudyGroupsPage() {
       } catch (err) {
         console.error(err)
       } finally {
-        setLoadingGroups(false)
+        setLoadingDiscover(false)
       }
     }
     void fetchDiscover()
-  }, [discoverPage, activeSubject])
+  }, [discoverPage])
 
   useEffect(() => {
-    if (!userId) {
-      setJoinedGroups([])
-      return
-    }
     async function fetchYourGroups() {
+      setLoadingJoined(true)
       try {
         const params = new URLSearchParams()
         params.set('myGroups', 'true')
-        params.set('userId', userId!)
         params.set('page', String(yourGroupsPage))
         params.set('limit', '12')
-        if (activeSubject !== 'All Subjects') params.set('subject', activeSubject)
         const res = await fetch(`/api/study-groups?${params.toString()}`)
         const data = await res.json()
         const mapped: Group[] = (data.groups ?? []).map((g: ApiGroup) => mapApiGroup(g))
@@ -173,10 +136,12 @@ export default function StudyGroupsPage() {
         setYourGroupsTotalPages(data.meta?.pages ?? 1)
       } catch (err) {
         console.error(err)
+      } finally {
+        setLoadingJoined(false)
       }
     }
     void fetchYourGroups()
-  }, [yourGroupsPage, activeSubject, userId])
+  }, [yourGroupsPage])
 
   const joined = useMemo(() => {
     let list = joinedGroups.filter(
@@ -203,19 +168,18 @@ export default function StudyGroupsPage() {
   }, [discoverGroups, query, activeSort])
 
   async function handleCreate() {
-    if (!userId || !formName.trim()) return
+    if (!formName.trim()) return
     setCreating(true)
     try {
       const res = await fetch('/api/study-groups', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ownerId: userId,
           name: formName.trim(),
           description: formDesc || null,
           subject: formSubject,
           maxMembers: formMax,
-          isPrivate: formPrivacy === 'Private',
+          isPrivate: false,
         }),
       })
       const data = await res.json()
@@ -227,10 +191,7 @@ export default function StudyGroupsPage() {
       setFormName('')
       setFormDesc('')
       setFormMax(12)
-      setFormSchedule('TBD')
       setFormSubject('Mathematics')
-      setFormTheme('purple')
-      setFormPrivacy('Public')
     } catch (err) {
       console.error(err)
     } finally {
@@ -239,126 +200,122 @@ export default function StudyGroupsPage() {
   }
 
   return (
-    <div className="bg-background text-foreground flex h-full flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:px-12 lg:px-16">
-        <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-          <div>
-            <h1 className="text-foreground text-2xl font-bold">Study Groups</h1>
-            <p className="text-muted-foreground mt-1">
-              Find and join study groups to collaborate with peers.
-            </p>
-          </div>
-          <Button
-            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg sm:w-auto"
-            onClick={() => setCreateOpen(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" /> Create Group
-          </Button>
+    <div className="bg-background text-foreground px-4 py-4 sm:px-6 md:px-12 lg:px-16">
+      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+        <div>
+          <h1 className="text-foreground text-2xl font-bold">Study Groups</h1>
+          <p className="text-muted-foreground mt-1">
+            Find and join study groups to collaborate with peers.
+          </p>
         </div>
+        <Button
+          className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg sm:w-auto"
+          onClick={() => setCreateOpen(true)}
+        >
+          <Plus className="mr-2 h-4 w-4" /> Create Group
+        </Button>
+      </div>
 
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <div className="flex items-center gap-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="border-border bg-card text-foreground flex items-center gap-2 rounded-full border px-3 py-2 text-xs">
-                  {activeSort}
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-40">
-                {sortOptions.map((opt) => (
-                  <DropdownMenuItem key={opt} onClick={() => setActiveSort(opt)}>
-                    {opt}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <div className="relative flex-1 sm:flex-none">
-              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search groups..."
-                className="border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-ring/40 w-full rounded-lg border py-2 pr-4 pl-10 text-sm focus:ring-2 focus:outline-none sm:w-64"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-6 flex flex-wrap items-center gap-2">
-          {subjects.map((s) => (
-            <button
-              key={s}
-              onClick={() => {
-                setActiveSubject(s)
-                setDiscoverPage(1)
-                setYourGroupsPage(1)
-              }}
-              className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                activeSubject === s
-                  ? 'border-ring/40 bg-muted text-foreground'
-                  : 'border-border bg-card text-foreground hover:bg-muted'
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-
-        <div className="mb-4">
-          <h2 className="text-muted-foreground text-sm font-semibold">Your Groups</h2>
-        </div>
-
-        {loadingGroups ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="text-primary h-6 w-6 animate-spin" />
-          </div>
-        ) : (
-          <>
-            <div className="mb-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {joined.length === 0 ? (
-                <div className="border-border bg-card rounded-xl border border-dashed p-6 text-center">
-                  <div className="mb-1 font-bold">No groups yet</div>
-                  <div className="text-muted-foreground mb-3 text-xs">
-                    Join a group below to get started.
-                  </div>
-                </div>
-              ) : (
-                joined.map((g) => <GroupCard key={g.id} g={g} joined userId={userId} />)
-              )}
-            </div>
-            {yourGroupsTotalPages > 1 && (
-              <PaginationControls
-                currentPage={yourGroupsPage}
-                totalPages={yourGroupsTotalPages}
-                onPrevious={() => setYourGroupsPage((p) => p - 1)}
-                onNext={() => setYourGroupsPage((p) => p + 1)}
-                isLoading={loadingGroups}
-              />
-            )}
-
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-muted-foreground text-sm font-semibold">Discover Groups</h2>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {discover.map((g) => (
-                <GroupCard key={g.id} g={g} joined={false} userId={userId} />
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="border-border bg-card text-foreground flex items-center gap-2 rounded-full border px-3 py-2 text-xs">
+                {activeSort}
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-40">
+              {sortOptions.map((opt) => (
+                <DropdownMenuItem key={opt} onClick={() => setActiveSort(opt)}>
+                  {opt}
+                </DropdownMenuItem>
               ))}
-            </div>
-            {discoverTotalPages > 1 && (
-              <PaginationControls
-                currentPage={discoverPage}
-                totalPages={discoverTotalPages}
-                onPrevious={() => setDiscoverPage((p) => p - 1)}
-                onNext={() => setDiscoverPage((p) => p + 1)}
-                isLoading={loadingGroups}
-              />
-            )}
-          </>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="relative flex-1 sm:flex-none">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search groups..."
+              className="border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-ring/40 w-full rounded-lg border py-2 pr-4 pl-10 text-sm focus:ring-2 focus:outline-none sm:w-64"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Your Groups */}
+      <div className="mb-3 flex items-center gap-2">
+        <h2 className="text-foreground text-sm font-semibold">Your Groups</h2>
+        {!loadingJoined && joinedGroups.length > 0 && (
+          <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-semibold">
+            {joinedGroups.length}
+          </span>
         )}
       </div>
+
+      {loadingJoined ? (
+        <div className="mb-8 flex justify-center py-8">
+          <Loader2 className="text-primary h-5 w-5 animate-spin" />
+        </div>
+      ) : (
+        <div className="mb-6">
+          <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {joined.length === 0 ? (
+              <div className="border-border bg-card rounded-xl border border-dashed p-6 text-center">
+                <div className="mb-1 font-bold">No groups yet</div>
+                <div className="text-muted-foreground mb-3 text-xs">
+                  Join a group below to get started.
+                </div>
+              </div>
+            ) : (
+              joined.map((g) => <GroupCard key={g.id} g={g} joined />)
+            )}
+          </div>
+          {yourGroupsTotalPages > 1 && (
+            <PaginationControls
+              currentPage={yourGroupsPage}
+              totalPages={yourGroupsTotalPages}
+              onPrevious={() => setYourGroupsPage((p) => p - 1)}
+              onNext={() => setYourGroupsPage((p) => p + 1)}
+              isLoading={loadingJoined}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Discover Groups */}
+      <div className="mb-3">
+        <h2 className="text-foreground text-sm font-semibold">Discover Groups</h2>
+        <p className="text-muted-foreground mt-0.5 text-xs">Groups you haven&apos;t joined yet</p>
+      </div>
+
+      {loadingDiscover ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="text-primary h-5 w-5 animate-spin" />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {discover.length === 0 ? (
+              <div className="border-border bg-card rounded-xl border border-dashed p-6 text-center">
+                <div className="text-muted-foreground text-xs">No groups to discover.</div>
+              </div>
+            ) : (
+              discover.map((g) => <GroupCard key={g.id} g={g} joined={false} />)
+            )}
+          </div>
+          <PaginationControls
+            currentPage={discoverPage}
+            totalPages={discoverTotalPages}
+            onPrevious={() => setDiscoverPage((p) => p - 1)}
+            onNext={() => setDiscoverPage((p) => p + 1)}
+            isLoading={loadingDiscover}
+          />
+        </>
+      )}
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="sm:max-w-[520px]">
@@ -386,40 +343,11 @@ export default function StudyGroupsPage() {
                   onChange={(e) => setFormSubject(e.target.value)}
                   className="border-border bg-card text-foreground h-10 w-full rounded-lg border px-3 text-sm"
                 >
-                  {subjects
-                    .filter((s) => s !== 'All Subjects')
-                    .map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs">Theme</label>
-                <select
-                  value={formTheme}
-                  onChange={(e) => setFormTheme(e.target.value as Group['accent'])}
-                  className="border-border bg-card text-foreground h-10 w-full rounded-lg border px-3 text-sm"
-                >
-                  <option value="purple">Purple</option>
-                  <option value="blue">Blue</option>
-                  <option value="indigo">Indigo</option>
-                  <option value="emerald">Emerald</option>
-                  <option value="rose">Rose</option>
-                </select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs">Privacy</label>
-                <select
-                  value={formPrivacy}
-                  onChange={(e) => setFormPrivacy(e.target.value as 'Public' | 'Private')}
-                  className="border-border bg-card text-foreground h-10 w-full rounded-lg border px-3 text-sm"
-                >
-                  <option value="Public">Public</option>
-                  <option value="Private">Private</option>
+                  {createSubjects.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="space-y-2">
@@ -433,15 +361,6 @@ export default function StudyGroupsPage() {
                   className="border-border bg-card text-foreground h-10 w-full rounded-lg border px-3 text-sm"
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs">Schedule</label>
-              <input
-                value={formSchedule}
-                onChange={(e) => setFormSchedule(e.target.value)}
-                placeholder="e.g., Wed, 7PM"
-                className="border-border bg-card text-foreground placeholder:text-muted-foreground h-10 w-full rounded-lg border px-3 text-sm"
-              />
             </div>
             <div className="space-y-2">
               <label className="text-xs">Description</label>
@@ -472,98 +391,93 @@ export default function StudyGroupsPage() {
   )
 }
 
-function GroupCard({ g, joined, userId }: { g: Group; joined: boolean; userId?: string }) {
+function GroupCard({ g, joined }: { g: Group; joined: boolean }) {
   const router = useRouter()
-  const accentClass = 'bg-primary'
-  const isFull = g.status === 'Full'
-  const isActive = g.status === 'Active'
-  const [joiningId, setJoiningId] = useState<string | null>(null)
+  const isFull = g.isFull
+  const fillPercent = Math.min(100, Math.round((g.capacity / g.max) * 100))
+
   const SubjectIcon = (() => {
     if (g.subject === 'Science') return FlaskConical
-    if (g.subject === 'Computer Science') return Code
+    if (g.subject === 'Computer Science' || g.subject === 'Web Development') return Code
     if (g.subject === 'History') return BookOpen
     return BookOpen
   })()
 
-  async function handleJoin() {
-    if (!userId) return
-    setJoiningId(g.id)
-    try {
-      const res = await fetch(`/api/study-groups/${g.id}/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      })
-      const data = (await res.json()) as { error?: string }
-      if (!res.ok) {
-        toast.error(data.error ?? 'Failed to join group')
-        return
-      }
-      toast.success('Joined group!')
-      router.push(`/groups/${g.id}`)
-    } catch {
-      toast.error('Failed to join group')
-    } finally {
-      setJoiningId(null)
-    }
-  }
-
   return (
-    <div className="group border-border bg-card overflow-hidden rounded-xl border">
-      <div className={`relative h-24 ${accentClass}`}>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,#ffffff33_1px,transparent_1px)] [background-size:20px_20px] opacity-25" />
-        <div className="absolute top-1/2 left-4 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-lg border border-white/30 bg-white/15 backdrop-blur-sm">
-          <SubjectIcon className="h-6 w-6 text-white/90" />
+    <div
+      className={`overflow-hidden rounded-xl border transition-shadow hover:shadow-md ${
+        joined ? 'border-primary/30 bg-primary/5 dark:bg-primary/10' : 'border-border bg-card'
+      }`}
+    >
+      {/* Banner */}
+      <div className={`relative h-20 ${joined ? 'bg-primary' : 'bg-muted'}`}>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,#ffffff22_1px,transparent_1px)] [background-size:20px_20px]" />
+        <div className="absolute top-1/2 left-4 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg border border-white/20 bg-white/10 backdrop-blur-sm">
+          <SubjectIcon className={`h-5 w-5 ${joined ? 'text-white' : 'text-muted-foreground'}`} />
         </div>
-        {isActive && (
-          <div className="bg-semantic-success absolute top-3 right-3 rounded-full px-2 py-1 text-[11px] font-bold text-white shadow">
-            Active
+        {joined && (
+          <div className="absolute top-2.5 right-3 flex items-center gap-1 rounded-full border border-white/20 bg-white/15 px-2 py-0.5 backdrop-blur-sm">
+            <CheckCircle2 className="h-2.5 w-2.5 text-white" />
+            <span className="text-[10px] font-semibold text-white">MEMBER</span>
           </div>
         )}
       </div>
-      <div className="bg-muted p-5">
-        <div className="border-border bg-muted text-muted-foreground mb-2 inline-block rounded-full border px-2 py-1 text-[11px] font-bold">
-          {g.subject.toUpperCase()}
-        </div>
+
+      {/* Body */}
+      <div className="p-4">
         <div className="mb-1">
-          <h3 className="text-foreground font-bold">{g.name}</h3>
-          <p className="text-muted-foreground text-xs">{g.desc}</p>
-        </div>
-        <div className="text-muted-foreground mt-3 flex items-center justify-between text-xs">
-          <span className="inline-flex items-center gap-1">
-            <Users className="h-3.5 w-3.5" />
-            {g.capacity}/{g.max}
+          <span className="text-muted-foreground text-[10px] font-bold tracking-wider">
+            {g.subject.toUpperCase()}
           </span>
-          <div className="inline-flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5" />
-            {g.schedule}
+        </div>
+        <h3 className="text-foreground mb-1 leading-tight font-semibold">{g.name}</h3>
+        <p className="text-muted-foreground mb-3 line-clamp-2 text-xs">{g.desc}</p>
+
+        {/* Member count with progress bar */}
+        <div className="mb-3">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-muted-foreground flex items-center gap-1 text-xs">
+              <Users className="h-3 w-3" />
+              {g.capacity}/{g.max}
+            </span>
+            {isFull && <span className="text-xs font-semibold text-red-400">FULL</span>}
+          </div>
+          <div className="h-1 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
+            <div
+              className={`h-full rounded-full transition-all ${
+                fillPercent >= 90
+                  ? 'bg-red-400'
+                  : fillPercent >= 70
+                    ? 'bg-amber-400'
+                    : joined
+                      ? 'bg-white/60'
+                      : 'bg-primary'
+              }`}
+              style={{ width: `${fillPercent}%` }}
+            />
           </div>
         </div>
-      </div>
-      <div className="bg-muted px-5 pb-5">
+
+        {/* Action */}
         {joined ? (
           <Link href={`/groups/${g.id}`}>
-            <button className="border-primary text-primary hover:bg-primary/10 flex h-10 w-full items-center justify-center rounded-lg border bg-transparent font-semibold">
-              Open Group <ArrowRight className="ml-2 h-4 w-4" />
+            <button className="bg-primary text-primary-foreground hover:bg-primary/90 flex h-9 w-full items-center justify-center rounded-lg text-sm font-semibold transition-colors">
+              Open Group <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
             </button>
           </Link>
         ) : isFull ? (
-          <button className="border-border text-muted-foreground h-10 w-full cursor-not-allowed rounded-lg border bg-transparent">
+          <button
+            disabled
+            className="border-border text-muted-foreground h-9 w-full cursor-not-allowed rounded-lg border bg-transparent text-sm"
+          >
             Group Full
           </button>
         ) : (
           <button
-            onClick={handleJoin}
-            disabled={joiningId === g.id || !userId}
-            className="border-primary text-primary hover:bg-primary/10 flex h-10 w-full items-center justify-center rounded-lg border bg-transparent font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => router.push(`/groups/${g.id}`)}
+            className="border-primary text-primary hover:bg-primary/10 flex h-9 w-full items-center justify-center rounded-lg border bg-transparent text-sm font-semibold transition-colors"
           >
-            {joiningId === g.id ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                Join Group <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
+            Join Group <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
           </button>
         )}
       </div>

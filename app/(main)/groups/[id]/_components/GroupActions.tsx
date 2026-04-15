@@ -14,7 +14,6 @@ import {
 
 interface GroupActionsProps {
   groupId: string
-  userId: string
   isCurrentUserMember: boolean
   isCurrentUserOwner: boolean
   isFull: boolean
@@ -25,7 +24,6 @@ interface GroupActionsProps {
 
 export function GroupActions({
   groupId,
-  userId,
   isCurrentUserMember,
   isCurrentUserOwner,
   isFull,
@@ -43,7 +41,7 @@ export function GroupActions({
       const res = await fetch(`/api/study-groups/${groupId}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({}),
       })
       const data = (await res.json()) as { error?: string }
       if (!res.ok) {
@@ -62,7 +60,7 @@ export function GroupActions({
   async function handleLeave() {
     setLoading(true)
     try {
-      const res = await fetch(`/api/study-groups/${groupId}/join?userId=${userId}`, {
+      const res = await fetch(`/api/study-groups/${groupId}/join`, {
         method: 'DELETE',
       })
       const data = (await res.json()) as { error?: string }

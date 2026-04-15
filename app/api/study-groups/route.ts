@@ -5,12 +5,12 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 
-// GET /api/study-groups?subject=Math&userId=xxx&myGroups=true
+// GET /api/study-groups?subject=Math&myGroups=true&excludeMyGroups=true
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const subject = searchParams.get('subject')
-  const userId = searchParams.get('userId')
   const myGroups = searchParams.get('myGroups')
+  const excludeMyGroups = searchParams.get('excludeMyGroups') === 'true'
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '12', 10)))
 
@@ -18,9 +18,16 @@ export async function GET(req: NextRequest) {
     let groups
     let total: number
 
-    if (myGroups === 'true' && userId) {
+    if (myGroups === 'true') {
+      const session = await getSession()
+      if (!session) {
+        return NextResponse.json({
+          groups: [],
+          meta: { total: 0, page: 1, limit, pages: 1 },
+        })
+      }
       const where = {
-        members: { some: { userId } },
+        members: { some: { userId: session.id } },
         ...(subject ? { subject } : {}),
       }
       total = await prisma.studyGroup.count({ where })
@@ -35,9 +42,17 @@ export async function GET(req: NextRequest) {
         skip: (page - 1) * limit,
       })
     } else {
+      // Optionally exclude groups the current user has already joined
+      let excludeUserId: string | undefined
+      if (excludeMyGroups) {
+        const session = await getSession()
+        if (session) excludeUserId = session.id
+      }
+
       const where = {
         isPrivate: false,
         ...(subject ? { subject } : {}),
+        ...(excludeUserId ? { members: { none: { userId: excludeUserId } } } : {}),
       }
       total = await prisma.studyGroup.count({ where })
       groups = await prisma.studyGroup.findMany({

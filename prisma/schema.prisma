@@ -52,8 +52,8 @@ model User {
   studyMaterials       StudyMaterial[]
   studyGroupsOwned     StudyGroup[]       @relation("owner")
   studyGroupMembers    StudyGroupMember[]
-  upvotedForumPosts    ForumPost[]        @relation("upvoters")
-  upvotedReplies       ForumReply[]       @relation("upvoters")
+  upvotedForumPosts    ForumPost[]        @relation("postUpvoters")
+  upvotedReplies       ForumReply[]       @relation("replyUpvoters")
   sessions             Session[]
   accounts             Account[]
   events               Event[]
@@ -149,7 +149,7 @@ model ForumPost {
 
   replies  ForumReply[]
   tags     ForumTag[]
-  upvoters User[]     @relation("upvoters")
+  upvoters User[]     @relation("postUpvoters")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -171,7 +171,7 @@ model ForumReply {
   content    String
   upvotes    Int     @default(0)
   isAccepted Boolean @default(false)
-  upvoters   User[]  @relation("upvoters")
+  upvoters   User[]  @relation("replyUpvoters")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

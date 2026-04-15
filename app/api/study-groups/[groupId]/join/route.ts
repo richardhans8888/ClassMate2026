@@ -7,11 +7,14 @@ import { getSession } from '@/lib/auth'
 // POST /api/study-groups/[groupId]/join
 export async function POST(req: NextRequest, context: { params: Promise<{ groupId: string }> }) {
   const session = await getSession()
-  const { groupId } = await context.params
-  const { userId, inviteCode } = await req.json()
-  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const limited = await checkRateLimit(session?.id ?? userId, writeLimiter)
+  const { groupId } = await context.params
+  const body = (await req.json().catch(() => ({}))) as { inviteCode?: string }
+  const { inviteCode } = body
+  const userId = session.id
+
+  const limited = await checkRateLimit(userId, writeLimiter)
   if (limited) return limited
 
   try {
@@ -56,12 +59,12 @@ export async function POST(req: NextRequest, context: { params: Promise<{ groupI
 // DELETE /api/study-groups/[groupId]/join — leave group
 export async function DELETE(req: NextRequest, context: { params: Promise<{ groupId: string }> }) {
   const session = await getSession()
-  const { groupId } = await context.params
-  const { searchParams } = new URL(req.url)
-  const userId = searchParams.get('userId')
-  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const limited = await checkRateLimit(session?.id ?? userId, writeLimiter)
+  const { groupId } = await context.params
+  const userId = session.id
+
+  const limited = await checkRateLimit(userId, writeLimiter)
   if (limited) return limited
 
   try {

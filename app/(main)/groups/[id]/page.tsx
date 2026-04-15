@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
-import { authClient } from '@/lib/auth-client'
 import { GroupDetailHeader } from './_components/GroupDetailHeader'
 import { GroupActions } from './_components/GroupActions'
 import { MembersSection } from './_components/MembersSection'
@@ -35,9 +34,6 @@ export default function GroupDetailPage() {
   const params = useParams()
   const router = useRouter()
   const groupId = params.id as string
-
-  const { data: session } = authClient.useSession()
-  const userId = session?.user?.id
 
   const [group, setGroup] = useState<GroupDetail | null>(null)
   const [loading, setLoading] = useState(true)
@@ -103,22 +99,18 @@ export default function GroupDetailPage() {
             description={group.description}
             memberCount={group.memberCount}
             maxMembers={group.maxMembers}
-            isPrivate={group.isPrivate}
             onBack={() => router.push('/groups')}
           />
 
-          {userId && (
-            <GroupActions
-              groupId={group.id}
-              userId={userId}
-              isCurrentUserMember={group.isCurrentUserMember}
-              isCurrentUserOwner={group.isCurrentUserOwner}
-              isFull={isFull}
-              onJoined={fetchGroup}
-              onLeft={fetchGroup}
-              onDeleted={() => router.push('/groups')}
-            />
-          )}
+          <GroupActions
+            groupId={group.id}
+            isCurrentUserMember={group.isCurrentUserMember}
+            isCurrentUserOwner={group.isCurrentUserOwner}
+            isFull={isFull}
+            onJoined={fetchGroup}
+            onLeft={fetchGroup}
+            onDeleted={() => router.push('/groups')}
+          />
 
           <MembersSection members={group.members} ownerId={group.ownerId} />
         </div>
