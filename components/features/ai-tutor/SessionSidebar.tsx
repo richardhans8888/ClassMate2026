@@ -18,6 +18,21 @@ interface SessionSidebarProps {
   onDeleteSession: (sessionId: string) => void
 }
 
+type SessionGroup = 'Today' | 'Yesterday' | 'This Week' | 'Older'
+const GROUP_ORDER: SessionGroup[] = ['Today', 'Yesterday', 'This Week', 'Older']
+
+function getSessionGroup(updatedAt: string): SessionGroup {
+  const date = new Date(updatedAt)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return 'This Week'
+  return 'Older'
+}
+
 function formatSessionTime(value: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
@@ -73,8 +88,20 @@ export function SessionSidebar({
     }
   }
 
+  // Group sessions by date
+  const grouped = sessions.reduce<Map<SessionGroup, ChatSession[]>>((acc, session) => {
+    const group = getSessionGroup(session.updatedAt)
+    const existing = acc.get(group)
+    if (existing) {
+      existing.push(session)
+    } else {
+      acc.set(group, [session])
+    }
+    return acc
+  }, new Map())
+
   return (
-    <div className="border-border flex h-full w-64 shrink-0 flex-col border-r">
+    <div className="flex h-full flex-col">
       <div className="border-border border-b p-4">
         <button
           onClick={onNewChat}
@@ -92,34 +119,41 @@ export function SessionSidebar({
           <p className="text-muted-foreground p-2 text-xs">No past sessions yet.</p>
         )}
 
-        {sessions.map((session) => (
-          <div
-            key={session.id}
-            onClick={() => onSelectSession(session.id)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && onSelectSession(session.id)}
-            className={`group hover:bg-muted mb-1 flex cursor-pointer items-start justify-between gap-2 rounded-lg p-2 transition-colors ${
-              session.id === activeSessionId ? 'bg-accent' : ''
-            }`}
-          >
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <MessageSquare className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
-                <p className="text-foreground truncate text-sm font-medium">{session.title}</p>
+        {GROUP_ORDER.filter((g) => grouped.has(g)).map((group) => (
+          <div key={group}>
+            <p className="text-muted-foreground sticky top-0 px-2 py-1 text-xs font-semibold tracking-wide uppercase">
+              {group}
+            </p>
+            {grouped.get(group)!.map((session) => (
+              <div
+                key={session.id}
+                onClick={() => onSelectSession(session.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && onSelectSession(session.id)}
+                className={`group hover:bg-muted mb-1 flex cursor-pointer items-start justify-between gap-2 rounded-lg p-2 transition-colors ${
+                  session.id === activeSessionId ? 'bg-accent' : ''
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <MessageSquare className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+                    <p className="text-foreground truncate text-sm font-medium">{session.title}</p>
+                  </div>
+                  <p className="text-muted-foreground mt-0.5 text-xs">
+                    {formatSessionTime(session.updatedAt)} &middot; {session._count.messages} msg
+                    {session._count.messages !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => void handleDelete(e, session.id)}
+                  className="text-muted-foreground hover:text-destructive hidden shrink-0 rounded p-0.5 transition-colors group-hover:block"
+                  aria-label="Delete session"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
               </div>
-              <p className="text-muted-foreground mt-0.5 text-xs">
-                {formatSessionTime(session.updatedAt)} &middot; {session._count.messages} msg
-                {session._count.messages !== 1 ? 's' : ''}
-              </p>
-            </div>
-            <button
-              onClick={(e) => void handleDelete(e, session.id)}
-              className="text-muted-foreground hover:text-destructive hidden shrink-0 rounded p-0.5 transition-colors group-hover:block"
-              aria-label="Delete session"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            ))}
           </div>
         ))}
       </div>

@@ -36,29 +36,34 @@ describe('Chat pages integration', () => {
   })
 
   it('renders conversation list results from API', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        conversations: [
-          {
-            userId: 'user-2',
-            participant: {
-              id: 'user-2',
-              email: 'alice@example.com',
-              displayName: 'Alice',
-              avatarUrl: null,
+    ;(global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          conversations: [
+            {
+              userId: 'user-2',
+              participant: {
+                id: 'user-2',
+                email: 'alice@example.com',
+                displayName: 'Alice',
+                avatarUrl: null,
+              },
+              lastMessage: {
+                id: 'message-1',
+                content: 'Hey there',
+                createdAt: '2026-03-20T10:00:00.000Z',
+                senderId: 'user-2',
+              },
+              unreadCount: 2,
             },
-            lastMessage: {
-              id: 'message-1',
-              content: 'Hey there',
-              createdAt: '2026-03-20T10:00:00.000Z',
-              senderId: 'user-2',
-            },
-            unreadCount: 2,
-          },
-        ],
-      }),
-    })
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ groups: [] }),
+      })
 
     render(<ChatPage />)
 
@@ -67,10 +72,15 @@ describe('Chat pages integration', () => {
   })
 
   it('renders error state when conversation list request fails', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ error: 'Unable to load conversations.' }),
-    })
+    ;(global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: 'Unable to load conversations.' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ groups: [] }),
+      })
 
     render(<ChatPage />)
 
@@ -78,10 +88,15 @@ describe('Chat pages integration', () => {
   })
 
   it('keeps dark-mode classes on chat list shell', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ conversations: [] }),
-    })
+    ;(global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ conversations: [] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ groups: [] }),
+      })
 
     const { container } = render(<ChatPage />)
 

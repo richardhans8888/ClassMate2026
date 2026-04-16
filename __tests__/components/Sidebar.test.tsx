@@ -11,6 +11,7 @@ import { useUserRole } from '@/lib/contexts/user-role-context'
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   usePathname: jest.fn(),
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
 }))
 
 // Mock next/link
@@ -69,6 +70,26 @@ jest.mock('lucide-react', () => ({
       Menu
     </span>
   ),
+  UserCog: ({ className }: { className?: string }) => (
+    <span data-testid="usercog-icon" className={className}>
+      UserCog
+    </span>
+  ),
+  Compass: ({ className }: { className?: string }) => (
+    <span data-testid="compass-icon" className={className}>
+      Compass
+    </span>
+  ),
+  BookOpen: ({ className }: { className?: string }) => (
+    <span data-testid="bookopen-icon" className={className}>
+      BookOpen
+    </span>
+  ),
+  LogOut: ({ className }: { className?: string }) => (
+    <span data-testid="logout-icon" className={className}>
+      LogOut
+    </span>
+  ),
 }))
 
 // Mock Sheet components
@@ -115,6 +136,14 @@ jest.mock('@/lib/navigation', () => ({
 // Mock utils
 jest.mock('@/lib/utils', () => ({
   cn: (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(' '),
+}))
+
+// Mock better-auth client — ESM-only package
+jest.mock('@/lib/auth-client', () => ({
+  authClient: {
+    useSession: () => ({ data: null }),
+    signOut: jest.fn(),
+  },
 }))
 
 // Mock user-role context

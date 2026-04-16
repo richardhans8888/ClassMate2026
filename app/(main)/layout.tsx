@@ -45,8 +45,8 @@ export default function MainLayout({
           className={`flex h-screen flex-1 flex-col transition-all duration-300 ${collapsed ? 'md:ml-16' : 'md:ml-64'}`}
         >
           <TopNavbar onMobileMenuOpen={() => setMobileOpen(true)} />
-          <main className="flex-1 overflow-y-auto">
-            {children}
+          <main className="flex flex-1 flex-col overflow-y-auto">
+            <div className="flex-1">{children}</div>
             {!hideFooter && <Footer />}
           </main>
         </div>

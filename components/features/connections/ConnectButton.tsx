@@ -11,6 +11,8 @@ interface ConnectButtonProps {
   initialStatus: ConnectionStatus
   initialConnectionId: string | null
   onStatusChange?: (status: ConnectionStatus, connectionId: string | null) => void
+  /** When true, Accept/Reject buttons expand to fill available width */
+  fullWidth?: boolean
 }
 
 export function ConnectButton({
@@ -18,6 +20,7 @@ export function ConnectButton({
   initialStatus,
   initialConnectionId,
   onStatusChange,
+  fullWidth = false,
 }: ConnectButtonProps) {
   const [status, setStatus] = useState<ConnectionStatus>(initialStatus)
   const [connectionId, setConnectionId] = useState<string | null>(initialConnectionId)
@@ -119,10 +122,10 @@ export function ConnectButton({
 
   if (status === 'pending_received') {
     return (
-      <div className="flex gap-2">
+      <div className={`flex gap-2 ${fullWidth ? 'w-full' : ''}`}>
         <Button
           size="sm"
-          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
+          className={`bg-primary text-primary-foreground hover:bg-primary/90 rounded-full ${fullWidth ? 'flex-1' : ''}`}
           onClick={() => handleRespond('ACCEPTED')}
           disabled={loading}
           aria-label="Accept connection"
@@ -137,7 +140,7 @@ export function ConnectButton({
         <Button
           size="sm"
           variant="outline"
-          className="border-border rounded-full"
+          className={`border-border rounded-full ${fullWidth ? 'flex-1' : ''}`}
           onClick={() => handleRespond('REJECTED')}
           disabled={loading}
           aria-label="Reject connection"

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { GraduationCap, MapPin, Search, Users, Loader2 } from 'lucide-react'
+import { GraduationCap, MapPin, Search, Users, Loader2, UserPlus, UserCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   ConnectButton,
@@ -13,6 +13,7 @@ import {
 interface DiscoverUser {
   id: string
   name: string | null
+  image: string | null
   role: string
   profile: {
     displayName: string | null
@@ -127,23 +128,48 @@ export default function DiscoverPage() {
             {users.map((user) => {
               const displayName = user.profile?.displayName ?? user.name ?? 'Unknown'
               const avatarSeed = encodeURIComponent(displayName)
+              // Prefer manually set profile avatar, then Google OAuth photo, then generated fallback
+              const avatarSrc =
+                user.profile?.avatarUrl ??
+                user.image ??
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`
+              const isPendingReceived = user.connectionStatus === 'pending_received'
+              const isConnected = user.connectionStatus === 'connected'
 
               return (
                 <div
                   key={user.id}
-                  className="border-border bg-card flex flex-col gap-4 rounded-2xl border p-5 shadow-sm"
+                  className={`bg-card flex flex-col gap-3 rounded-2xl border p-5 shadow-sm transition-shadow duration-200 hover:shadow-md ${
+                    isPendingReceived
+                      ? 'border-primary/40 ring-primary/10 ring-1'
+                      : isConnected
+                        ? 'border-emerald-500/30 dark:border-emerald-500/20'
+                        : 'border-border'
+                  }`}
                 >
+                  {/* Status banners */}
+                  {isPendingReceived && (
+                    <div className="bg-primary/10 text-primary flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium">
+                      <UserPlus className="h-3.5 w-3.5 shrink-0" />
+                      <span>Wants to connect with you</span>
+                    </div>
+                  )}
+                  {isConnected && (
+                    <div className="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                      <UserCheck className="h-3.5 w-3.5 shrink-0" />
+                      <span>Connected</span>
+                    </div>
+                  )}
+
+                  {/* Avatar + identity */}
                   <div className="flex items-start gap-3">
                     <Link href={`/profile/${user.id}`} className="shrink-0">
                       <Image
-                        src={
-                          user.profile?.avatarUrl ??
-                          `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`
-                        }
+                        src={avatarSrc}
                         alt={displayName}
-                        width={48}
-                        height={48}
-                        className="bg-muted rounded-full"
+                        width={56}
+                        height={56}
+                        className="bg-muted h-14 w-14 rounded-full object-cover"
                         unoptimized
                       />
                     </Link>
@@ -178,24 +204,14 @@ export default function DiscoverPage() {
                     </div>
                   </div>
 
+                  {/* Bio — always shown when present */}
                   {user.profile?.bio && (
                     <p className="text-muted-foreground line-clamp-2 text-xs">{user.profile.bio}</p>
                   )}
 
-                  <div className="flex items-center justify-between gap-2">
-                    <Link
-                      href={`/profile/${user.id}`}
-                      className="text-muted-foreground hover:text-primary text-xs"
-                    >
-                      View profile →
-                    </Link>
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/chat/${user.id}`}
-                        className="border-border text-foreground hover:bg-accent rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
-                      >
-                        Message
-                      </Link>
+                  {/* Action area — varies by connection state */}
+                  {isPendingReceived ? (
+                    <div className="mt-auto flex flex-col gap-2 pt-1">
                       <ConnectButton
                         targetUserId={user.id}
                         initialStatus={user.connectionStatus}
@@ -203,9 +219,68 @@ export default function DiscoverPage() {
                         onStatusChange={(status, connectionId) =>
                           handleStatusChange(user.id, status, connectionId)
                         }
+                        fullWidth
                       />
+                      <Link
+                        href={`/profile/${user.id}`}
+                        className="text-muted-foreground hover:text-primary text-center text-xs"
+                      >
+                        View profile →
+                      </Link>
                     </div>
-                  </div>
+                  ) : isConnected ? (
+                    /* Connected: prominent Message CTA + subtle disconnect */
+                    <div className="mt-auto flex flex-col gap-2 pt-1">
+                      <Link
+                        href={`/chat/${user.id}`}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-colors"
+                      >
+                        Send a message
+                      </Link>
+                      <div className="flex items-center justify-between">
+                        <Link
+                          href={`/profile/${user.id}`}
+                          className="text-muted-foreground hover:text-primary text-xs"
+                        >
+                          View profile →
+                        </Link>
+                        <ConnectButton
+                          targetUserId={user.id}
+                          initialStatus={user.connectionStatus}
+                          initialConnectionId={user.connectionId}
+                          onStatusChange={(status, connectionId) =>
+                            handleStatusChange(user.id, status, connectionId)
+                          }
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    /* Default: Message link + Connect button */
+                    <div className="mt-auto flex items-center justify-between gap-2 pt-1">
+                      <Link
+                        href={`/profile/${user.id}`}
+                        className="text-muted-foreground hover:text-primary text-xs"
+                      >
+                        View profile →
+                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/chat/${user.id}`}
+                          className="border-border text-foreground hover:bg-accent rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
+                        >
+                          Message
+                        </Link>
+                        <ConnectButton
+                          targetUserId={user.id}
+                          initialStatus={user.connectionStatus}
+                          initialConnectionId={user.connectionId}
+                          onStatusChange={(status, connectionId) =>
+                            handleStatusChange(user.id, status, connectionId)
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )
             })}

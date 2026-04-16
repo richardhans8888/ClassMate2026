@@ -55,10 +55,15 @@ export async function POST(req: NextRequest) {
     // Auto-create session if none provided
     let activeSessionId: string = providedSessionId
     if (!activeSessionId) {
+      const titleText =
+        lastMessage?.role === 'user' && typeof lastMessage.content === 'string'
+          ? lastMessage.content.trim().slice(0, 50) +
+            (lastMessage.content.trim().length > 50 ? '…' : '')
+          : 'Chat Session'
       const newSession = await prisma.chatSession.create({
         data: {
           userId: currentSession.id,
-          title: 'Chat Session',
+          title: titleText,
           subject: 'General',
         },
       })
@@ -90,8 +95,14 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: 'system',
-            content:
-              'You are ClassMate, an expert AI tutor for university students. Explain concepts clearly, show code in markdown code blocks, and be encouraging.',
+            content: `You are ClassMate, an expert AI tutor for university students.
+Your goal is to help students understand concepts deeply, not just give answers.
+- Use the Socratic method when a student seems stuck rather than giving the answer directly.
+- Format explanations with clear structure: start with a simple definition, then build up.
+- Always show code examples in markdown code blocks with the correct language identifier.
+- When solving problems, show your work step-by-step.
+- Be encouraging but honest — if a student's approach is wrong, explain why gently.
+- Keep responses concise and scannable. Use bullet points and headers.`,
           },
           ...messages.map((m: { role: string; content: string }) => ({
             role: m.role === 'assistant' ? 'assistant' : 'user',

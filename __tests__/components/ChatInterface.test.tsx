@@ -20,13 +20,23 @@ jest.mock('framer-motion', () => ({
   AnimatePresence: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }))
 
-// Mock next/image — renders as a plain img in tests
-jest.mock('next/image', () => ({
+// Mock react-markdown — ESM-only package; render children as plain text in tests
+jest.mock('react-markdown', () => ({
   __esModule: true,
-  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img {...props} alt={props.alt ?? ''} />
-  ),
+  default: ({ children }: React.PropsWithChildren) => <>{children}</>,
+}))
+
+// Mock remark-gfm — ESM-only package; no-op in tests
+jest.mock('remark-gfm', () => ({
+  __esModule: true,
+  default: () => {},
+}))
+
+// Mock better-auth client — provides useSession hook
+jest.mock('@/lib/auth-client', () => ({
+  authClient: {
+    useSession: () => ({ data: { user: { name: 'Test User' } } }),
+  },
 }))
 
 // Mock next/navigation (precautionary — not used directly in this component)
@@ -74,18 +84,20 @@ describe('ChatInterface component', () => {
   it('renders a send button', () => {
     render(<ChatInterface {...defaultProps} />)
 
-    // The send button contains the Send icon — query by its accessible role or test id
-    // The button is disabled when input is empty; it still exists in the DOM
+    // In empty state: Send button + 4 suggested prompt chip buttons
     const buttons = screen.getAllByRole('button')
-    // At minimum: Plus button, Image button, Send button, Session History button
-    expect(buttons.length).toBeGreaterThanOrEqual(3)
+    expect(buttons.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('does not show any AI response messages in the empty state', () => {
+  it('shows empty-state headline and prompt chips when no messages', () => {
     render(<ChatInterface {...defaultProps} />)
 
-    // When messages is empty and not loading, the empty-state hint is visible
-    expect(screen.getByText(/ask me anything/i)).toBeInTheDocument()
+    // Headline
+    expect(screen.getByText(/your ai study companion/i)).toBeInTheDocument()
+    // Sub-text contains "ask anything"
+    expect(screen.getByText(/ask anything/i)).toBeInTheDocument()
+    // Suggested prompt chips
+    expect(screen.getByText(/big o notation/i)).toBeInTheDocument()
   })
 
   it('does not show the empty-state hint when messages are present', () => {
@@ -95,7 +107,7 @@ describe('ChatInterface component', () => {
     }
     render(<ChatInterface {...props} />)
 
-    expect(screen.queryByText(/ask me anything/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/your ai study companion/i)).not.toBeInTheDocument()
     expect(screen.getByText('Explain loops')).toBeInTheDocument()
   })
 
@@ -108,6 +120,14 @@ describe('ChatInterface component', () => {
     await userEvent.keyboard('{Enter}')
 
     expect(sendMessage).toHaveBeenCalledWith('What is a closure?')
+  })
+
+  it('calls sendMessage when a suggested prompt chip is clicked', async () => {
+    const sendMessage = jest.fn()
+    render(<ChatInterface {...defaultProps} sendMessage={sendMessage} />)
+
+    await userEvent.click(screen.getByText(/big o notation/i))
+    expect(sendMessage).toHaveBeenCalledWith('Explain Big O notation with examples')
   })
 
   it('displays an error message when the error prop is set', () => {
@@ -128,7 +148,7 @@ describe('ChatInterface component', () => {
 
     expect(screen.getByText(/loading conversation/i)).toBeInTheDocument()
     // Empty-state hint should NOT appear while loading history
-    expect(screen.queryByText(/ask me anything/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/your ai study companion/i)).not.toBeInTheDocument()
   })
 
   it('renders a mobile New Chat button when onNewChat is provided', () => {
@@ -145,5 +165,20 @@ describe('ChatInterface component', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /new chat/i }))
     expect(onNewChat).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows the ClassMate AI header text', () => {
+    render(<ChatInterface {...defaultProps} />)
+    expect(screen.getByText(/classmate ai/i)).toBeInTheDocument()
+  })
+
+  it('shows the user initial in the avatar when a message is from the user', () => {
+    const props = {
+      ...defaultProps,
+      messages: [makeMessage({ role: 'user', content: 'Hello there' })],
+    }
+    render(<ChatInterface {...props} />)
+    // User initial from mocked session (name: "Test User" → "T")
+    expect(screen.getByText('T')).toBeInTheDocument()
   })
 })

@@ -27,30 +27,28 @@ export default function AITutorPage() {
   }
 
   return (
-    <div className="bg-background relative h-full w-full overflow-hidden transition-colors duration-300">
-      <div className="relative z-10 mx-auto flex h-full max-w-5xl">
-        {/* Session Sidebar — desktop only */}
-        <div className="hidden md:flex">
-          <SessionSidebar
-            activeSessionId={activeSessionId}
-            onSelectSession={switchSession}
-            onNewChat={newChat}
-            onDeleteSession={handleDeleteSession}
-          />
-        </div>
+    <div className="flex h-full w-full overflow-hidden">
+      {/* Session Sidebar — desktop only */}
+      <div className="border-border hidden h-full w-80 min-w-[280px] shrink-0 flex-col border-r md:flex">
+        <SessionSidebar
+          activeSessionId={activeSessionId}
+          onSelectSession={switchSession}
+          onNewChat={newChat}
+          onDeleteSession={handleDeleteSession}
+        />
+      </div>
 
-        {/* Chat Interface */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <ChatInterface
-            messages={messages}
-            isLoading={isLoading}
-            isLoadingHistory={isLoadingHistory}
-            error={error}
-            sendMessage={sendMessage}
-            onNewChat={newChat}
-            onOpenSessions={() => setShowMobileSessions(true)}
-          />
-        </div>
+      {/* Chat Interface */}
+      <div className="flex h-full flex-1 flex-col">
+        <ChatInterface
+          messages={messages}
+          isLoading={isLoading}
+          isLoadingHistory={isLoadingHistory}
+          error={error}
+          sendMessage={sendMessage}
+          onNewChat={newChat}
+          onOpenSessions={() => setShowMobileSessions(true)}
+        />
       </div>
 
       {/* Mobile Sessions Drawer */}
@@ -88,12 +86,6 @@ export default function AITutorPage() {
           </div>
         </div>
       )}
-
-      {/* Ambient Background Glow */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="bg-primary/10 absolute top-[-20%] left-[-10%] h-[50%] w-[50%] rounded-full blur-[120px]" />
-        <div className="bg-primary/10 absolute right-[-10%] bottom-[-20%] h-[50%] w-[50%] rounded-full blur-[120px]" />
-      </div>
     </div>
   )
 }
