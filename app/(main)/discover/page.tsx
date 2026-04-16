@@ -189,14 +189,22 @@ export default function DiscoverPage() {
                     >
                       View profile →
                     </Link>
-                    <ConnectButton
-                      targetUserId={user.id}
-                      initialStatus={user.connectionStatus}
-                      initialConnectionId={user.connectionId}
-                      onStatusChange={(status, connectionId) =>
-                        handleStatusChange(user.id, status, connectionId)
-                      }
-                    />
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/chat/${user.id}`}
+                        className="border-border text-foreground hover:bg-accent rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
+                      >
+                        Message
+                      </Link>
+                      <ConnectButton
+                        targetUserId={user.id}
+                        initialStatus={user.connectionStatus}
+                        initialConnectionId={user.connectionId}
+                        onStatusChange={(status, connectionId) =>
+                          handleStatusChange(user.id, status, connectionId)
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               )

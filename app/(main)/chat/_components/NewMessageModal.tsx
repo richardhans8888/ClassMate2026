@@ -116,9 +116,7 @@ export function NewMessageModal({ open, onClose, onSelectUser }: NewMessageModal
 
           {!loading && !error && filtered.length === 0 && (
             <p className="text-muted-foreground py-8 text-center text-sm">
-              {contacts.length === 0
-                ? 'No contacts yet — join a study group to message members.'
-                : 'No results match your search.'}
+              {contacts.length === 0 ? 'No other users found.' : 'No results match your search.'}
             </p>
           )}
 

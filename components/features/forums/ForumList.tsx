@@ -260,15 +260,13 @@ export function ForumList() {
             </div>
           )}
 
-          {totalPages > 1 && (
-            <PaginationControls
-              currentPage={page}
-              totalPages={totalPages}
-              onPrevious={() => setPage((p) => p - 1)}
-              onNext={() => setPage((p) => p + 1)}
-              isLoading={loading}
-            />
-          )}
+          <PaginationControls
+            currentPage={page}
+            totalPages={totalPages}
+            onPrevious={() => setPage((p) => p - 1)}
+            onNext={() => setPage((p) => p + 1)}
+            isLoading={loading}
+          />
         </div>
       </div>
     </div>

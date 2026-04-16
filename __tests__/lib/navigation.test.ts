@@ -12,6 +12,7 @@ describe('navigation config', () => {
       '/materials',
       '/schedule',
       '/ai-tutor',
+      '/discover',
       '/profile',
     ])
   })

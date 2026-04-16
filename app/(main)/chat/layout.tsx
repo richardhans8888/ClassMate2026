@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Search, Edit } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { NewMessageModal } from './_components/NewMessageModal'
 
 const AVATAR_COLORS = [
   'bg-violet-500',
@@ -64,10 +66,12 @@ function formatTime(value: string): string {
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [query, setQuery] = useState('')
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [newMessageOpen, setNewMessageOpen] = useState(false)
 
   async function loadConversations(silent = false) {
     if (!silent) setLoading(true)
@@ -121,13 +125,13 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         <div className="border-border border-b p-4">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-foreground text-xl font-bold">Messages</h2>
-            <Link
-              href="/chat/new"
+            <button
+              onClick={() => setNewMessageOpen(true)}
               className="text-muted-foreground hover:text-foreground rounded-lg p-1 transition-colors"
               aria-label="New message"
             >
               <Edit className="h-4 w-4" />
-            </Link>
+            </button>
           </div>
           <div className="relative">
             <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
@@ -204,6 +208,15 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
 
       {/* Main Content Area */}
       <div className="flex h-full flex-1 flex-col">{children}</div>
+
+      <NewMessageModal
+        open={newMessageOpen}
+        onClose={() => setNewMessageOpen(false)}
+        onSelectUser={(userId) => {
+          setNewMessageOpen(false)
+          router.push(`/chat/${userId}`)
+        }}
+      />
     </div>
   )
 }

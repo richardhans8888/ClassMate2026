@@ -13,6 +13,7 @@ import {
   Shield,
   UserCog,
   Menu,
+  Compass,
   type LucideIcon,
 } from 'lucide-react'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
@@ -30,6 +31,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   User,
   Shield,
   UserCog,
+  Compass,
 }
 
 interface SidebarProps {
