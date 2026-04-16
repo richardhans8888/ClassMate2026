@@ -52,6 +52,7 @@ model User {
   studyMaterials       StudyMaterial[]
   studyGroupsOwned     StudyGroup[]       @relation("owner")
   studyGroupMembers    StudyGroupMember[]
+  studyGroupMessages   StudyGroupMessage[]
   upvotedForumPosts    ForumPost[]        @relation("postUpvoters")
   upvotedReplies       ForumReply[]       @relation("replyUpvoters")
   sessions             Session[]
@@ -274,7 +275,8 @@ model StudyGroup {
   inviteCode  String?
   memberCount Int     @default(1)
 
-  members StudyGroupMember[]
+  members  StudyGroupMember[]
+  messages StudyGroupMessage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -298,6 +300,21 @@ model StudyGroupMember {
   @@unique([groupId, userId])
   @@index([groupId])
   @@index([userId])
+}
+
+model StudyGroupMessage {
+  id       String     @id @default(cuid())
+  groupId  String
+  group    StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  senderId String
+  sender   User       @relation(fields: [senderId], references: [id])
+
+  content String
+
+  createdAt DateTime @default(now())
+
+  @@index([groupId, createdAt])
+  @@index([senderId])
 }
 
 model FlaggedContent {

@@ -21,6 +21,7 @@ export async function GET(_req: NextRequest) {
       select: {
         id: true,
         email: true,
+        name: true,
         profile: {
           select: { displayName: true, avatarUrl: true },
         },
@@ -32,7 +33,7 @@ export async function GET(_req: NextRequest) {
     const contacts = users.map((u) => ({
       id: u.id,
       email: u.email,
-      displayName: u.profile?.displayName ?? null,
+      displayName: u.profile?.displayName ?? u.name ?? null,
       avatarUrl: u.profile?.avatarUrl ?? null,
     }))
 

@@ -47,6 +47,9 @@ export async function GET(_req: NextRequest) {
     for (const message of recentMessages) {
       const counterpartId = message.senderId === session.id ? message.recipientId : message.senderId
 
+      // Skip self-messages (stale legacy seed data or other edge cases)
+      if (counterpartId === session.id) continue
+
       const existing = byCounterpart.get(counterpartId)
       if (!existing) {
         byCounterpart.set(counterpartId, {
@@ -87,6 +90,7 @@ export async function GET(_req: NextRequest) {
       select: {
         id: true,
         email: true,
+        name: true,
         profile: {
           select: {
             displayName: true,
@@ -109,7 +113,7 @@ export async function GET(_req: NextRequest) {
           participant: {
             id: user.id,
             email: user.email,
-            displayName: user.profile?.displayName ?? null,
+            displayName: user.profile?.displayName ?? user.name ?? null,
             avatarUrl: user.profile?.avatarUrl ?? null,
           },
           lastMessage: summary.lastMessage,

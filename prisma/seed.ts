@@ -48,6 +48,7 @@ async function main() {
   await prisma.connection.deleteMany()
   await prisma.chatMessage.deleteMany()
   await prisma.chatSession.deleteMany()
+  await prisma.studyGroupMessage.deleteMany()
   await prisma.studyGroupMember.deleteMany()
   await prisma.studyMaterial.deleteMany()
   await prisma.studyGroup.deleteMany()
@@ -62,7 +63,7 @@ async function main() {
 
   // ── Users ──────────────────────────────────────────────────────────────────
   console.warn('  Creating users...')
-  const [alice, bob, carol, diana, evan, fiona, george, hannah, aiTutor] = await Promise.all([
+  const [alice, bob, carol, diana, evan, fiona, george, hannah] = await Promise.all([
     prisma.user.create({
       data: {
         email: 'alice@classmate.dev',
@@ -133,16 +134,6 @@ async function main() {
         image: avatarUrl('Hannah Johnson'),
         emailVerified: true,
         role: 'STUDENT',
-      },
-    }),
-    // System user for AI tutor chat messages
-    prisma.user.create({
-      data: {
-        email: 'ai-tutor@classmate.dev',
-        name: 'AI Tutor',
-        image: avatarUrl('AI Tutor'),
-        emailVerified: true,
-        role: 'ADMIN',
       },
     }),
   ])
@@ -1254,205 +1245,6 @@ async function main() {
     }),
   ])
 
-  // ── Chat Sessions & AI Tutor Messages ─────────────────────────────────────
-  console.warn('  Creating AI tutor chat sessions...')
-  const [sessionReact, sessionDB, sessionTS, sessionRecursion] = await Promise.all([
-    prisma.chatSession.create({
-      data: { userId: alice.id, title: 'React useEffect Questions', subject: 'React' },
-    }),
-    prisma.chatSession.create({
-      data: { userId: bob.id, title: 'Database Indexing Help', subject: 'Database' },
-    }),
-    prisma.chatSession.create({
-      data: { userId: fiona.id, title: 'TypeScript Generics Deep Dive', subject: 'TypeScript' },
-    }),
-    prisma.chatSession.create({
-      data: { userId: diana.id, title: 'Understanding Recursion', subject: 'Algorithms' },
-    }),
-  ])
-
-  await Promise.all([
-    // Alice's React session
-    prisma.chatMessage.create({
-      data: {
-        senderId: alice.id,
-        recipientId: aiTutor.id,
-        sessionId: sessionReact.id,
-        content:
-          "Why does my React component re-render so many times? I'm updating state in a loop.",
-        role: 'user',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: aiTutor.id,
-        recipientId: alice.id,
-        sessionId: sessionReact.id,
-        content:
-          'This usually happens when state updates trigger the component to re-render, which then triggers more state updates. A few things to check:\n\n1. **Are you updating state inside useEffect without proper dependencies?** An empty dependency array `[]` runs once; without it, it runs on every render.\n2. **Are you creating new objects/arrays inline in JSX?** These create new references on every render and can cause child components to re-render unnecessarily.\n3. **Use React DevTools Profiler** to identify which state change is triggering the re-render chain.',
-        role: 'assistant',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: alice.id,
-        recipientId: aiTutor.id,
-        sessionId: sessionReact.id,
-        content:
-          'That makes sense! I think I was missing the dependency array. What should I put in it?',
-        role: 'user',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: aiTutor.id,
-        recipientId: alice.id,
-        sessionId: sessionReact.id,
-        content:
-          "The dependency array should include every value from the component scope that the effect reads. A good rule of thumb:\n\n- Include all state variables and props the effect uses\n- Include all functions called inside the effect (or define them inside the effect)\n- If the effect should only run once on mount, use `[]`\n\nThe ESLint plugin `eslint-plugin-react-hooks` will warn you if you're missing dependencies — I'd recommend installing it.",
-        role: 'assistant',
-        isRead: true,
-      },
-    }),
-
-    // Bob's Database session
-    prisma.chatMessage.create({
-      data: {
-        senderId: bob.id,
-        recipientId: aiTutor.id,
-        sessionId: sessionDB.id,
-        content: 'What is a database index and when should I add one?',
-        role: 'user',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: aiTutor.id,
-        recipientId: bob.id,
-        sessionId: sessionDB.id,
-        content:
-          'A database index is a data structure (usually a B-tree) that improves the speed of data retrieval at the cost of additional storage and slower writes.\n\n**When to add an index:**\n- Columns frequently used in `WHERE` clauses\n- Columns used in `JOIN` conditions\n- Columns used in `ORDER BY` or `GROUP BY`\n- Foreign key columns\n\n**When NOT to add an index:**\n- Small tables (full scan is faster)\n- Columns with low cardinality (e.g. a boolean column)\n- Tables with very frequent INSERT/UPDATE/DELETE operations\n\nUse `EXPLAIN ANALYZE` in PostgreSQL to see if your queries are using indexes.',
-        role: 'assistant',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: bob.id,
-        recipientId: aiTutor.id,
-        sessionId: sessionDB.id,
-        content: 'How do I create an index in PostgreSQL?',
-        role: 'user',
-        isRead: false,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: aiTutor.id,
-        recipientId: bob.id,
-        sessionId: sessionDB.id,
-        content:
-          '```sql\n-- Basic index on a single column\nCREATE INDEX idx_users_email ON users(email);\n\n-- Unique index (also enforces uniqueness)\nCREATE UNIQUE INDEX idx_users_email_unique ON users(email);\n\n-- Composite index (order matters — put the most selective column first)\nCREATE INDEX idx_posts_user_created ON forum_posts(user_id, created_at);\n\n-- Partial index (only index rows that match a condition)\nCREATE INDEX idx_posts_published ON forum_posts(created_at) WHERE is_deleted = false;\n```\n\nAlways test with `EXPLAIN ANALYZE` before and after to confirm the index is being used.',
-        role: 'assistant',
-        isRead: false,
-      },
-    }),
-
-    // Fiona's TypeScript generics session
-    prisma.chatMessage.create({
-      data: {
-        senderId: fiona.id,
-        recipientId: aiTutor.id,
-        sessionId: sessionTS.id,
-        content:
-          "Can you explain TypeScript generics? I understand the basic syntax but I'm not sure when to actually use them.",
-        role: 'user',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: aiTutor.id,
-        recipientId: fiona.id,
-        sessionId: sessionTS.id,
-        content:
-          "Generics let you write functions and classes that work with any type while still being type-safe. The key question is: **does the output type depend on the input type?** If yes, use generics.\n\n```typescript\n// Without generics — loses type information\nfunction first(arr: any[]): any {\n  return arr[0]\n}\n\n// With generics — type flows through\nfunction first<T>(arr: T[]): T | undefined {\n  return arr[0]\n}\n\nconst num = first([1, 2, 3])       // TypeScript knows: number | undefined\nconst str = first(['a', 'b', 'c']) // TypeScript knows: string | undefined\n```\n\nCommon use cases:\n- Utility functions (first, last, filter, map)\n- API response wrappers: `ApiResponse<User>`, `ApiResponse<Post>`\n- React components that accept typed data: `List<T>`",
-        role: 'assistant',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: fiona.id,
-        recipientId: aiTutor.id,
-        sessionId: sessionTS.id,
-        content: 'That makes sense! What about generic constraints — when do I use `extends`?',
-        role: 'user',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: aiTutor.id,
-        recipientId: fiona.id,
-        sessionId: sessionTS.id,
-        content:
-          'Use `extends` when your function needs to access a specific property on the generic type:\n\n```typescript\n// Without constraint — TypeScript doesn\'t know T has .length\nfunction logLength<T>(value: T) {\n  console.log(value.length) // Error!\n}\n\n// With constraint — T must have a length property\nfunction logLength<T extends { length: number }>(value: T) {\n  console.log(value.length) // Works!\n}\n\nlogLength("hello")   // 5\nlogLength([1, 2, 3]) // 3\nlogLength(42)        // Error — number has no .length\n```\n\nAnother common pattern: `keyof` constraint to ensure type-safe property access:\n\n```typescript\nfunction getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key]\n}\n```',
-        role: 'assistant',
-        isRead: false,
-      },
-    }),
-
-    // Diana's recursion session
-    prisma.chatMessage.create({
-      data: {
-        senderId: diana.id,
-        recipientId: aiTutor.id,
-        sessionId: sessionRecursion.id,
-        content:
-          "I keep reading about recursion but I just don't get it. Can you explain it simply?",
-        role: 'user',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: aiTutor.id,
-        recipientId: diana.id,
-        sessionId: sessionRecursion.id,
-        content:
-          'Recursion is when a function calls itself to solve a smaller version of the same problem. Every recursive function needs two things:\n\n1. **Base case** — when to stop (no more self-calling)\n2. **Recursive case** — call yourself with a smaller input\n\n```python\ndef factorial(n):\n    # Base case: stop here\n    if n <= 1:\n        return 1\n    # Recursive case: n! = n × (n-1)!\n    return n * factorial(n - 1)\n\nfactorial(4)\n# → 4 * factorial(3)\n# → 4 * 3 * factorial(2)\n# → 4 * 3 * 2 * factorial(1)\n# → 4 * 3 * 2 * 1  ← base case reached\n# → 24\n```\n\nMental model: **trust that the function works for smaller inputs**, then figure out how to reduce your current problem to a smaller one.',
-        role: 'assistant',
-        isRead: true,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: diana.id,
-        recipientId: aiTutor.id,
-        sessionId: sessionRecursion.id,
-        content: 'OK that makes sense for factorial. But how do I apply this to trees?',
-        role: 'user',
-        isRead: false,
-      },
-    }),
-    prisma.chatMessage.create({
-      data: {
-        senderId: aiTutor.id,
-        recipientId: diana.id,
-        sessionId: sessionRecursion.id,
-        content:
-          "Trees are actually the most natural use of recursion because **a tree is made of smaller trees**. Each node is the root of its own subtree.\n\n```python\nclass Node:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef sum_tree(node):\n    # Base case: empty node contributes 0\n    if node is None:\n        return 0\n    # Recursive case: this node + sum of left subtree + sum of right subtree\n    return node.val + sum_tree(node.left) + sum_tree(node.right)\n```\n\nThe key insight: **you don't need to think about the whole tree**. Just think about what to do with the current node, then trust the recursive calls to handle everything else.",
-        role: 'assistant',
-        isRead: false,
-      },
-    }),
-  ])
-
   // ── Direct Messages ────────────────────────────────────────────────────────
   console.warn('  Creating direct messages...')
   await Promise.all([
@@ -1532,160 +1324,118 @@ async function main() {
   console.warn('  Creating study group messages...')
   await Promise.all([
     // React group chat
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupReact.id,
         senderId: carol.id,
-        recipientId: carol.id,
         content:
           "Welcome everyone! This week we're covering custom hooks. Please read the React docs section on hooks before our session.",
-        role: 'user',
-        messageType: `group:${groupReact.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupReact.id,
         senderId: alice.id,
-        recipientId: alice.id,
         content: 'Done! I had a question about useCallback vs useMemo — can we cover that too?',
-        role: 'user',
-        messageType: `group:${groupReact.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupReact.id,
         senderId: fiona.id,
-        recipientId: fiona.id,
         content:
           'Same question as Alice! Also, can someone share the Codesandbox link from last week?',
-        role: 'user',
-        messageType: `group:${groupReact.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupReact.id,
         senderId: carol.id,
-        recipientId: carol.id,
         content:
           "Great questions! Yes, we'll cover useCallback vs useMemo. Here's last week's sandbox: https://codesandbox.io/s/hooks-demo-2026",
-        role: 'user',
-        messageType: `group:${groupReact.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupReact.id,
         senderId: diana.id,
-        recipientId: diana.id,
         content:
           'Thanks Carol! Should we also bring our current projects? I have a component with serious re-render issues.',
-        role: 'user',
-        messageType: `group:${groupReact.id}`,
-        isRead: false,
       },
     }),
 
     // Algorithm group chat
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupAlgo.id,
         senderId: george.id,
-        recipientId: george.id,
         content:
           "Tonight's problems: binary tree level-order traversal (BFS) and longest common subsequence. Medium difficulty both.",
-        role: 'user',
-        messageType: `group:${groupAlgo.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupAlgo.id,
         senderId: bob.id,
-        recipientId: bob.id,
         content:
           'I managed BFS but DP is still tricky for me. Will we walk through the recurrence relation?',
-        role: 'user',
-        messageType: `group:${groupAlgo.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupAlgo.id,
         senderId: fiona.id,
-        recipientId: fiona.id,
         content:
           'Same — DP is my weak spot. George do you have a template you use for these problems?',
-        role: 'user',
-        messageType: `group:${groupAlgo.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupAlgo.id,
         senderId: george.id,
-        recipientId: george.id,
         content:
           "Yes! I'll share my DP problem-solving template at the start of the session. See you all at 6pm!",
-        role: 'user',
-        messageType: `group:${groupAlgo.id}`,
-        isRead: false,
       },
     }),
 
     // Database group chat
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupDB.id,
         senderId: evan.id,
-        recipientId: evan.id,
         content:
           'Reminder: bring your schema designs for review this Thursday. No judgement — the messier the better for learning!',
-        role: 'user',
-        messageType: `group:${groupDB.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupDB.id,
         senderId: george.id,
-        recipientId: george.id,
         content:
           "I'll bring the normalisation exercise I've been working on. It's a nightmare right now — lots of redundancy.",
-        role: 'user',
-        messageType: `group:${groupDB.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupDB.id,
         senderId: alice.id,
-        recipientId: alice.id,
         content:
           "Mine too! I have a many-to-many relationship I can't figure out how to model cleanly.",
-        role: 'user',
-        messageType: `group:${groupDB.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupDB.id,
         senderId: hannah.id,
-        recipientId: hannah.id,
         content: 'Quick question — is 3NF always the goal or sometimes 2NF is fine?',
-        role: 'user',
-        messageType: `group:${groupDB.id}`,
-        isRead: true,
       },
     }),
-    prisma.chatMessage.create({
+    prisma.studyGroupMessage.create({
       data: {
+        groupId: groupDB.id,
         senderId: evan.id,
-        recipientId: evan.id,
         content:
           "Great question Hannah! Short answer: OLTP systems aim for 3NF, analytical/read-heavy systems sometimes denormalise intentionally. We'll cover this Thursday.",
-        role: 'user',
-        messageType: `group:${groupDB.id}`,
-        isRead: false,
       },
     }),
   ])

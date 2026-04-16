@@ -36,6 +36,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
       select: {
         id: true,
         email: true,
+        name: true,
         profile: {
           select: {
             displayName: true,
@@ -92,7 +93,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
       participant: {
         id: targetUser.id,
         email: targetUser.email,
-        displayName: targetUser.profile?.displayName ?? null,
+        displayName: targetUser.profile?.displayName ?? targetUser.name ?? null,
         avatarUrl: targetUser.profile?.avatarUrl ?? null,
       },
       messages: ordered,

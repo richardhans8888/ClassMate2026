@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState, use } from 'react'
+import { useCallback, useEffect, useRef, useState, use } from 'react'
 import { Button } from '@/components/ui/button'
-import { Send, ArrowLeft, Loader2 } from 'lucide-react'
+import { Send, ArrowLeft, Loader2, Users } from 'lucide-react'
 import Link from 'next/link'
 
 const AVATAR_COLORS = [
@@ -28,20 +28,24 @@ function getAvatarColor(seed: string): string {
 
 const POLL_INTERVAL_MS = 5000
 
-type Message = {
+type GroupMessage = {
   id: string
   senderId: string
-  recipientId: string
   content: string
-  isRead: boolean
   createdAt: string
+  sender: {
+    id: string
+    displayName: string
+    avatarUrl: string | null
+  }
 }
 
-type Participant = {
+type Group = {
   id: string
-  email: string
-  displayName: string | null
-  avatarUrl: string | null
+  name: string
+  subject: string
+  memberCount: number
+  ownerId: string
 }
 
 function formatMessageTime(value: string): string {
@@ -50,33 +54,27 @@ function formatMessageTime(value: string): string {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-export default function ChatConversationPage({ params }: { params: Promise<{ userId: string }> }) {
-  const { userId } = use(params)
-  const [participant, setParticipant] = useState<Participant | null>(null)
-  const [messages, setMessages] = useState<Message[]>([])
+export default function GroupChatPage({ params }: { params: Promise<{ groupId: string }> }) {
+  const { groupId } = use(params)
+  const [group, setGroup] = useState<Group | null>(null)
+  const [messages, setMessages] = useState<GroupMessage[]>([])
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [input, setInput] = useState('')
   const messagesContainerRef = useRef<HTMLDivElement | null>(null)
 
-  const participantName = useMemo(() => {
-    if (!participant) return 'Conversation'
-    return participant.displayName ?? participant.email
-  }, [participant])
-
-  const participantInitial = participantName.charAt(0).toUpperCase() || 'U'
-
-  const loadThread = useCallback(
+  const loadMessages = useCallback(
     async (silent = false) => {
       if (!silent) setLoading(true)
       try {
-        const res = await fetch(`/api/messages/conversations/${userId}?limit=50`, {
+        const res = await fetch(`/api/study-groups/${groupId}/messages?limit=50`, {
           cache: 'no-store',
         })
         const data = (await res.json()) as {
-          participant?: Participant
-          messages?: Message[]
+          group?: Group
+          messages?: GroupMessage[]
           error?: string
         }
 
@@ -85,7 +83,7 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
           return
         }
 
-        setParticipant(data.participant ?? null)
+        setGroup(data.group ?? null)
         setMessages(data.messages ?? [])
         setError(null)
       } catch {
@@ -94,16 +92,37 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
         if (!silent) setLoading(false)
       }
     },
-    [userId]
+    [groupId]
   )
 
-  const markRead = useCallback(async () => {
-    try {
-      await fetch(`/api/messages/conversations/${userId}/read`, { method: 'POST' })
-    } catch {
-      // Ignore read-state update failures to avoid blocking thread usage.
+  // Fetch current user id from session
+  useEffect(() => {
+    fetch('/api/user/me')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { id?: string } | null) => {
+        if (data?.id) setCurrentUserId(data.id)
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (!groupId) return
+    void loadMessages()
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        void loadMessages(true)
+      }
+    }, POLL_INTERVAL_MS)
+
+    return () => window.clearInterval(intervalId)
+  }, [loadMessages, groupId])
+
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
     }
-  }, [userId])
+  }, [messages])
 
   async function handleSendMessage() {
     const content = input.trim()
@@ -112,13 +131,13 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
     setSending(true)
     setError(null)
     try {
-      const res = await fetch(`/api/messages/conversations/${userId}`, {
+      const res = await fetch(`/api/study-groups/${groupId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
       })
       const data = (await res.json()) as {
-        message?: Message
+        message?: GroupMessage
         error?: string
       }
 
@@ -127,7 +146,7 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
         return
       }
 
-      setMessages((prev) => [...prev, data.message as Message])
+      setMessages((prev) => [...prev, data.message as GroupMessage])
       setInput('')
     } catch {
       setError('Unable to send message.')
@@ -136,25 +155,8 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
     }
   }
 
-  useEffect(() => {
-    if (!userId) return
-    void loadThread()
-    void markRead()
-
-    const intervalId = window.setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        void loadThread(true)
-      }
-    }, POLL_INTERVAL_MS)
-
-    return () => window.clearInterval(intervalId)
-  }, [loadThread, markRead, userId])
-
-  useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
-    }
-  }, [messages])
+  const groupInitial = group?.name?.charAt(0).toUpperCase() ?? 'G'
+  const groupColor = group ? getAvatarColor(group.name) : 'bg-violet-500'
 
   return (
     <div className="bg-card flex h-full flex-col">
@@ -167,15 +169,24 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
             </Button>
           </Link>
           <div
-            className={`${getAvatarColor(participantName)} flex h-10 w-10 items-center justify-center rounded-full font-bold text-white`}
+            className={`${groupColor} flex h-10 w-10 items-center justify-center rounded-full font-bold text-white`}
           >
-            {participantInitial}
+            {groupInitial}
           </div>
           <div>
-            <h3 className="text-foreground font-semibold">{participantName}</h3>
-            <span className="text-muted-foreground text-xs">Direct messages</span>
+            <h3 className="text-foreground font-semibold">{group?.name ?? 'Group Chat'}</h3>
+            <span className="text-muted-foreground flex items-center gap-1 text-xs">
+              <Users className="h-3 w-3" />
+              {group?.memberCount ?? '...'} members · {group?.subject ?? ''}
+            </span>
           </div>
         </div>
+        <Link
+          href={`/groups`}
+          className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+        >
+          View group
+        </Link>
       </div>
 
       {/* Chat Messages */}
@@ -195,31 +206,55 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
 
         {!loading && !error && messages.length === 0 && (
           <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
-            No messages yet. Start the conversation.
+            No messages yet. Say hello to the group!
           </div>
         )}
 
         {!loading &&
           messages.map((msg) => {
-            const isMe = msg.senderId !== userId
+            const isMe = currentUserId !== null && msg.senderId === currentUserId
+            const senderInitial = msg.sender.displayName.charAt(0).toUpperCase() || 'U'
+            const senderColor = getAvatarColor(msg.sender.displayName)
+
             return (
-              <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                <div
-                  className={`max-w-[75%] rounded-2xl px-4 py-2 shadow-sm ${
-                    isMe
-                      ? 'bg-primary text-primary-foreground rounded-br-none'
-                      : 'border-border bg-card text-foreground rounded-bl-none border'
-                  }`}
-                >
-                  <p className="text-sm break-words whitespace-pre-wrap">{msg.content}</p>
-                  <p
-                    className={`mt-1 text-right text-[10px] ${
-                      isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
+              <div key={msg.id} className={`flex gap-2 ${isMe ? 'justify-end' : 'justify-start'}`}>
+                {!isMe && (
+                  <div
+                    className={`${senderColor} mt-1 flex h-8 w-8 shrink-0 items-center justify-center self-end rounded-full text-xs font-bold text-white`}
+                  >
+                    {senderInitial}
+                  </div>
+                )}
+                <div className={`flex max-w-[75%] flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                  {!isMe && (
+                    <span className="text-muted-foreground mb-1 text-xs font-medium">
+                      {msg.sender.displayName}
+                    </span>
+                  )}
+                  <div
+                    className={`rounded-2xl px-4 py-2 shadow-sm ${
+                      isMe
+                        ? 'bg-primary text-primary-foreground rounded-br-none'
+                        : 'border-border bg-card text-foreground rounded-bl-none border'
                     }`}
                   >
-                    {formatMessageTime(msg.createdAt)}
-                  </p>
+                    <p className="text-sm break-words whitespace-pre-wrap">{msg.content}</p>
+                    <p
+                      className={`mt-1 text-right text-[10px] ${
+                        isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {formatMessageTime(msg.createdAt)}
+                    </p>
+                  </div>
                 </div>
+                {isMe && (
+                  <div
+                    className={`${senderColor} mt-1 flex h-8 w-8 shrink-0 items-center justify-center self-end rounded-full text-xs font-bold text-white`}
+                  >
+                    {senderInitial}
+                  </div>
+                )}
               </div>
             )
           })}

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
   MessageSquare,
@@ -14,12 +14,17 @@ import {
   UserCog,
   Menu,
   Compass,
+  BookOpen,
+  LogOut,
   type LucideIcon,
 } from 'lucide-react'
+import { useState } from 'react'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { getNavigationBySection, type NavigationItem, type SidebarSection } from '@/lib/navigation'
 import { useUserRole } from '@/lib/contexts/user-role-context'
 import { cn } from '@/lib/utils'
+import { authClient } from '@/lib/auth-client'
+import { toast } from 'sonner'
 
 const ICON_MAP: Record<string, LucideIcon> = {
   LayoutDashboard,
@@ -32,6 +37,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Shield,
   UserCog,
   Compass,
+  BookOpen,
 }
 
 interface SidebarProps {
@@ -120,6 +126,44 @@ function NavGroup({
   )
 }
 
+function SidebarLogout({ collapsed }: { collapsed: boolean }) {
+  const router = useRouter()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    setIsLoggingOut(true)
+    try {
+      await authClient.signOut()
+      const res = await fetch('/api/logout', { method: 'POST' })
+      if (!res.ok) throw new Error('Failed to clear session')
+      toast.success('Successfully signed out')
+      router.push('/login')
+      router.refresh()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Something went wrong')
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  return (
+    <div className="px-2 pb-3">
+      <button
+        onClick={handleLogout}
+        disabled={isLoggingOut}
+        title="Sign out"
+        className={cn(
+          'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground flex h-10 w-full items-center rounded-lg transition-colors duration-150 disabled:opacity-50',
+          collapsed ? 'justify-center' : 'gap-2 px-2'
+        )}
+      >
+        <LogOut className="h-5 w-5 shrink-0" />
+        {!collapsed && <span className="text-sm font-medium">Sign out</span>}
+      </button>
+    </div>
+  )
+}
+
 function SidebarContent({
   collapsed,
   onToggleCollapse,
@@ -162,6 +206,9 @@ function SidebarContent({
           />
         ))}
       </nav>
+
+      {/* Logout */}
+      <SidebarLogout collapsed={collapsed} />
     </div>
   )
 }
