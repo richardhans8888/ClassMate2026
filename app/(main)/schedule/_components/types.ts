@@ -38,6 +38,7 @@ export function formatEventTime(startTime?: string | null, endTime?: string | nu
 }
 
 export function mapApiEvent(event: ApiEvent): EventItem {
+  const isStoredColor = event.category?.startsWith('bg-') ?? false
   return {
     id: event.id,
     date: new Date(event.date).toISOString().slice(0, 10),
@@ -46,6 +47,6 @@ export function mapApiEvent(event: ApiEvent): EventItem {
     startTime: event.startTime,
     endTime: event.endTime,
     category: event.category,
-    color: colorFromCategory(event.category),
+    color: isStoredColor ? event.category! : colorFromCategory(event.category),
   }
 }

@@ -19,21 +19,59 @@ interface EventDialogProps {
   title: string
   startTime: string
   endTime: string
-  category: string
-  description: string
   color: string
   saving: boolean
   onTitleChange: (v: string) => void
   onStartTimeChange: (v: string) => void
   onEndTimeChange: (v: string) => void
-  onCategoryChange: (v: string) => void
-  onDescriptionChange: (v: string) => void
   onColorChange: (v: string) => void
   onSave: () => void
 }
 
 const inputClass =
   'w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground'
+
+function clampTime(raw: string): string {
+  const digits = raw.replace(/\D/g, '')
+  if (digits.length < 4) return raw
+  const hh = Math.min(parseInt(digits.slice(0, 2), 10), 23)
+  const mm = Math.min(parseInt(digits.slice(2, 4), 10), 59)
+  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+}
+
+function formatTimeInput(prev: string, next: string): string {
+  // Strip non-digits
+  const digits = next.replace(/\D/g, '')
+  if (digits.length === 0) return ''
+  if (digits.length <= 2) return digits
+  return `${digits.slice(0, 2)}:${digits.slice(2, 4)}`
+}
+
+interface TimeInputProps {
+  value: string
+  onChange: (v: string) => void
+  label: string
+}
+
+function TimeInput({ value, onChange, label }: TimeInputProps) {
+  return (
+    <div className="relative flex-1">
+      <input
+        type="text"
+        inputMode="numeric"
+        placeholder="HH:MM"
+        value={value}
+        onChange={(e) => onChange(formatTimeInput(value, e.target.value))}
+        onBlur={() => {
+          if (value && value.length > 0) onChange(clampTime(value))
+        }}
+        maxLength={5}
+        className={`${inputClass} w-full`}
+        aria-label={label}
+      />
+    </div>
+  )
+}
 
 export function EventDialog({
   open,
@@ -43,15 +81,11 @@ export function EventDialog({
   title,
   startTime,
   endTime,
-  category,
-  description,
   color,
   saving,
   onTitleChange,
   onStartTimeChange,
   onEndTimeChange,
-  onCategoryChange,
-  onDescriptionChange,
   onColorChange,
   onSave,
 }: EventDialogProps) {
@@ -71,30 +105,10 @@ export function EventDialog({
             onChange={(e) => onTitleChange(e.target.value)}
             className={inputClass}
           />
-          <input
-            placeholder="Start time (e.g. 09:00)"
-            value={startTime}
-            onChange={(e) => onStartTimeChange(e.target.value)}
-            className={inputClass}
-          />
-          <input
-            placeholder="End time (e.g. 10:00)"
-            value={endTime}
-            onChange={(e) => onEndTimeChange(e.target.value)}
-            className={inputClass}
-          />
-          <input
-            placeholder="Category (e.g. math, cs)"
-            value={category}
-            onChange={(e) => onCategoryChange(e.target.value)}
-            className={inputClass}
-          />
-          <input
-            placeholder="Description (optional)"
-            value={description}
-            onChange={(e) => onDescriptionChange(e.target.value)}
-            className={inputClass}
-          />
+          <div className="flex gap-2">
+            <TimeInput value={startTime} onChange={onStartTimeChange} label="Start time" />
+            <TimeInput value={endTime} onChange={onEndTimeChange} label="End time" />
+          </div>
           <div className="flex items-center gap-2">
             {COLOR_OPTIONS.map((c) => (
               <button

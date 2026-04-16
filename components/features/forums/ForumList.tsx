@@ -12,7 +12,6 @@ interface ForumPost {
   id: string
   title: string
   content: string
-  category: string
   views: number
   upvotes: number
   hasUpvoted: boolean
@@ -34,7 +33,6 @@ interface ForumPost {
 interface RecommendedThread {
   id: string
   title: string
-  category: string
   reason: string
 }
 
@@ -180,9 +178,7 @@ export function ForumList() {
                     className="border-border hover:border-primary block rounded-lg border px-3 py-2 transition-colors"
                   >
                     <p className="text-foreground text-sm font-medium">{recommendation.title}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {recommendation.category} • {recommendation.reason}
-                    </p>
+                    <p className="text-muted-foreground text-xs">{recommendation.reason}</p>
                   </Link>
                 ))}
               </div>
@@ -248,7 +244,6 @@ export function ForumList() {
                   author={
                     post.user.profile?.displayName ?? post.user.email.split('@')[0] ?? 'Anonymous'
                   }
-                  category={post.category}
                   replies={post._count.replies}
                   views={post.views}
                   upvotes={post.upvotes}

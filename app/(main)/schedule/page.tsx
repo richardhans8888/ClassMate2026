@@ -7,7 +7,7 @@ import { CalendarHeader } from './_components/CalendarHeader'
 import { CalendarGrid } from './_components/CalendarGrid'
 import { EventList } from './_components/EventList'
 import { EventDialog } from './_components/EventDialog'
-import { colorFromCategory, mapApiEvent } from './_components/types'
+import { mapApiEvent } from './_components/types'
 import type { EventItem, ApiEvent } from './_components/types'
 
 export default function MySchedulePage() {
@@ -25,8 +25,6 @@ export default function MySchedulePage() {
   const [title, setTitle] = useState('')
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
-  const [category, setCategory] = useState('math')
-  const [description, setDescription] = useState('')
   const [color, setColor] = useState('bg-primary')
 
   const monthMatrix = useMemo(() => buildMonthMatrix(current.year, current.month), [current])
@@ -64,8 +62,6 @@ export default function MySchedulePage() {
     setTitle('')
     setStartTime('')
     setEndTime('')
-    setDescription('')
-    setCategory('math')
     setColor('bg-primary')
     setOpen(true)
   }
@@ -76,8 +72,6 @@ export default function MySchedulePage() {
     setTitle(event.title)
     setStartTime(event.startTime ?? '')
     setEndTime(event.endTime ?? '')
-    setDescription(event.description ?? '')
-    setCategory(event.category ?? 'math')
     setColor(event.color)
     setOpen(true)
   }
@@ -103,11 +97,10 @@ export default function MySchedulePage() {
 
     const body = {
       title: title.trim(),
-      description: description.trim() || null,
       date: new Date(`${draftDate}T00:00:00.000Z`).toISOString(),
       startTime: normalizedStartTime || null,
       endTime: normalizedEndTime || null,
-      category: category.trim() || null,
+      category: color,
     }
 
     try {
@@ -168,12 +161,6 @@ export default function MySchedulePage() {
     setCurrent({ year: d.getFullYear(), month: d.getMonth() })
   }
 
-  // Keep color in sync when category changes
-  function handleCategoryChange(v: string) {
-    setCategory(v)
-    setColor(colorFromCategory(v))
-  }
-
   return (
     <div className="bg-background">
       <div className="px-4 py-4 sm:px-6 md:px-12 lg:px-16">
@@ -228,15 +215,11 @@ export default function MySchedulePage() {
           title={title}
           startTime={startTime}
           endTime={endTime}
-          category={category}
-          description={description}
           color={color}
           saving={saving}
           onTitleChange={setTitle}
           onStartTimeChange={setStartTime}
           onEndTimeChange={setEndTime}
-          onCategoryChange={handleCategoryChange}
-          onDescriptionChange={setDescription}
           onColorChange={setColor}
           onSave={() => void saveEvent()}
         />

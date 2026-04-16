@@ -14,7 +14,6 @@ interface Post {
   id: string
   title: string
   content: string
-  category: string
   views: number
   upvotes: number
   hasUpvoted: boolean

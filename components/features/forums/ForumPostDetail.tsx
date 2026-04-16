@@ -11,7 +11,6 @@ interface ForumPostDetailProps {
     id: string
     title: string
     content: string
-    category: string
     views: number
     upvotes: number
     hasUpvoted: boolean
@@ -53,9 +52,6 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="bg-accent text-accent-foreground rounded px-2.5 py-0.5 text-xs font-semibold">
-              {post.category}
-            </span>
             <RoleGate allowedRoles={['MODERATOR', 'ADMIN']}>
               <ModeratorContentActions contentId={post.id} contentType="post" />
             </RoleGate>

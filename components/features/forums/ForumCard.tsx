@@ -6,7 +6,6 @@ interface ForumCardProps {
   id: number | string
   title: string
   author: string
-  category: string
   replies: number
   views: number
   upvotes: number
@@ -19,7 +18,6 @@ export function ForumCard({
   id,
   title,
   author,
-  category,
   replies,
   views,
   upvotes,
@@ -29,15 +27,10 @@ export function ForumCard({
 }: ForumCardProps) {
   return (
     <div className="border-border bg-card rounded-xl border p-6 transition-shadow hover:shadow-md">
-      <div className="mb-2 flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          <span className="bg-accent text-accent-foreground rounded px-2.5 py-0.5 text-xs font-semibold">
-            {category}
-          </span>
-          <span className="text-muted-foreground text-xs">
-            • Posted by {author} • {createdAt}
-          </span>
-        </div>
+      <div className="mb-2">
+        <span className="text-muted-foreground text-xs">
+          Posted by {author} • {createdAt}
+        </span>
       </div>
 
       <h3 className="text-foreground hover:text-primary mb-2 cursor-pointer text-xl font-semibold">

@@ -49,17 +49,14 @@ export async function POST(req: NextRequest) {
     const limited = await checkRateLimit(user.id, writeLimiter)
     if (limited) return limited
 
-    const { title, content, category, tags } = await req.json()
+    const { title, content, tags } = await req.json()
 
-    if (!title || !content || !category) {
-      return NextResponse.json(
-        { error: 'title, content, and category are required' },
-        { status: 400 }
-      )
+    if (!title || !content) {
+      return NextResponse.json({ error: 'title and content are required' }, { status: 400 })
     }
 
     try {
-      const result = await createForumPost(user.id, { title, content, category, tags })
+      const result = await createForumPost(user.id, { title, content, category: 'general', tags })
       return NextResponse.json(
         { post: result.data, ...(result.warning && { warning: result.warning }) },
         { status: 201 }

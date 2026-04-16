@@ -11,14 +11,13 @@ export default function CreateForumPostPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [title, setTitle] = useState('')
-  const [category, setCategory] = useState('')
   const [tags, setTags] = useState('')
   const [content, setContent] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!title.trim() || !content.trim() || !category) {
+    if (!title.trim() || !content.trim()) {
       toast.error('Please fill in all required fields')
       return
     }
@@ -32,7 +31,6 @@ export default function CreateForumPostPage() {
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),
-          category,
           tags: tags
             ? tags
                 .split(',')
@@ -101,44 +99,19 @@ export default function CreateForumPostPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <label htmlFor="category" className="text-foreground mb-1 block text-sm font-medium">
-                Category
-              </label>
-              <select
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="border-border bg-muted text-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
-                disabled={loading}
-              >
-                <option value="">Select a category</option>
-                <option value="math">Mathematics</option>
-                <option value="cs">Computer Science</option>
-                <option value="physics">Physics</option>
-                <option value="chemistry">Chemistry</option>
-                <option value="biology">Biology</option>
-                <option value="history">History</option>
-                <option value="literature">Literature</option>
-                <option value="languages">Languages</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="tags" className="text-foreground mb-1 block text-sm font-medium">
-                Tags (comma separated)
-              </label>
-              <input
-                type="text"
-                id="tags"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="e.g., calculus, homework, derivatives"
-                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
-                disabled={loading}
-              />
-            </div>
+          <div>
+            <label htmlFor="tags" className="text-foreground mb-1 block text-sm font-medium">
+              Tags (comma separated)
+            </label>
+            <input
+              type="text"
+              id="tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="e.g., calculus, homework, derivatives"
+              className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
+              disabled={loading}
+            />
           </div>
 
           <div>
