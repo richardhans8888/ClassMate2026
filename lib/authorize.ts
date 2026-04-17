@@ -29,17 +29,24 @@ export async function requireRole(
 }
 
 /**
- * Check if user is an admin
+ * Check if user is an admin or owner
  */
 export async function requireAdmin(session: SessionUser): Promise<boolean> {
-  return requireRole(session, ['ADMIN'])
+  return requireRole(session, ['ADMIN', 'OWNER'])
 }
 
 /**
- * Check if user is a moderator (MODERATOR or ADMIN)
+ * Check if user is a moderator (MODERATOR, ADMIN, or OWNER)
  */
 export async function requireModerator(session: SessionUser): Promise<boolean> {
-  return requireRole(session, ['MODERATOR', 'ADMIN'])
+  return requireRole(session, ['MODERATOR', 'ADMIN', 'OWNER'])
+}
+
+/**
+ * Check if user is an owner
+ */
+export async function requireOwner(session: SessionUser): Promise<boolean> {
+  return requireRole(session, ['OWNER'])
 }
 
 /**

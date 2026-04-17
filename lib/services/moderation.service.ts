@@ -56,13 +56,6 @@ export class InvalidResolutionActionError extends Error {
   }
 }
 
-// Map contentType string to ModerationTargetType enum
-const CONTENT_TYPE_TO_TARGET: Record<AllowedContentType, ModerationTargetType> = {
-  post: ModerationTargetType.ForumPost,
-  reply: ModerationTargetType.ForumReply,
-  material: ModerationTargetType.StudyMaterial,
-}
-
 // --- Private helpers ---
 
 async function getContentAuthorId(
@@ -197,5 +190,3 @@ export async function listFlaggedContent(status?: string, limit = 100) {
   })
   return { flags }
 }
-
-export { CONTENT_TYPE_TO_TARGET }

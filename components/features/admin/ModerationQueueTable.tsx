@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Bot } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -26,6 +25,8 @@ export interface EnrichedFlag {
 
 interface ModerationQueueTableProps {
   flags: EnrichedFlag[]
+  onRemoveFlag: (flagId: string) => void
+  onActionSuccess?: () => Promise<void>
 }
 
 function contentTypeLabel(contentType: string): string {
@@ -39,9 +40,11 @@ function isAiFlag(reason: string): boolean {
   return reason.startsWith('AI auto-flag:')
 }
 
-export function ModerationQueueTable({ flags: initialFlags }: ModerationQueueTableProps) {
-  const router = useRouter()
-  const [flags, setFlags] = useState(initialFlags)
+export function ModerationQueueTable({
+  flags,
+  onRemoveFlag,
+  onActionSuccess,
+}: ModerationQueueTableProps) {
   const [loadingFlagId, setLoadingFlagId] = useState<string | null>(null)
   const [pendingAction, setPendingAction] = useState<{
     flag: EnrichedFlag
@@ -83,7 +86,6 @@ export function ModerationQueueTable({ flags: initialFlags }: ModerationQueueTab
           })
           if (!deleteRes.ok) {
             const data = (await deleteRes.json()) as { error?: string }
-            // 404 means already deleted — continue to resolve the flag
             if (deleteRes.status !== 404) {
               throw new Error(data.error ?? 'Failed to delete content')
             }
@@ -107,14 +109,17 @@ export function ModerationQueueTable({ flags: initialFlags }: ModerationQueueTab
         remove: 'Content deleted and flag resolved',
       }
       toast.success(labels[action])
-      setFlags((prev) => prev.filter((f) => f.id !== flag.id))
-      router.refresh()
+      onRemoveFlag(flag.id)
+      await onActionSuccess?.()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Action failed')
     } finally {
       setLoadingFlagId(null)
     }
   }
+
+  const actionLabel = pendingAction?.action === 'remove' ? 'Delete' : 'Dismiss'
+  const actionVariant = pendingAction?.action === 'remove' ? 'destructive' : 'default'
 
   if (flags.length === 0) {
     return (
@@ -123,9 +128,6 @@ export function ModerationQueueTable({ flags: initialFlags }: ModerationQueueTab
       </p>
     )
   }
-
-  const actionLabel = pendingAction?.action === 'remove' ? 'Delete' : 'Dismiss'
-  const actionVariant = pendingAction?.action === 'remove' ? 'destructive' : 'default'
 
   return (
     <>

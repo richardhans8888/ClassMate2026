@@ -72,8 +72,8 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
       value={{
         role,
         isLoaded,
-        isAdmin: role === 'ADMIN',
-        isModerator: role === 'MODERATOR' || role === 'ADMIN',
+        isAdmin: role === 'ADMIN' || role === 'OWNER',
+        isModerator: role === 'MODERATOR' || role === 'ADMIN' || role === 'OWNER',
         userId,
         userName,
         userEmail,

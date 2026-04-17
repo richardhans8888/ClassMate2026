@@ -19,6 +19,7 @@ enum UserRole {
   STUDENT
   MODERATOR
   ADMIN
+  OWNER
 }
 
 enum ConnectionStatus {

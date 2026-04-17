@@ -2,10 +2,18 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Search, Loader2 } from 'lucide-react'
+import { Search, Loader2, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
 
-type UserRole = 'STUDENT' | 'MODERATOR' | 'ADMIN'
+type UserRole = 'STUDENT' | 'MODERATOR' | 'ADMIN' | 'OWNER'
 
 interface AdminUser {
   id: string
@@ -16,19 +24,37 @@ interface AdminUser {
   profile: { displayName: string | null; avatarUrl: string | null } | null
 }
 
-const ROLE_COLORS: Record<UserRole, string> = {
-  STUDENT: 'bg-muted text-muted-foreground',
-  MODERATOR: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-  ADMIN: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+interface UserManagementTableProps {
+  viewerRole: UserRole
 }
 
-export function UserManagementTable() {
+const ROLE_COLORS: Record<UserRole, string> = {
+  STUDENT: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  MODERATOR: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  ADMIN: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+  OWNER: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+}
+
+function getRoleOptions(viewerRole: UserRole, targetRole: UserRole): UserRole[] {
+  if (targetRole === 'OWNER') return []
+  if (viewerRole === 'ADMIN') {
+    if (targetRole === 'ADMIN') return []
+    return (['STUDENT', 'MODERATOR'] as UserRole[]).filter((r) => r !== targetRole)
+  }
+  if (viewerRole === 'OWNER') {
+    return (['STUDENT', 'MODERATOR', 'ADMIN'] as UserRole[]).filter((r) => r !== targetRole)
+  }
+  return []
+}
+
+export function UserManagementTable({ viewerRole }: UserManagementTableProps) {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [draftSearch, setDraftSearch] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   const limit = 20
 
@@ -60,6 +86,28 @@ export function UserManagementTable() {
     e.preventDefault()
     setPage(1)
     setSearch(draftSearch)
+  }
+
+  async function handleRoleChange(userId: string, newRole: UserRole) {
+    setUpdatingId(userId)
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/role`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole }),
+      })
+      const data = (await res.json()) as { error?: string }
+      if (!res.ok) {
+        toast.error(data.error ?? 'Failed to update role')
+        return
+      }
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)))
+      toast.success('Role updated')
+    } catch {
+      toast.error('Failed to update role')
+    } finally {
+      setUpdatingId(null)
+    }
   }
 
   const totalPages = Math.ceil(total / limit)
@@ -111,6 +159,10 @@ export function UserManagementTable() {
               users.map((user) => {
                 const displayName =
                   user.profile?.displayName ?? user.name ?? user.email.split('@')[0] ?? '?'
+                const roleOptions = getRoleOptions(viewerRole, user.role)
+                const canChangeRole = roleOptions.length > 0
+                const isUpdating = updatingId === user.id
+
                 return (
                   <tr key={user.id} className="border-border border-b last:border-b-0">
                     <td className="px-4 py-3">
@@ -126,11 +178,50 @@ export function UserManagementTable() {
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${ROLE_COLORS[user.role]}`}
-                      >
-                        {user.role}
-                      </span>
+                      {canChangeRole ? (
+                        <div className="flex items-center gap-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                disabled={isUpdating}
+                                className={`flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold transition-opacity hover:opacity-80 disabled:opacity-50 ${ROLE_COLORS[user.role]}`}
+                              >
+                                {isUpdating ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <ChevronDown className="h-3 w-3 opacity-70" />
+                                )}
+                                {user.role}
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="min-w-[140px]">
+                              <DropdownMenuLabel className="text-muted-foreground text-xs">
+                                Change role to
+                              </DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              {roleOptions.map((role) => (
+                                <DropdownMenuItem
+                                  key={role}
+                                  onClick={() => void handleRoleChange(user.id, role)}
+                                  className="flex items-center gap-2"
+                                >
+                                  <span
+                                    className={`rounded-full px-2 py-0.5 text-xs font-semibold ${ROLE_COLORS[role]}`}
+                                  >
+                                    {role}
+                                  </span>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      ) : (
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${ROLE_COLORS[user.role]}`}
+                        >
+                          {user.role}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 )

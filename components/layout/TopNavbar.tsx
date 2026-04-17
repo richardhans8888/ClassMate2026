@@ -41,6 +41,10 @@ function getAvatarColor(seed: string): string {
 }
 
 const ROLE_BADGE: Record<string, { label: string; className: string }> = {
+  OWNER: {
+    label: 'Owner',
+    className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+  },
   ADMIN: {
     label: 'Admin',
     className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
@@ -175,8 +179,8 @@ export function TopNavbar({ onMobileMenuOpen }: TopNavbarProps) {
               <span>Dark Mode</span>
             </DropdownMenuItem>
 
-            {/* Moderation Queue — visible to MODERATOR and ADMIN */}
-            {(role === 'MODERATOR' || role === 'ADMIN') && (
+            {/* Moderation Queue — visible to MODERATOR, ADMIN, and OWNER */}
+            {(role === 'MODERATOR' || role === 'ADMIN' || role === 'OWNER') && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
@@ -188,8 +192,8 @@ export function TopNavbar({ onMobileMenuOpen }: TopNavbarProps) {
               </>
             )}
 
-            {/* Admin-only shortcuts */}
-            {role === 'ADMIN' && (
+            {/* Admin/Owner shortcuts */}
+            {(role === 'ADMIN' || role === 'OWNER') && (
               <DropdownMenuItem asChild>
                 <Link href="/admin/users" className="cursor-pointer">
                   <UserCog className="mr-2 h-4 w-4" />

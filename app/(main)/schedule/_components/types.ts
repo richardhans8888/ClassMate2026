@@ -27,7 +27,7 @@ const CATEGORY_TO_COLOR: Record<string, string> = {
   biology: 'bg-rose-500',
 }
 
-export function colorFromCategory(category: string | null): string {
+function colorFromCategory(category: string | null): string {
   if (!category) return 'bg-blue-500'
   return CATEGORY_TO_COLOR[category.toLowerCase()] ?? 'bg-blue-500'
 }

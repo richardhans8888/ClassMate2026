@@ -61,11 +61,10 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
         </div>
 
         {post.category && (
-          <span className="bg-primary/10 text-primary mb-3 inline-block rounded-full px-3 py-1 text-xs font-medium">
+          <span className="bg-primary/10 text-primary mb-3 inline-block rounded-md px-2 py-0.5 text-xs font-medium">
             {post.category}
           </span>
         )}
-
         <h1 className="text-foreground mb-4 text-2xl font-bold md:text-3xl">{post.title}</h1>
 
         <div className="prose text-foreground dark:prose-invert mb-6 max-w-none whitespace-pre-line">

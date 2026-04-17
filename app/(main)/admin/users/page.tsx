@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 import { requireAdmin } from '@/lib/authorize'
+import { prisma } from '@/lib/prisma'
 import { UserManagementTable } from '@/components/features/admin/UserManagementTable'
 
 export default async function AdminUsersPage() {
@@ -10,6 +11,11 @@ export default async function AdminUsersPage() {
   const isAdmin = await requireAdmin(session)
   if (!isAdmin) notFound()
 
+  const viewer = await prisma.user.findUnique({
+    where: { id: session.id },
+    select: { role: true },
+  })
+
   return (
     <div className="container mx-auto px-6 py-8 md:px-8">
       <h1 className="text-foreground text-2xl font-bold">User Management</h1>
@@ -18,7 +24,7 @@ export default async function AdminUsersPage() {
       </p>
 
       <div className="mt-6">
-        <UserManagementTable />
+        <UserManagementTable viewerRole={viewer?.role ?? 'ADMIN'} />
       </div>
     </div>
   )

@@ -5,7 +5,7 @@
  * Safe to re-run: clears existing data before inserting fresh records.
  *
  * Seeded accounts (all use password: Password123!)
- *   admin   → evan@classmate.dev   (ADMIN)
+ *   owner   → evan@classmate.dev   (OWNER)
  *   moderators → carol@classmate.dev, george@classmate.dev (MODERATOR)
  *   students→ alice, bob, diana, fiona, hannah @classmate.dev (STUDENT)
  *
@@ -106,7 +106,7 @@ async function main() {
         name: 'Evan Park',
         image: avatarUrl('Evan Park'),
         emailVerified: true,
-        role: 'ADMIN',
+        role: 'OWNER',
       },
     }),
     prisma.user.create({
@@ -1586,10 +1586,11 @@ async function main() {
   // ── Flagged Content (moderation demo) ─────────────────────────────────────
   console.warn('  Creating flagged content examples...')
   await Promise.all([
+    // Pending flags (visible in moderation queue)
     prisma.flaggedContent.create({
       data: {
         reporterId: hannah.id,
-        contentType: 'ForumPost',
+        contentType: 'post',
         contentId: posts[1].id,
         reason:
           'Possible spam — post contains multiple promotional links to external tutoring services.',
@@ -1599,7 +1600,44 @@ async function main() {
     prisma.flaggedContent.create({
       data: {
         reporterId: diana.id,
-        contentType: 'ForumReply',
+        contentType: 'post',
+        contentId: posts[3].id,
+        reason: 'Off-topic content unrelated to academics.',
+        status: 'pending',
+      },
+    }),
+    prisma.flaggedContent.create({
+      data: {
+        reporterId: fiona.id,
+        contentType: 'reply',
+        contentId: replies[2].id,
+        reason: 'Suspected AI-generated content without disclosure.',
+        status: 'pending',
+      },
+    }),
+    prisma.flaggedContent.create({
+      data: {
+        reporterId: george.id,
+        contentType: 'reply',
+        contentId: replies[7].id,
+        reason: 'Reply contains offensive language towards the original poster.',
+        status: 'pending',
+      },
+    }),
+    prisma.flaggedContent.create({
+      data: {
+        reporterId: hannah.id,
+        contentType: 'post',
+        contentId: posts[5].id,
+        reason: 'Duplicate post — identical content already exists.',
+        status: 'pending',
+      },
+    }),
+    // Resolved flag (for history)
+    prisma.flaggedContent.create({
+      data: {
+        reporterId: diana.id,
+        contentType: 'reply',
         contentId: replies[4].id,
         reason: 'Reply contains offensive language towards the original poster.',
         status: 'resolved',
@@ -1620,32 +1658,12 @@ async function main() {
   await Promise.all([
     prisma.moderationLog.create({
       data: {
-        actorId: carol.id,
-        action: 'FLAG_CREATED',
-        targetId: posts[1].id,
-        targetType: 'ForumPost',
-        reason: 'Possible spam — post contains multiple promotional links.',
-        createdAt: daysAgo(14),
-      },
-    }),
-    prisma.moderationLog.create({
-      data: {
         actorId: evan.id,
         action: 'FLAG_RESOLVED',
         targetId: posts[1].id,
         targetType: 'ForumPost',
         reason: 'Reviewed — no policy violation found. Flag dismissed.',
         createdAt: daysAgo(13),
-      },
-    }),
-    prisma.moderationLog.create({
-      data: {
-        actorId: george.id,
-        action: 'FLAG_CREATED',
-        targetId: replies[4].id,
-        targetType: 'ForumReply',
-        reason: 'Reply contains offensive language towards the original poster.',
-        createdAt: daysAgo(10),
       },
     }),
     prisma.moderationLog.create({
@@ -1661,31 +1679,11 @@ async function main() {
     prisma.moderationLog.create({
       data: {
         actorId: carol.id,
-        action: 'FLAG_CREATED',
-        targetId: posts[8].id,
-        targetType: 'ForumPost',
-        reason: 'Duplicate post — identical content already exists.',
-        createdAt: daysAgo(7),
-      },
-    }),
-    prisma.moderationLog.create({
-      data: {
-        actorId: carol.id,
         action: 'FLAG_RESOLVED',
         targetId: posts[8].id,
         targetType: 'ForumPost',
         reason: 'Checked — posts cover different angles. Flag dismissed.',
         createdAt: daysAgo(6),
-      },
-    }),
-    prisma.moderationLog.create({
-      data: {
-        actorId: george.id,
-        action: 'FLAG_CREATED',
-        targetId: posts[12].id,
-        targetType: 'ForumPost',
-        reason: 'Off-topic content unrelated to academics.',
-        createdAt: daysAgo(4),
       },
     }),
     prisma.moderationLog.create({
@@ -1696,16 +1694,6 @@ async function main() {
         targetType: 'ForumPost',
         reason: 'Study strategies are on-topic. Flag dismissed.',
         createdAt: daysAgo(3),
-      },
-    }),
-    prisma.moderationLog.create({
-      data: {
-        actorId: carol.id,
-        action: 'FLAG_CREATED',
-        targetId: replies[14].id,
-        targetType: 'ForumReply',
-        reason: 'Suspected AI-generated content without disclosure.',
-        createdAt: daysAgo(2),
       },
     }),
     prisma.moderationLog.create({
@@ -1723,7 +1711,7 @@ async function main() {
   // ── Summary ────────────────────────────────────────────────────────────────
   console.warn('\n✅  Seed complete!\n')
   console.warn('  Seeded:')
-  console.warn(`    ${9} users (1 admin, 2 tutors, 5 students, 1 AI system)`)
+  console.warn(`    ${8} users (1 owner, 2 moderators, 5 students)`)
   console.warn(`    ${8} user profiles`)
   console.warn(`    ${8} auth accounts`)
   console.warn(`    ${tagNames.length} forum tags`)
@@ -1739,7 +1727,7 @@ async function main() {
   console.warn(`    2 flagged content records`)
   console.warn(`    10 moderation log entries`)
   console.warn('\n  Login credentials (all accounts use password: Password123!)')
-  console.warn('    admin  → evan@classmate.dev')
+  console.warn('    owner  → evan@classmate.dev')
   console.warn('    tutor  → carol@classmate.dev or george@classmate.dev')
   console.warn('    student→ alice@classmate.dev or bob@classmate.dev')
 }

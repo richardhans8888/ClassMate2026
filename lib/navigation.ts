@@ -1,4 +1,4 @@
-export type UserRole = 'STUDENT' | 'MODERATOR' | 'ADMIN'
+export type UserRole = 'STUDENT' | 'MODERATOR' | 'ADMIN' | 'OWNER'
 
 type NavigationGroup = 'core' | 'more'
 export type SidebarSection = 'Main' | 'Learning' | 'Account'
@@ -29,16 +29,16 @@ export const navigationItems: NavigationItem[] = [
     group: 'core',
     icon: 'Shield',
     section: 'Account',
-    roles: ['MODERATOR', 'ADMIN'],
+    roles: ['MODERATOR', 'ADMIN', 'OWNER'],
   },
-  // User Management — ADMIN only
+  // User Management — ADMIN and OWNER
   {
     href: '/admin/users',
     label: 'Users',
     group: 'core',
     icon: 'UserCog',
     section: 'Account',
-    roles: ['ADMIN'],
+    roles: ['ADMIN', 'OWNER'],
   },
 ]
 
