@@ -2,7 +2,6 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { requireModerator } from '@/lib/authorize'
-import { prisma } from '@/lib/prisma'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import {
   resolveFlag,
@@ -10,6 +9,8 @@ import {
   FlagAlreadyResolvedError,
   InvalidResolutionActionError,
 } from '@/lib/services/moderation.service'
+import { notifyUser } from '@/lib/services/notification.service'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,27 +27,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const body = (await req.json()) as { flagId?: string; action?: string }
-    const { flagId, action } = body
+    const body = (await req.json()) as { flagId?: string; action?: string; reason?: string }
+    const { flagId, action, reason } = body
 
     if (!flagId || !action) {
       return NextResponse.json({ error: 'flagId and action are required' }, { status: 400 })
     }
 
-    try {
-      const updatedFlag = await resolveFlag(flagId, action, session.id)
+    const trimmedReason = typeof reason === 'string' ? reason.trim() || undefined : undefined
 
-      prisma.moderationLog
-        .create({
-          data: {
-            actorId: session.id,
-            action: 'FLAG_RESOLVED',
-            targetId: flagId,
-            targetType: 'FlaggedContent',
-            metadata: JSON.stringify({ resolution: action }),
-          },
+    try {
+      const updatedFlag = await resolveFlag(flagId, action, session.id, trimmedReason)
+
+      // Send in-app notification to the content reporter when content is removed
+      if (action === 'remove') {
+        const flag = await prisma.flaggedContent.findUnique({
+          where: { id: flagId },
+          select: { reporterId: true },
         })
-        .catch((err: unknown) => console.error('[moderation-log] Failed to write audit log:', err))
+        if (flag) {
+          notifyUser(
+            flag.reporterId,
+            'FLAG_REMOVE',
+            'A moderator has reviewed your flag and removed the content.'
+          ).catch((err: unknown) =>
+            console.error('[notification] Failed to send notification:', err)
+          )
+        }
+      }
 
       return NextResponse.json({ success: true, flag: updatedFlag }, { status: 200 })
     } catch (err) {

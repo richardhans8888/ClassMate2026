@@ -11,8 +11,10 @@ import {
   InvalidContentTypeError,
   ContentNotFoundError,
   DuplicateFlagError,
+  SelfFlagError,
   FlagNotFoundError,
   FlagAlreadyResolvedError,
+  InvalidResolutionActionError,
 } from '@/lib/services/moderation.service'
 import { prisma } from '@/lib/prisma'
 
@@ -25,14 +27,16 @@ jest.mock('@/lib/content-exists', () => ({
   contentExists: jest.fn(),
 }))
 
-import { contentExists } from '@/lib/content-exists'
-const mockContentExists = contentExists as jest.Mock
-
 const mockPrisma = prisma as jest.Mocked<typeof prisma>
 
 beforeEach(() => {
   jest.clearAllMocks()
-  mockContentExists.mockResolvedValue(true)
+  // Default: content exists and author is different from the flagging user
+  mockPrisma.forumPost.findUnique.mockResolvedValue({ userId: 'author-1' } as never)
+  // Wire $transaction to run the callback with the same mock prisma instance
+  ;(mockPrisma.$transaction as jest.Mock).mockImplementation(
+    async (fn: (tx: typeof prisma) => unknown) => fn(mockPrisma)
+  )
 })
 
 // ─── flagContent ──────────────────────────────────────────────────────────────
@@ -64,11 +68,18 @@ describe('flagContent', () => {
   })
 
   it('throws ContentNotFoundError when content does not exist', async () => {
-    mockContentExists.mockResolvedValue(false)
+    mockPrisma.forumPost.findUnique.mockResolvedValue(null as never)
 
     await expect(flagContent('u1', 'post', 'nonexistent', 'reason')).rejects.toThrow(
       ContentNotFoundError
     )
+  })
+
+  it('throws SelfFlagError when user flags their own content', async () => {
+    mockPrisma.forumPost.findUnique.mockResolvedValue({ userId: 'u1' } as never)
+
+    await expect(flagContent('u1', 'post', 'p1', 'spam')).rejects.toThrow(SelfFlagError)
+    expect(mockPrisma.flaggedContent.create).not.toHaveBeenCalled()
   })
 
   it('throws DuplicateFlagError when user already flagged this content', async () => {
@@ -86,6 +97,7 @@ describe('resolveFlag', () => {
     mockPrisma.flaggedContent.findUnique.mockResolvedValue({ id: 'f1', status: 'pending' } as never)
     const resolved = { id: 'f1', status: 'resolved', resolution: 'dismiss' }
     mockPrisma.flaggedContent.update.mockResolvedValue(resolved as never)
+    mockPrisma.moderationLog.create.mockResolvedValue({} as never)
 
     const result = await resolveFlag('f1', 'dismiss', 'admin1')
 
@@ -116,9 +128,15 @@ describe('resolveFlag', () => {
     await expect(resolveFlag('f1', 'invalid_action', 'admin1')).rejects.toThrow()
   })
 
+  it('throws InvalidResolutionActionError for warn action', async () => {
+    await expect(resolveFlag('f1', 'warn', 'admin1')).rejects.toThrow(InvalidResolutionActionError)
+    expect(mockPrisma.flaggedContent.update).not.toHaveBeenCalled()
+  })
+
   it('sets status to "dismissed" for dismiss action', async () => {
     mockPrisma.flaggedContent.findUnique.mockResolvedValue({ id: 'f1', status: 'pending' } as never)
     mockPrisma.flaggedContent.update.mockResolvedValue({} as never)
+    mockPrisma.moderationLog.create.mockResolvedValue({} as never)
 
     await resolveFlag('f1', 'dismiss', 'admin1')
 
@@ -132,6 +150,7 @@ describe('resolveFlag', () => {
   it('sets status to "resolved" for remove action', async () => {
     mockPrisma.flaggedContent.findUnique.mockResolvedValue({ id: 'f1', status: 'pending' } as never)
     mockPrisma.flaggedContent.update.mockResolvedValue({} as never)
+    mockPrisma.moderationLog.create.mockResolvedValue({} as never)
 
     await resolveFlag('f1', 'remove', 'admin1')
 

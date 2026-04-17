@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
-import { requireAdmin } from '@/lib/authorize'
+import { requireAdmin, requireModerator } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, generalLimiter } from '@/lib/rate-limit'
 
@@ -18,7 +18,9 @@ export async function GET(req: NextRequest) {
     if (limited) return limited
 
     const isAdmin = await requireAdmin(session)
-    if (!isAdmin) {
+    const isModerator = isAdmin || (await requireModerator(session))
+
+    if (!isModerator) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -34,6 +36,11 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit
 
     const where: Record<string, unknown> = {}
+
+    // Moderators (non-admin) can only see their own audit logs
+    if (!isAdmin) {
+      where.actorId = session.id
+    }
 
     if (action) {
       if (!VALID_ACTIONS.includes(action as (typeof VALID_ACTIONS)[number])) {

@@ -55,16 +55,23 @@ describe('GET /api/moderation/logs', () => {
     expect(body.error).toBe('Forbidden')
   })
 
-  it('returns 403 if user is MODERATOR', async () => {
+  it('returns 200 with own-only logs for MODERATOR', async () => {
     ;(getSession as jest.Mock).mockResolvedValue(tutorSession)
     ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'MODERATOR' })
+    ;(prisma.moderationLog.findMany as jest.Mock).mockResolvedValue([])
+    ;(prisma.moderationLog.count as jest.Mock).mockResolvedValue(0)
 
     const req = new NextRequest('http://localhost/api/moderation/logs')
     const res = await GET(req)
 
-    expect(res.status).toBe(403)
+    expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.error).toBe('Forbidden')
+    expect(body.success).toBe(true)
+    expect(prisma.moderationLog.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ actorId: tutorSession.id }),
+      })
+    )
   })
 
   it('returns 200 with logs for ADMIN', async () => {

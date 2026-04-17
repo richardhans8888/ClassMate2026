@@ -149,17 +149,9 @@ describe('PATCH /api/forums/posts/[id]', () => {
     expect(data.post).toEqual(mockUpdatedPost)
   })
 
-  it('returns 200 with updated post for admin editing another user post', async () => {
-    const mockUpdatedPost = {
-      id: 'post-1',
-      title: 'Admin Updated Title',
-      user: { id: 'user-1', email: 'u1@test.com', profile: { displayName: 'User 1' } },
-      tags: [],
-    }
+  it('returns 403 when admin tries to edit another user post', async () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'admin-1', email: 'admin@test.com' })
     ;(prisma.forumPost.findUnique as jest.Mock).mockResolvedValue({ userId: 'user-1' })
-    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'ADMIN' })
-    ;(prisma.forumPost.update as jest.Mock).mockResolvedValue(mockUpdatedPost)
 
     const req = new NextRequest('http://localhost/api/forums/posts/post-1', {
       method: 'PATCH',
@@ -168,7 +160,7 @@ describe('PATCH /api/forums/posts/[id]', () => {
     })
     const res = await patchPost(req, { params: Promise.resolve({ id: 'post-1' }) })
 
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(403)
   })
 
   it('returns 400 when body contains no valid fields', async () => {
@@ -372,16 +364,9 @@ describe('PATCH /api/forums/replies/[id]', () => {
     expect(data.error).not.toMatch(/postgres|secret|db\.internal/i)
   })
 
-  it('returns 200 when admin edits another user reply', async () => {
-    const mockUpdatedReply = {
-      id: 'reply-1',
-      content: 'Admin edited',
-      user: { id: 'user-1', email: 'u1@test.com', profile: { displayName: 'User 1' } },
-    }
+  it('returns 403 when admin tries to edit another user reply', async () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'admin-1', email: 'admin@test.com' })
     ;(prisma.forumReply.findUnique as jest.Mock).mockResolvedValue({ userId: 'user-1' })
-    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'ADMIN' })
-    ;(prisma.forumReply.update as jest.Mock).mockResolvedValue(mockUpdatedReply)
 
     const req = new NextRequest('http://localhost/api/forums/replies/reply-1', {
       method: 'PATCH',
@@ -390,6 +375,6 @@ describe('PATCH /api/forums/replies/[id]', () => {
     })
     const res = await patchReply(req, { params: Promise.resolve({ id: 'reply-1' }) })
 
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(403)
   })
 })

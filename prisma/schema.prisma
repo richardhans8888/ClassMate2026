@@ -33,6 +33,22 @@ enum ModerationAction {
   CONTENT_DELETED
 }
 
+enum FlagStatus {
+  pending
+  dismissed
+  resolved
+}
+
+enum ModerationTargetType {
+  post
+  reply
+  material
+  ForumPost
+  ForumReply
+  StudyMaterial
+  FlaggedContent
+}
+
 // USER & PROFILE MANAGEMENT
 
 model User {
@@ -59,9 +75,11 @@ model User {
   accounts             Account[]
   events               Event[]
   flaggedContents      FlaggedContent[]
+  resolvedFlags        FlaggedContent[]   @relation("FlagResolver")
   connectionsSent      Connection[]       @relation("connectionsSent")
   connectionsReceived  Connection[]       @relation("connectionsReceived")
   moderationLogs       ModerationLog[]
+  notifications        Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -318,16 +336,17 @@ model StudyGroupMessage {
 }
 
 model FlaggedContent {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   reporterId  String
-  reporter    User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reporter    User       @relation(fields: [reporterId], references: [id], onDelete: Cascade)
   contentType String
   contentId   String
   reason      String
-  status      String   @default("pending")
+  status      FlagStatus @default(pending)
   resolvedBy  String?
+  resolver    User?      @relation("FlagResolver", fields: [resolvedBy], references: [id], onDelete: SetNull)
   resolution  String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime   @default(now())
   resolvedAt  DateTime?
 
   @@index([reporterId])
@@ -378,15 +397,30 @@ model Connection {
 // MODERATION AUDIT LOG
 
 model ModerationLog {
-  id         String           @id @default(cuid())
+  id         String               @id @default(cuid())
   actorId    String
-  actor      User             @relation(fields: [actorId], references: [id])
+  actor      User                 @relation(fields: [actorId], references: [id])
   action     ModerationAction
   targetId   String
-  targetType String
+  targetType ModerationTargetType
   reason     String?
   metadata   String?
-  createdAt  DateTime         @default(now())
+  createdAt  DateTime             @default(now())
 
   @@index([actorId, action, createdAt])
+}
+
+// NOTIFICATIONS
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
 }

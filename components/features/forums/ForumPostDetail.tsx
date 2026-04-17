@@ -5,12 +5,14 @@ import { formatDate } from '@/lib/format'
 import { UpvoteButton } from './UpvoteButton'
 import { RoleGate } from '@/components/ui/role-gate'
 import { ModeratorContentActions } from './ModeratorContentActions'
+import { UserFlagButton } from './UserFlagButton'
 
 interface ForumPostDetailProps {
   post: {
     id: string
     title: string
     content: string
+    category?: string
     views: number
     upvotes: number
     hasUpvoted: boolean
@@ -58,6 +60,12 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
           </div>
         </div>
 
+        {post.category && (
+          <span className="bg-primary/10 text-primary mb-3 inline-block rounded-full px-3 py-1 text-xs font-medium">
+            {post.category}
+          </span>
+        )}
+
         <h1 className="text-foreground mb-4 text-2xl font-bold md:text-3xl">{post.title}</h1>
 
         <div className="prose text-foreground dark:prose-invert mb-6 max-w-none whitespace-pre-line">
@@ -91,6 +99,9 @@ export function ForumPostDetail({ post }: ForumPostDetailProps) {
           <div className="text-muted-foreground flex items-center">
             <Eye className="mr-2 h-5 w-5" />
             <span>{post.views} Views</span>
+          </div>
+          <div className="ml-auto">
+            <UserFlagButton contentType="post" contentId={post.id} />
           </div>
         </div>
       </div>

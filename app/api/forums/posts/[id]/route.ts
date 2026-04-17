@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth'
 import { canModerate } from '@/lib/authorize'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import { prisma } from '@/lib/prisma'
+import { FlagStatus, ModerationTargetType } from '@/generated/prisma/enums'
 import {
   getForumPost,
   incrementPostViews,
@@ -50,8 +51,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
 
-    const authorized = await canModerate(session, existing.userId)
-    if (!authorized) {
+    if (session.id !== existing.userId) {
       return NextResponse.json({ error: 'Not authorized to edit this post' }, { status: 403 })
     }
 
@@ -75,7 +75,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession()
     if (!session) {
@@ -97,16 +97,28 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Not authorized to delete this post' }, { status: 403 })
     }
 
+    let reason: string | undefined
+    try {
+      const body = (await request.json()) as { reason?: string }
+      reason = typeof body.reason === 'string' ? body.reason.trim() || undefined : undefined
+    } catch {
+      // body is optional — ignore parse errors
+    }
+
+    await prisma.flaggedContent.updateMany({
+      where: { contentType: 'post', contentId: id, status: FlagStatus.pending },
+      data: { status: FlagStatus.resolved, resolvedAt: new Date(), resolution: 'content_deleted' },
+    })
+
     await deleteForumPost(id)
 
-    void (
-      prisma as unknown as { moderationLog: { create: (args: unknown) => Promise<unknown> } }
-    ).moderationLog.create({
+    await prisma.moderationLog.create({
       data: {
         actorId: session.id,
         action: 'CONTENT_DELETED',
         targetId: id,
-        targetType: 'ForumPost',
+        targetType: ModerationTargetType.ForumPost,
+        reason: reason ?? null,
       },
     })
 

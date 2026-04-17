@@ -31,6 +31,8 @@ export const prisma = {
   event: modelMethods(),
   flaggedContent: modelMethods(),
   moderationLog: modelMethods(),
+  notification: modelMethods(),
+  connection: modelMethods(),
   $transaction: jest.fn(),
   $connect: jest.fn(),
   $disconnect: jest.fn(),

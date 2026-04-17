@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
-import { ALLOWED_CONTENT_TYPES, contentExists, type AllowedContentType } from '@/lib/content-exists'
+import { ALLOWED_CONTENT_TYPES, type AllowedContentType } from '@/lib/content-exists'
+import { FlagStatus, ModerationTargetType } from '@/generated/prisma/enums'
 
 // --- Custom errors ---
 export class InvalidContentTypeError extends Error {
@@ -24,6 +25,13 @@ export class DuplicateFlagError extends Error {
   }
 }
 
+export class SelfFlagError extends Error {
+  constructor() {
+    super('You cannot flag your own content')
+    this.name = 'SelfFlagError'
+  }
+}
+
 export class FlagNotFoundError extends Error {
   constructor() {
     super('Flag not found')
@@ -38,7 +46,7 @@ export class FlagAlreadyResolvedError extends Error {
   }
 }
 
-const ALLOWED_ACTIONS = ['dismiss', 'remove', 'warn'] as const
+const ALLOWED_ACTIONS = ['dismiss', 'remove'] as const
 type ResolutionAction = (typeof ALLOWED_ACTIONS)[number]
 
 export class InvalidResolutionActionError extends Error {
@@ -46,6 +54,46 @@ export class InvalidResolutionActionError extends Error {
     super(`action must be one of: ${ALLOWED_ACTIONS.join(', ')}`)
     this.name = 'InvalidResolutionActionError'
   }
+}
+
+// Map contentType string to ModerationTargetType enum
+const CONTENT_TYPE_TO_TARGET: Record<AllowedContentType, ModerationTargetType> = {
+  post: ModerationTargetType.ForumPost,
+  reply: ModerationTargetType.ForumReply,
+  material: ModerationTargetType.StudyMaterial,
+}
+
+// --- Private helpers ---
+
+async function getContentAuthorId(
+  contentType: AllowedContentType,
+  contentId: string
+): Promise<string | null> {
+  if (contentType === 'post') {
+    const post = await prisma.forumPost.findUnique({
+      where: { id: contentId },
+      select: { userId: true },
+    })
+    return post?.userId ?? null
+  }
+
+  if (contentType === 'reply') {
+    const reply = await prisma.forumReply.findUnique({
+      where: { id: contentId },
+      select: { userId: true },
+    })
+    return reply?.userId ?? null
+  }
+
+  if (contentType === 'material') {
+    const material = await prisma.studyMaterial.findUnique({
+      where: { id: contentId },
+      select: { userId: true },
+    })
+    return material?.userId ?? null
+  }
+
+  return null
 }
 
 // --- Service functions ---
@@ -63,15 +111,16 @@ export async function flagContent(
     throw new InvalidContentTypeError()
   }
 
-  const exists = await contentExists(contentType as AllowedContentType, sanitizedContentId)
-  if (!exists) throw new ContentNotFoundError()
+  const authorId = await getContentAuthorId(contentType as AllowedContentType, sanitizedContentId)
+  if (authorId === null) throw new ContentNotFoundError()
+  if (authorId === userId) throw new SelfFlagError()
 
   const existing = await prisma.flaggedContent.findFirst({
     where: {
       reporterId: userId,
       contentType,
       contentId: sanitizedContentId,
-      status: 'pending',
+      status: FlagStatus.pending,
     },
     select: { id: true },
   })
@@ -96,35 +145,57 @@ export async function flagContent(
   })
 }
 
-export async function resolveFlag(flagId: string, action: string, actorId: string) {
+export async function resolveFlag(
+  flagId: string,
+  action: string,
+  actorId: string,
+  reason?: string
+) {
   if (!ALLOWED_ACTIONS.includes(action as ResolutionAction)) {
     throw new InvalidResolutionActionError()
   }
 
-  const flag = await prisma.flaggedContent.findUnique({
-    where: { id: flagId },
-    select: { id: true, status: true },
-  })
+  return prisma.$transaction(async (tx) => {
+    const flag = await tx.flaggedContent.findUnique({
+      where: { id: flagId },
+      select: { id: true, status: true },
+    })
 
-  if (!flag) throw new FlagNotFoundError()
-  if (flag.status !== 'pending') throw new FlagAlreadyResolvedError()
+    if (!flag) throw new FlagNotFoundError()
+    if (flag.status !== FlagStatus.pending) throw new FlagAlreadyResolvedError()
 
-  return prisma.flaggedContent.update({
-    where: { id: flagId },
-    data: {
-      status: action === 'dismiss' ? 'dismissed' : 'resolved',
-      resolvedBy: actorId,
-      resolution: action,
-      resolvedAt: new Date(),
-    },
+    const updated = await tx.flaggedContent.update({
+      where: { id: flagId },
+      data: {
+        status: action === 'dismiss' ? FlagStatus.dismissed : FlagStatus.resolved,
+        resolvedBy: actorId,
+        resolution: action,
+        resolvedAt: new Date(),
+      },
+    })
+
+    await tx.moderationLog.create({
+      data: {
+        actorId,
+        action: 'FLAG_RESOLVED',
+        targetId: flagId,
+        targetType: ModerationTargetType.FlaggedContent,
+        reason: reason ?? null,
+        metadata: JSON.stringify({ resolution: action }),
+      },
+    })
+
+    return updated
   })
 }
 
 export async function listFlaggedContent(status?: string, limit = 100) {
   const flags = await prisma.flaggedContent.findMany({
-    where: status ? { status } : undefined,
+    where: status ? { status: status as FlagStatus } : undefined,
     orderBy: { createdAt: 'desc' },
     take: limit,
   })
   return { flags }
 }
+
+export { CONTENT_TYPE_TO_TARGET }

@@ -11,6 +11,7 @@ export default function CreateForumPostPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [title, setTitle] = useState('')
+  const [category, setCategory] = useState('')
   const [tags, setTags] = useState('')
   const [content, setContent] = useState('')
 
@@ -31,6 +32,7 @@ export default function CreateForumPostPage() {
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),
+          category: category || 'general',
           tags: tags
             ? tags
                 .split(',')
@@ -97,6 +99,28 @@ export default function CreateForumPostPage() {
               className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
               disabled={loading}
             />
+          </div>
+
+          <div>
+            <label htmlFor="category" className="text-foreground mb-1 block text-sm font-medium">
+              Category
+            </label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="border-border bg-muted text-foreground focus:ring-ring w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
+              disabled={loading}
+            >
+              <option value="">Select a category</option>
+              <option value="math">math</option>
+              <option value="cs">cs</option>
+              <option value="physics">physics</option>
+              <option value="chemistry">chemistry</option>
+              <option value="biology">biology</option>
+              <option value="history">history</option>
+              <option value="general">general</option>
+            </select>
           </div>
 
           <div>

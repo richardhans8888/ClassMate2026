@@ -10,6 +10,7 @@ import {
   ModerationBlockedError,
   ServiceValidationError,
 } from '@/lib/services/forum.service'
+import { flagContent, DuplicateFlagError } from '@/lib/services/moderation.service'
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,6 +50,18 @@ export async function POST(req: NextRequest) {
 
     try {
       const result = await createForumReply(user.id, postId, content)
+
+      // Auto-flag AI-detected borderline content for human review
+      if (result.warning) {
+        const { reason, categories } = result.warning
+        const autoFlagReason = `AI auto-flag: ${(categories ?? []).join(', ')} — ${reason}`
+        flagContent(user.id, 'reply', result.data.id, autoFlagReason).catch((err: unknown) => {
+          if (!(err instanceof DuplicateFlagError)) {
+            console.error('[ai-moderation] Failed to auto-flag reply:', err)
+          }
+        })
+      }
+
       return NextResponse.json(
         { reply: result.data, ...(result.warning && { warning: result.warning }) },
         { status: 201 }

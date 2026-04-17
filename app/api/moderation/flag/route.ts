@@ -1,13 +1,13 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import {
   flagContent,
   InvalidContentTypeError,
   ContentNotFoundError,
   DuplicateFlagError,
+  SelfFlagError,
 } from '@/lib/services/moderation.service'
 
 export async function POST(req: NextRequest) {
@@ -38,20 +38,11 @@ export async function POST(req: NextRequest) {
     try {
       const flag = await flagContent(session.id, contentType, contentId, reason)
 
-      prisma.moderationLog
-        .create({
-          data: {
-            actorId: session.id,
-            action: 'FLAG_CREATED',
-            targetId: flag.contentId,
-            targetType: flag.contentType,
-            reason: flag.reason,
-          },
-        })
-        .catch((err: unknown) => console.error('[moderation-log] Failed to write audit log:', err))
-
       return NextResponse.json({ flag }, { status: 201 })
     } catch (err) {
+      if (err instanceof SelfFlagError) {
+        return NextResponse.json({ error: err.message }, { status: 400 })
+      }
       if (err instanceof InvalidContentTypeError) {
         return NextResponse.json({ error: err.message }, { status: 400 })
       }

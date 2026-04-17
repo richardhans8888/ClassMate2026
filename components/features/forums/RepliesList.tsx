@@ -4,6 +4,7 @@ import { formatDate } from '@/lib/format'
 import { UpvoteButton } from './UpvoteButton'
 import { RoleGate } from '@/components/ui/role-gate'
 import { ModeratorContentActions } from './ModeratorContentActions'
+import { UserFlagButton } from './UserFlagButton'
 
 export interface Reply {
   id: string
@@ -68,6 +69,10 @@ export function RepliesList({ replies }: RepliesListProps) {
 
             <div className="text-foreground text-sm leading-relaxed whitespace-pre-line">
               {reply.content}
+            </div>
+
+            <div className="mt-3 flex justify-end">
+              <UserFlagButton contentType="reply" contentId={reply.id} />
             </div>
           </div>
         )

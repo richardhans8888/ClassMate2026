@@ -2,13 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MoreHorizontal, Trash2, Flag } from 'lucide-react'
+import { MoreHorizontal, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -40,7 +39,7 @@ export function ModeratorContentActions({
   const router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [isFlagging, setIsFlagging] = useState(false)
+  const [deleteReason, setDeleteReason] = useState('')
 
   const apiBase =
     contentType === 'post' ? `/api/forums/posts/${contentId}` : `/api/forums/replies/${contentId}`
@@ -49,8 +48,13 @@ export function ModeratorContentActions({
 
   async function handleDelete() {
     setIsDeleting(true)
+    const reason = deleteReason.trim() || undefined
     try {
-      const res = await fetch(apiBase, { method: 'DELETE' })
+      const res = await fetch(apiBase, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      })
       if (!res.ok) {
         const data = (await res.json()) as { error?: string }
         throw new Error(data.error ?? 'Failed to delete')
@@ -68,30 +72,7 @@ export function ModeratorContentActions({
     } finally {
       setIsDeleting(false)
       setShowDeleteDialog(false)
-    }
-  }
-
-  async function handleFlag() {
-    setIsFlagging(true)
-    try {
-      const res = await fetch('/api/moderation/flag', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contentType,
-          contentId,
-          reason: 'Flagged by moderator for review',
-        }),
-      })
-      if (!res.ok) {
-        const data = (await res.json()) as { error?: string }
-        throw new Error(data.error ?? 'Failed to flag')
-      }
-      toast.success('Content flagged for review')
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to flag content')
-    } finally {
-      setIsFlagging(false)
+      setDeleteReason('')
     }
   }
 
@@ -111,15 +92,6 @@ export function ModeratorContentActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem
-            onClick={handleFlag}
-            disabled={isFlagging}
-            className="cursor-pointer text-amber-600 focus:text-amber-600"
-          >
-            <Flag className="mr-2 h-4 w-4" />
-            {isFlagging ? 'Flagging…' : 'Flag for Review'}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}
             className="text-destructive focus:text-destructive cursor-pointer"
           >
@@ -130,25 +102,47 @@ export function ModeratorContentActions({
       </DropdownMenu>
 
       {/* Delete confirmation dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="max-w-sm">
+      <Dialog
+        open={showDeleteDialog}
+        onOpenChange={(open) => {
+          setShowDeleteDialog(open)
+          if (!open) setDeleteReason('')
+        }}
+      >
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Delete {label}?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. The {label.toLowerCase()} will be permanently removed.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteDialog(false)}
-              disabled={isDeleting}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? 'Deleting…' : 'Delete'}
-            </Button>
+          <div className="mt-3 space-y-3">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">
+                Reason <span className="text-muted-foreground font-normal">(optional)</span>
+              </label>
+              <textarea
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value.slice(0, 500))}
+                placeholder="e.g. Confirmed community guidelines violation."
+                rows={3}
+                disabled={isDeleting}
+                className="border-input bg-background placeholder:text-muted-foreground focus:ring-ring w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+              />
+              <p className="text-muted-foreground text-xs">{deleteReason.length}/500</p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteDialog(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? 'Deleting…' : 'Delete'}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
