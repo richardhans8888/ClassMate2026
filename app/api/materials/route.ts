@@ -22,10 +22,10 @@ const ALLOWED_FILE_TYPES = [
 
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024
 
-type SortBy = 'createdAt' | 'downloads' | 'rating'
+type SortBy = 'createdAt' | 'downloads'
 
 function normalizeSortBy(input: string | null): SortBy {
-  if (input === 'downloads' || input === 'rating') {
+  if (input === 'downloads') {
     return input
   }
   return 'createdAt'
@@ -54,11 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     const orderBy =
-      sortBy === 'downloads'
-        ? { downloads: 'desc' as const }
-        : sortBy === 'rating'
-          ? { rating: 'desc' as const }
-          : { createdAt: 'desc' as const }
+      sortBy === 'downloads' ? { downloads: 'desc' as const } : { createdAt: 'desc' as const }
 
     const total = await prisma.studyMaterial.count({ where })
 

@@ -6,7 +6,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { PaginationControls } from '@/components/ui/pagination-controls'
 import { MaterialCard } from 'components/features/materials/MaterialCard'
-import { Search, Filter, Upload, Download } from 'lucide-react'
+import { Search, Filter, Upload } from 'lucide-react'
 
 interface MaterialApiItem {
   id: string
@@ -16,7 +16,6 @@ interface MaterialApiItem {
   subject: string
   fileType: string | null
   downloads: number
-  rating: number
   createdAt: string
   user: {
     email: string
@@ -26,12 +25,11 @@ interface MaterialApiItem {
   }
 }
 
-type SortOption = 'downloads' | 'createdAt' | 'rating'
+type SortOption = 'downloads' | 'createdAt'
 
 const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'downloads', label: 'Most Popular' },
   { value: 'createdAt', label: 'Newest First' },
-  { value: 'rating', label: 'Highest Rated' },
 ]
 
 export default function MaterialsPage() {
@@ -102,19 +100,28 @@ export default function MaterialsPage() {
     })
 
     if (!response.ok) {
-      setError('Unable to download this material right now.')
+      const data = (await response.json().catch(() => ({}))) as { error?: string }
+      setError(data.error ?? 'Unable to download this material right now.')
       return
     }
 
-    const data = (await response.json()) as { downloadUrl?: string }
-    if (data.downloadUrl) {
-      window.open(data.downloadUrl, '_blank', 'noopener,noreferrer')
-      setMaterials((current) =>
-        current.map((item) =>
-          item.id === String(materialId) ? { ...item, downloads: item.downloads + 1 } : item
-        )
+    const blob = await response.blob()
+    const contentDisposition = response.headers.get('Content-Disposition') ?? ''
+    const filenameMatch = contentDisposition.match(/filename="([^"]+)"/)
+    const filename = filenameMatch?.[1] ? decodeURIComponent(filenameMatch[1]) : 'download'
+
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+
+    setMaterials((current) =>
+      current.map((item) =>
+        item.id === String(materialId) ? { ...item, downloads: item.downloads + 1 } : item
       )
-    }
+    )
   }
 
   const dynamicSubjects = Array.from(new Set(materials.map((material) => material.subject))).sort()
@@ -183,29 +190,6 @@ export default function MaterialsPage() {
               </div>
             </div>
           </div>
-
-          <div className="border-semantic-success/30 bg-semantic-success/10 rounded-xl border p-5">
-            <div className="mb-2 flex items-center gap-3">
-              <div className="bg-semantic-success/20 rounded-lg p-2">
-                <Download className="text-semantic-success h-5 w-5" />
-              </div>
-              <h3 className="text-foreground font-semibold">Top Contributors</h3>
-            </div>
-            <ul className="mt-3 space-y-3">
-              <li className="flex justify-between text-sm">
-                <span className="text-foreground">Sarah Chen</span>
-                <span className="text-semantic-success font-medium">12 uploads</span>
-              </li>
-              <li className="flex justify-between text-sm">
-                <span className="text-foreground">Mike Ross</span>
-                <span className="text-semantic-success font-medium">8 uploads</span>
-              </li>
-              <li className="flex justify-between text-sm">
-                <span className="text-foreground">Jessica Pearson</span>
-                <span className="text-semantic-success font-medium">6 uploads</span>
-              </li>
-            </ul>
-          </div>
         </div>
 
         {/* Materials Grid */}
@@ -262,7 +246,6 @@ export default function MaterialsPage() {
                   author={material.user.profile?.displayName || material.user.email}
                   subject={material.subject}
                   type={(material.fileType || 'unknown').toUpperCase()}
-                  rating={material.rating}
                   downloads={material.downloads}
                   uploadedAt={formatDistanceToNow(new Date(material.createdAt), {
                     addSuffix: true,

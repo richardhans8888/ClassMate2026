@@ -35,7 +35,6 @@ describe('Theme parity component guards', () => {
         author="Bob"
         subject="Mathematics"
         type="PDF"
-        rating={4.8}
         downloads={120}
         uploadedAt="today"
       />

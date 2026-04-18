@@ -99,7 +99,7 @@ export function ModerationQueueTable({
         body: JSON.stringify({ flagId: flag.id, action, reason }),
       })
 
-      if (!res.ok) {
+      if (!res.ok && !(action === 'remove' && res.status === 409)) {
         const data = (await res.json()) as { error?: string }
         throw new Error(data.error ?? 'Failed to resolve flag')
       }

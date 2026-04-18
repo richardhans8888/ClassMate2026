@@ -1,3 +1,5 @@
+import fs from 'fs'
+import path from 'path'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
@@ -18,11 +20,20 @@ export async function POST(_request: NextRequest, context: { params: Promise<{ i
 
     const material = await prisma.studyMaterial.findUnique({
       where: { id },
-      select: { id: true, fileUrl: true },
+      select: { id: true, fileUrl: true, title: true, fileType: true },
     })
 
     if (!material) {
       return NextResponse.json({ error: 'Material not found' }, { status: 404 })
+    }
+
+    if (!material.fileUrl.startsWith('/uploads/')) {
+      return NextResponse.json({ error: 'Invalid file path' }, { status: 400 })
+    }
+
+    const filePath = path.join(process.cwd(), 'public', material.fileUrl)
+    if (!fs.existsSync(filePath)) {
+      return NextResponse.json({ error: 'File not found on server' }, { status: 404 })
     }
 
     await prisma.studyMaterial.update({
@@ -30,9 +41,18 @@ export async function POST(_request: NextRequest, context: { params: Promise<{ i
       data: { downloads: { increment: 1 } },
     })
 
-    return NextResponse.json({ success: true, downloadUrl: material.fileUrl })
+    const fileBuffer = fs.readFileSync(filePath)
+    const filename = `${material.title}.${material.fileType}`
+
+    return new NextResponse(fileBuffer, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${encodeURIComponent(filename)}"`,
+        'Content-Length': String(fileBuffer.length),
+      },
+    })
   } catch (error) {
-    console.error('Material download tracking error:', error)
+    console.error('Material download error:', error)
     return NextResponse.json({ error: 'Download failed' }, { status: 500 })
   }
 }

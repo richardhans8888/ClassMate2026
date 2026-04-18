@@ -1,3 +1,4 @@
+import fs from 'fs'
 import { NextRequest } from 'next/server'
 import { GET, POST } from '@/app/api/materials/route'
 import { POST as downloadPOST } from '@/app/api/materials/[id]/download/route'
@@ -5,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { uploadFile } from '@/lib/storage'
 
+jest.mock('fs')
 jest.mock('@/lib/prisma')
 jest.mock('@/lib/auth', () => ({
   getSession: jest.fn(),
@@ -179,11 +181,15 @@ describe('/api/materials POST', () => {
 })
 
 describe('/api/materials/[id]/download POST', () => {
-  it('tracks download and returns URL', async () => {
+  it('streams file and increments download count', async () => {
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true)
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(Buffer.from('file content') as unknown as string)
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'user1' })
     ;(prisma.studyMaterial.findUnique as jest.Mock).mockResolvedValue({
       id: 'material-1',
-      fileUrl: 'https://example.com/file.pdf',
+      fileUrl: '/uploads/user1/abc123.pdf',
+      title: 'Test Material',
+      fileType: 'pdf',
     })
 
     const req = new NextRequest('http://localhost/api/materials/material-1/download', {
@@ -191,15 +197,30 @@ describe('/api/materials/[id]/download POST', () => {
     })
 
     const response = await downloadPOST(req, { params: Promise.resolve({ id: 'material-1' }) })
-    const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data.success).toBe(true)
-    expect(data.downloadUrl).toBe('https://example.com/file.pdf')
+    expect(response.headers.get('Content-Disposition')).toContain('attachment')
     expect(prisma.studyMaterial.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'material-1' },
       })
     )
+  })
+
+  it('returns 400 for non-uploads fileUrl', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user1' })
+    ;(prisma.studyMaterial.findUnique as jest.Mock).mockResolvedValue({
+      id: 'material-1',
+      fileUrl: 'https://example.com/file.pdf',
+      title: 'Test',
+      fileType: 'pdf',
+    })
+
+    const req = new NextRequest('http://localhost/api/materials/material-1/download', {
+      method: 'POST',
+    })
+
+    const response = await downloadPOST(req, { params: Promise.resolve({ id: 'material-1' }) })
+    expect(response.status).toBe(400)
   })
 })

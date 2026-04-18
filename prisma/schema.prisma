@@ -267,8 +267,6 @@ model StudyMaterial {
   subject     String
   fileType    String?
   downloads   Int   @default(0)
-  rating      Float @default(0)
-  reviewCount Int   @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -276,7 +274,6 @@ model StudyMaterial {
   @@index([userId])
   @@index([subject])
   @@index([createdAt])
-  @@index([rating])
 }
 
 // STUDY GROUPS

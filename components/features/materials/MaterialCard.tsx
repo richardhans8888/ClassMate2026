@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { FileText, Download, Star } from 'lucide-react'
+import { FileText, Download } from 'lucide-react'
 
 interface MaterialCardProps {
   id: number | string
@@ -7,7 +7,6 @@ interface MaterialCardProps {
   author: string
   subject: string
   type: string
-  rating: number
   downloads: number
   uploadedAt: string
   onDownload?: (id: number | string) => void
@@ -19,7 +18,6 @@ export function MaterialCard({
   author,
   subject,
   type,
-  rating,
   downloads,
   uploadedAt,
   onDownload,
@@ -29,10 +27,6 @@ export function MaterialCard({
       <div className="mb-4 flex items-start justify-between">
         <div className="bg-accent text-accent-foreground rounded-lg p-3">
           <FileText className="h-6 w-6" />
-        </div>
-        <div className="bg-semantic-warning/10 text-semantic-warning flex items-center rounded px-2 py-1 text-xs font-bold">
-          <Star className="mr-1 h-3 w-3 fill-current" />
-          {rating}
         </div>
       </div>
 
