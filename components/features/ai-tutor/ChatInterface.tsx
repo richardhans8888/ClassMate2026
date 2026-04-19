@@ -118,7 +118,7 @@ export function ChatInterface({
   }
 
   return (
-    <div className="bg-card flex h-full flex-col overflow-hidden">
+    <div className="bg-card flex h-full min-w-0 flex-col overflow-hidden">
       {/* Header */}
       <div className="border-border bg-card flex items-center justify-between border-b p-4">
         <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export function ChatInterface({
       </div>
 
       {/* Chat Area */}
-      <div ref={chatBoxRef} className="flex-1 space-y-6 overflow-y-auto p-4">
+      <div ref={chatBoxRef} className="flex-1 space-y-6 overflow-x-hidden overflow-y-auto p-4">
         {error && (
           <div className="bg-semantic-error/10 text-semantic-error rounded-xl p-3 text-center text-sm">
             {error}
@@ -191,29 +191,36 @@ export function ChatInterface({
         )}
 
         {messages.map((msg) => (
-          <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+          <div
+            key={msg.id}
+            className={`flex min-w-0 gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}
+          >
             {msg.role === 'assistant' && (
               <div className="bg-primary shadow-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-lg">
                 <GraduationCap className="h-5 w-5 text-white" />
               </div>
             )}
 
-            <div className={`max-w-[85%] space-y-4 ${msg.role === 'user' ? 'order-first' : ''}`}>
+            <div
+              className={`max-w-[85%] min-w-0 space-y-4 ${msg.role === 'user' ? 'order-first' : ''}`}
+            >
               <div
-                className={`rounded-2xl p-4 shadow-sm ${
+                className={`overflow-hidden rounded-2xl p-4 shadow-sm ${
                   msg.role === 'user'
                     ? 'bg-primary text-primary-foreground rounded-tr-none'
                     : 'border-border bg-muted text-foreground rounded-tl-none border'
                 }`}
               >
                 {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none leading-relaxed">
+                  <div className="prose prose-sm dark:prose-invert max-w-none overflow-hidden leading-relaxed break-words">
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                       {msg.content}
                     </ReactMarkdown>
                   </div>
                 ) : (
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                  <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+                    {msg.content}
+                  </p>
                 )}
               </div>
             </div>

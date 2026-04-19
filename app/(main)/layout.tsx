@@ -28,6 +28,7 @@ export default function MainLayout({
   const hideFooter =
     pathname.startsWith('/session') ||
     pathname.startsWith('/chat') ||
+    pathname.startsWith('/ai-tutor') ||
     (pathname.startsWith('/groups/') && pathname !== '/groups')
 
   return (
@@ -42,11 +43,15 @@ export default function MainLayout({
 
         {/* Content area — offset by sidebar width on desktop */}
         <div
-          className={`flex h-screen flex-1 flex-col transition-all duration-300 ${collapsed ? 'md:ml-16' : 'md:ml-64'}`}
+          className={`flex h-screen min-w-0 flex-1 flex-col transition-all duration-300 ${collapsed ? 'md:ml-16' : 'md:ml-64'}`}
         >
           <TopNavbar onMobileMenuOpen={() => setMobileOpen(true)} />
-          <main className="flex flex-1 flex-col overflow-y-auto">
-            <div className="flex-1">{children}</div>
+          <main
+            className={`flex flex-1 flex-col ${hideFooter ? 'overflow-hidden' : 'overflow-x-hidden overflow-y-auto'}`}
+          >
+            <div className={hideFooter ? 'flex flex-1 flex-col overflow-hidden' : 'flex-1'}>
+              {children}
+            </div>
             {!hideFooter && <Footer />}
           </main>
         </div>

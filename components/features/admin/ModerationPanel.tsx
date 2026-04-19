@@ -104,7 +104,7 @@ export function ModerationPanel({
           <p className="text-muted-foreground mt-1 text-sm">
             Audit trail of all moderation actions taken by moderators and admins.
           </p>
-          <div className="border-border bg-card mt-6 overflow-hidden rounded-lg border">
+          <div className="border-border bg-card mt-6 overflow-x-auto rounded-lg border">
             {logs.length === 0 ? (
               <p className="text-muted-foreground px-4 py-8 text-center text-sm">
                 No moderation actions recorded yet.

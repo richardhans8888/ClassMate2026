@@ -39,7 +39,7 @@ export default function AITutorPage() {
       </div>
 
       {/* Chat Interface */}
-      <div className="flex h-full flex-1 flex-col">
+      <div className="flex h-full min-w-0 flex-1 flex-col">
         <ChatInterface
           messages={messages}
           isLoading={isLoading}

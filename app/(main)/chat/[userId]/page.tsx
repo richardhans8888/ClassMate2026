@@ -171,8 +171,8 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
           >
             {participantInitial}
           </div>
-          <div>
-            <h3 className="text-foreground font-semibold">{participantName}</h3>
+          <div className="min-w-0">
+            <h3 className="text-foreground truncate font-semibold">{participantName}</h3>
             <span className="text-muted-foreground text-xs">Direct messages</span>
           </div>
         </div>

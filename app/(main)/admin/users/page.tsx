@@ -17,7 +17,7 @@ export default async function AdminUsersPage() {
   })
 
   return (
-    <div className="container mx-auto px-6 py-8 md:px-8">
+    <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 md:px-8">
       <h1 className="text-foreground text-2xl font-bold">User Management</h1>
       <p className="text-muted-foreground mt-2 text-sm">
         Browse all registered users and their roles.

@@ -37,8 +37,8 @@ export function ForumCard({
         <Link href={`/forums/${id}`}>{title}</Link>
       </h3>
 
-      <div className="mt-4 flex items-center justify-between">
-        <div className="text-muted-foreground flex items-center gap-6 text-sm">
+      <div className="mt-4 flex flex-wrap items-center gap-y-3">
+        <div className="text-muted-foreground flex flex-1 items-center gap-4 text-sm">
           <UpvoteButton
             contentId={String(id)}
             contentType="post"
@@ -55,7 +55,7 @@ export function ForumCard({
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
             <span key={tag} className="bg-muted text-muted-foreground rounded-md px-2 py-1 text-xs">
               #{tag}

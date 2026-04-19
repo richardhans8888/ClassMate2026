@@ -111,7 +111,7 @@ export default async function AdminModerationPage() {
     : []
 
   return (
-    <div className="container mx-auto space-y-10 px-6 py-8 md:px-8">
+    <div className="container mx-auto space-y-10 px-4 py-6 sm:px-6 sm:py-8 md:px-8">
       {/* Summary stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
         <div className="border-border bg-card rounded-xl border p-4">

@@ -119,7 +119,7 @@ export default function UploadMaterialPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-2xl px-6 py-8 md:px-8">
+    <div className="container mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8 md:px-8">
       <Link
         href="/materials"
         className="text-muted-foreground hover:text-primary mb-6 inline-flex items-center"
@@ -128,9 +128,9 @@ export default function UploadMaterialPage() {
         Back to Materials
       </Link>
 
-      <div className="border-border bg-card rounded-xl border p-8 shadow-sm">
+      <div className="border-border bg-card rounded-xl border p-4 shadow-sm sm:p-6 md:p-8">
         <h1 className="text-foreground mb-2 text-2xl font-bold">Upload Study Material</h1>
-        <p className="text-muted-foreground mb-8 text-sm">
+        <p className="text-muted-foreground mb-6 text-sm break-words sm:mb-8">
           Share resources with your classmates. Accepted formats: {ALLOWED_EXTENSIONS.join(', ')} ·
           Max 50 MB
         </p>

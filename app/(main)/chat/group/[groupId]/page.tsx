@@ -173,10 +173,12 @@ export default function GroupChatPage({ params }: { params: Promise<{ groupId: s
           >
             {groupInitial}
           </div>
-          <div>
-            <h3 className="text-foreground font-semibold">{group?.name ?? 'Group Chat'}</h3>
+          <div className="min-w-0">
+            <h3 className="text-foreground truncate font-semibold">
+              {group?.name ?? 'Group Chat'}
+            </h3>
             <span className="text-muted-foreground flex items-center gap-1 text-xs">
-              <Users className="h-3 w-3" />
+              <Users className="h-3 w-3 shrink-0" />
               {group?.memberCount ?? '...'} members · {group?.subject ?? ''}
             </span>
           </div>
