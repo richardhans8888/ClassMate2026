@@ -13,10 +13,42 @@ Each student must list **their own contribution**. Contributions must match GitH
 **Student Name:** Kenny Tang
 
 - Features implemented:
-- API endpoints handled:
-- Tests written:
-- Security work:
-- AI-related work:
+  - Authentication (Firebase + Better Auth dual-provider)
+  - Database design (Prisma schema, migrations, seed)
+  - User profile & discovery
+  - Connections
+  - Forums (posts, replies, upvotes)
+  - Study groups & group chat
+  - Direct messaging (chat)
+  - Study materials (upload, download, management)
+  - AI Tutor & study material summarization
+  - Scheduling & events
+  - Moderation system & admin dashboard
+  - UI / UX redesign (sidebar, responsive layout, dark/light mode)
+  - Rate limiting & security hardening
+
+- API endpoints built:
+  - `/api/admin/users`, `/api/admin/users/[id]/role`
+  - `/api/auth/[...all]`, `/api/auth/firebase`, `/api/logout`
+  - `/api/user/me`, `/api/user/profile`, `/api/user/stats`
+  - `/api/users/discover`
+  - `/api/connections`, `/api/connections/[id]`, `/api/connections/count`, `/api/connections/status`
+  - `/api/forums/posts`, `/api/forums/posts/[id]`, `/api/forums/posts/[id]/upvote`
+  - `/api/forums/replies`, `/api/forums/replies/[id]`, `/api/forums/replies/[id]/upvote`
+  - `/api/study-groups`, `/api/study-groups/[groupId]`, `/api/study-groups/[groupId]/join`, `/api/study-groups/[groupId]/messages`
+  - `/api/messages/conversations`, `/api/messages/conversations/[userId]`, `/api/messages/conversations/[userId]/read`, `/api/messages/contacts`
+  - `/api/materials`, `/api/materials/[id]`, `/api/materials/[id]/download`
+  - `/api/sessions`, `/api/sessions/[sessionId]/messages`, `/api/summarize`
+  - `/api/events`, `/api/events/[id]`
+  - `/api/moderation`, `/api/moderation/flag`, `/api/moderation/flagged`, `/api/moderation/resolve`, `/api/moderation/logs`
+  - `/api/recommendations/threads`
+  - `/api/docs` (Swagger UI)
+
+- Tests written: 58 test suites, 720 tests — covering API routes (auth, forums, materials, messages, study groups, events, connections, moderation, admin), security/authorization boundaries, service layer logic, and frontend component tests
+
+- Security work: Role-based access control (4 tiers), XSS sanitization, rate limiting on all endpoints, secure file upload handling, fixed multiple ESLint security warnings, resolved auth bypass vulnerabilities, input validation at API boundaries
+
+- AI-related work: Built AI Tutor end-to-end (Groq Llama 3.3-70B, session management, message persistence), implemented study material summarization endpoint, integrated AI content moderation helper into the moderation pipeline
 
 ---
 
@@ -67,7 +99,7 @@ Each student must list **their own contribution**. Contributions must match GitH
 - **Real-time messaging:** Direct messages and study group chat use polling (5-second intervals) rather than WebSocket/SSE. This means there is a small delay between send and receive.
 - **File storage:** In development, files are stored in `public/uploads/` which is not persistent across Docker container restarts. Production should use Firebase Storage or S3.
 - **AI Tutor context:** Each AI Tutor session maintains context within the session but does not share context across sessions. Long sessions may hit Groq token limits.
-- **Pagination:** Some listing views (forums, materials, groups) currently load all records. Page-based navigation is planned.
+- **Pagination:** Page-based navigation is implemented on forums, materials, and study groups. Very large datasets may benefit from cursor-based pagination in the future.
 - **Search:** Full-text search is basic (`contains` query); a proper search index (e.g., Elasticsearch or pg_tsvector) would improve results at scale.
 
 ### Possible Future Enhancements
@@ -97,8 +129,8 @@ We declare that:
 
 **Signed by Group Members:**
 
-| Name                   | Signature            |
-| :--------------------- | :------------------- |
-| Kenny Tang             | ********\_\_******** |
-| Richard Hans           | ********\_\_******** |
-| Stefan Luciano Kencana | ********\_\_******** |
+| Name                   | Signature                    |
+| :--------------------- | :--------------------------- |
+| Kenny Tang             | **\*\*\*\***\_\_**\*\*\*\*** |
+| Richard Hans           | **\*\*\*\***\_\_**\*\*\*\*** |
+| Stefan Luciano Kencana | **\*\*\*\***\_\_**\*\*\*\*** |
