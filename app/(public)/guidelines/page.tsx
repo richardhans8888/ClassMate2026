@@ -57,7 +57,7 @@ const guidelines = [
     dos: [
       'Keep personal contact details private',
       'Report suspicious or abusive behaviour',
-      'Use platform tools to communicate with tutors',
+      'Use platform tools to communicate with peers',
       "Respect others' privacy and personal boundaries",
     ],
     donts: [
@@ -74,8 +74,8 @@ export default function GuidelinesPage() {
     <>
       <PageHeader
         title="Community Guidelines"
-        description="These guidelines exist to keep ClassMate a safe, inclusive, and productive place for every student and tutor."
-        badge="Last updated: February 2026"
+        description="These guidelines exist to keep ClassMate a safe, inclusive, and productive place for every student."
+        badge="Last updated: April 2026"
         icon={<BookOpen className="h-5 w-5" />}
       />
 

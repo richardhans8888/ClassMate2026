@@ -14,7 +14,7 @@ export default function PrivacyPage() {
       <PageHeader
         title="Privacy Policy"
         description="We take your privacy seriously. Here's how we collect, use, and protect your personal information."
-        badge="Last updated: February 2026"
+        badge="Last updated: April 2026"
         icon={<Shield className="h-5 w-5" />}
       />
 
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
                 <div>
                   <p className="text-foreground text-sm font-medium">Communication data</p>
                   <p className="text-muted-foreground mt-0.5 text-sm">
-                    Messages with tutors and peers within the platform.
+                    Messages and content shared with peers within the platform.
                   </p>
                 </div>
               </li>
@@ -65,9 +65,8 @@ export default function PrivacyPage() {
 
           <ContentSection title="How We Use Your Data">
             <p className="text-muted-foreground text-sm leading-relaxed">
-              We use your data to provide personalized learning experiences, improve our platform,
-              and facilitate connections between students and tutors. Your data is never sold to
-              third parties.
+              We use your data to provide platform services, improve our features, and facilitate
+              connections between students. Your data is never sold to third parties.
             </p>
           </ContentSection>
         </div>

@@ -23,7 +23,7 @@ const contactDetails = [
   {
     icon: <MapPin className="h-4 w-4" />,
     label: 'Location',
-    value: 'Auckland, New Zealand',
+    value: 'Jakarta, Indonesia',
   },
 ]
 

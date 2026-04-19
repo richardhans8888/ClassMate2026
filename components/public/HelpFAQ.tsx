@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, Rocket, Users, Settings } from 'lucide-react'
+import { ChevronDown, Rocket, BookOpen, Settings } from 'lucide-react'
 
 interface FAQItem {
   question: string
@@ -22,74 +22,74 @@ const categories: Category[] = [
       {
         question: 'How do I create an account?',
         answer:
-          'Click "Sign Up" on the homepage and register with your email or Google account. Once verified, you can complete your profile and start exploring the platform.',
-      },
-      {
-        question: 'How do I join a study group?',
-        answer:
-          'Navigate to the Study Groups section from the main menu. Browse available groups by subject or use the search bar to find a specific group. Click "Join" to become a member.',
+          'Click "Sign Up" on the homepage and register with your email or Google account. Once your account is created, you can complete your profile and start exploring the platform.',
       },
       {
         question: 'What is the forum for?',
         answer:
-          'The forum is a community space where students can ask academic questions, share resources, and discuss topics. You can upvote helpful answers, follow threads, and contribute to discussions.',
+          'The forum is a community space where students ask academic questions, share resources, and discuss topics. You can upvote helpful answers and contribute to discussions.',
       },
       {
-        question: 'How do I earn XP points?',
+        question: 'How do I join a study group?',
         answer:
-          'You earn XP by participating in the platform — posting in forums, replying to questions, attending study sessions, completing streaks, and getting upvotes on your contributions.',
+          'Navigate to Study Groups from the main menu. Browse available groups by subject or enter an invite code if you have one. Click "Join" to become a member and access the group chat.',
+      },
+      {
+        question: 'How do I connect with other students?',
+        answer:
+          'Use the Discover page to browse and search for other students. Visit their profile and send a connection request. Once accepted, you can message them directly.',
       },
     ],
   },
   {
-    label: 'Tutors & Sessions',
-    icon: <Users className="h-4 w-4" />,
+    label: 'Features',
+    icon: <BookOpen className="h-4 w-4" />,
     items: [
       {
-        question: 'How do I find a tutor?',
+        question: 'How do I use the AI Tutor?',
         answer:
-          'Go to the Tutors section and browse by subject or availability. Each tutor profile shows their expertise, hourly rate, and reviews from past students.',
+          'Open the AI Tutor from the main menu and type your question. The AI tutor can help explain concepts, answer academic questions, and guide you through problems. Your sessions are saved so you can pick up where you left off.',
       },
       {
-        question: 'How do I book a tutoring session?',
+        question: 'How do I upload or access study materials?',
         answer:
-          'On a tutor\'s profile, select an available time slot and click "Book Session". You\'ll receive a confirmation with the session details and any video call links.',
+          'Go to the Materials section to browse shared study resources. To upload your own, click "Upload" and select your file. Supported formats include PDFs and documents.',
       },
       {
-        question: 'Can I become a tutor?',
+        question: 'How do I send a direct message?',
         answer:
-          'Yes! If you have strong subject knowledge, you can apply to become a tutor from your profile settings. The process includes a brief review of your academic background.',
+          "Go to the Chat section to see your existing conversations, or visit another student's profile and start a new conversation from there.",
       },
       {
-        question: 'What happens if I need to cancel a session?',
+        question: 'What is the schedule for?',
         answer:
-          'You can cancel a booked session from your schedule. Please cancel at least 24 hours in advance as a courtesy to your tutor. Repeated last-minute cancellations may affect your account standing.',
+          'The Schedule page is a personal calendar where you can create and track study events. Use it to plan your sessions and stay organised.',
       },
     ],
   },
   {
-    label: 'Account Settings',
+    label: 'Account',
     icon: <Settings className="h-4 w-4" />,
     items: [
       {
         question: 'How do I update my profile?',
         answer:
-          'Go to your Profile page from the top navigation menu. You can update your display name, bio, avatar, and subject interests from there.',
+          'Go to your Profile page from the top navigation. You can update your display name, bio, university, major, and other details from there.',
       },
       {
         question: 'How do I change my password?',
         answer:
-          'Visit your Account Settings and select "Change Password". You\'ll need to enter your current password before setting a new one.',
+          'Password changes are handled through your login provider. If you signed up with email and password, you can reset your password from the login page.',
       },
       {
-        question: 'How do I delete my account?',
+        question: 'How do I report inappropriate content?',
         answer:
-          'Account deletion can be requested from Account Settings under "Danger Zone". This action is permanent and will remove all your data from the platform.',
+          'Use the flag icon on any forum post or reply to report it to our moderation team. We review all reports and take appropriate action.',
       },
       {
-        question: 'Can I change my email address?',
+        question: 'How do I contact support?',
         answer:
-          'Yes, you can update your email address in Account Settings. A verification email will be sent to your new address before the change takes effect.',
+          'Visit the Contact page and fill in the form. We typically respond within 1–2 business days. For urgent issues, include "URGENT" in your message.',
       },
     ],
   },

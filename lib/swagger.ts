@@ -16,6 +16,9 @@ export const swaggerSpec = {
     { name: 'ai', description: 'AI features: chat, moderation, summarization' },
     { name: 'messages', description: 'Direct user-to-user messaging' },
     { name: 'sessions', description: 'AI tutor chat sessions' },
+    { name: 'connections', description: 'User connection requests and social graph' },
+    { name: 'users', description: 'User discovery and public profiles' },
+    { name: 'admin', description: 'Admin-only user management endpoints' },
     { name: 'user', description: 'User profile management' },
     { name: 'docs', description: 'API documentation and specification endpoints' },
   ],
@@ -319,6 +322,80 @@ export const swaggerSpec = {
       },
     },
 
+    '/api/forums/posts/{id}/upvote': {
+      post: {
+        tags: ['forums'],
+        summary: 'Toggle upvote on a forum post',
+        description:
+          'Toggles upvote for the authenticated user on the given post. Cannot upvote own post.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Upvote toggled',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    upvoted: { type: 'boolean' },
+                    upvotes: { type: 'integer' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Cannot upvote your own post' },
+          '404': { description: 'Post not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/forums/replies/{id}/upvote': {
+      post: {
+        tags: ['forums'],
+        summary: 'Toggle upvote on a forum reply',
+        description:
+          'Toggles upvote for the authenticated user on the given reply. Cannot upvote own reply.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Upvote toggled',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    upvoted: { type: 'boolean' },
+                    upvotes: { type: 'integer' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Cannot upvote your own reply' },
+          '404': { description: 'Reply not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
     // ==================== MATERIALS ====================
     '/api/materials': {
       get: {
@@ -412,6 +489,90 @@ export const swaggerSpec = {
           },
           '400': { description: 'Validation error' },
           '401': { description: 'Unauthorized' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/materials/{id}': {
+      get: {
+        tags: ['materials'],
+        summary: 'Get a study material',
+        description: 'Returns a single study material by ID.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          '200': {
+            description: 'Material fetched',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { material: { $ref: '#/components/schemas/StudyMaterial' } },
+                },
+              },
+            },
+          },
+          '404': { description: 'Material not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+      patch: {
+        tags: ['materials'],
+        summary: 'Update a study material',
+        description:
+          'Updates title, description, or subject. Only the owner or a moderator can edit.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string', nullable: true },
+                  subject: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Material updated',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { material: { $ref: '#/components/schemas/StudyMaterial' } },
+                },
+              },
+            },
+          },
+          '400': { description: 'Validation error' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Material not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+      delete: {
+        tags: ['materials'],
+        summary: 'Delete a study material',
+        description: 'Deletes a study material. Only the owner or a moderator can delete.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          '200': {
+            description: 'Material deleted',
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { success: { type: 'boolean' } } },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Material not found' },
           '500': { description: 'Internal server error' },
         },
       },
@@ -948,6 +1109,68 @@ export const swaggerSpec = {
       },
     },
 
+    '/api/moderation/logs': {
+      get: {
+        tags: ['moderation'],
+        summary: 'List moderation audit logs (moderator/admin)',
+        description:
+          'Returns paginated moderation audit logs. Admins see all logs; moderators see only their own.',
+        parameters: [
+          { name: 'page', in: 'query', required: false, schema: { type: 'integer', minimum: 1 } },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+          {
+            name: 'action',
+            in: 'query',
+            required: false,
+            schema: {
+              type: 'string',
+              enum: ['FLAG_CREATED', 'FLAG_RESOLVED', 'CONTENT_DELETED'],
+            },
+          },
+          {
+            name: 'startDate',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', format: 'date-time' },
+          },
+          {
+            name: 'endDate',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', format: 'date-time' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Logs fetched',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    logs: { type: 'array', items: { $ref: '#/components/schemas/ModerationLog' } },
+                    total: { type: 'integer' },
+                    page: { type: 'integer' },
+                    limit: { type: 'integer' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Invalid filter parameters' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
     // ==================== STUDY GROUPS ====================
     '/api/study-groups': {
       get: {
@@ -1025,6 +1248,40 @@ export const swaggerSpec = {
           '401': { description: 'Unauthorized' },
           '403': { description: 'Not the group owner' },
           '404': { description: 'Group not found' },
+        },
+      },
+    },
+
+    '/api/study-groups/{groupId}': {
+      get: {
+        tags: ['study-groups'],
+        summary: 'Get study group detail',
+        description:
+          'Returns a single study group with members. Includes flags indicating whether the current user is a member or owner.',
+        parameters: [{ name: 'groupId', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          '200': {
+            description: 'Study group detail',
+            content: {
+              'application/json': {
+                schema: {
+                  allOf: [
+                    { $ref: '#/components/schemas/StudyGroup' },
+                    {
+                      type: 'object',
+                      properties: {
+                        isCurrentUserMember: { type: 'boolean' },
+                        isCurrentUserOwner: { type: 'boolean' },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '404': { description: 'Group not found' },
+          '500': { description: 'Internal server error' },
         },
       },
     },
@@ -1436,7 +1693,463 @@ export const swaggerSpec = {
       },
     },
 
+    // ==================== MESSAGES CONTACTS ====================
+    '/api/messages/contacts': {
+      get: {
+        tags: ['messages'],
+        summary: 'List messageable contacts',
+        description:
+          'Returns all users (except the caller) available to start a direct message thread with.',
+        responses: {
+          '200': {
+            description: 'Contact list',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    contacts: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/DirectMessageParticipant' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    // ==================== CONNECTIONS ====================
+    '/api/connections': {
+      get: {
+        tags: ['connections'],
+        summary: 'List connections',
+        description:
+          'Returns connections for the authenticated user. Filter by status: accepted (default), pending_received, pending_sent.',
+        parameters: [
+          {
+            name: 'status',
+            in: 'query',
+            required: false,
+            schema: {
+              type: 'string',
+              enum: ['accepted', 'pending_received', 'pending_sent'],
+              default: 'accepted',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Connections fetched',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    connections: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Connection' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Invalid status filter' },
+          '401': { description: 'Unauthorized' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+      post: {
+        tags: ['connections'],
+        summary: 'Send a connection request',
+        description:
+          'Sends a connection request to another user. If the other user has already requested, auto-accepts.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['recipientId'],
+                properties: {
+                  recipientId: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Mutual request auto-accepted',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { connection: { $ref: '#/components/schemas/Connection' } },
+                },
+              },
+            },
+          },
+          '201': {
+            description: 'Connection request sent',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { connection: { $ref: '#/components/schemas/Connection' } },
+                },
+              },
+            },
+          },
+          '400': { description: 'Invalid recipientId or self-connection attempt' },
+          '401': { description: 'Unauthorized' },
+          '404': { description: 'Recipient user not found' },
+          '409': { description: 'Already connected or request already sent' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/connections/{id}': {
+      patch: {
+        tags: ['connections'],
+        summary: 'Accept or reject a connection request',
+        description: 'Only the recipient of the request can accept or reject it.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['status'],
+                properties: {
+                  status: { type: 'string', enum: ['ACCEPTED', 'REJECTED'] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Connection updated',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { connection: { $ref: '#/components/schemas/Connection' } },
+                },
+              },
+            },
+          },
+          '400': { description: 'Invalid status value' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden — not the recipient' },
+          '404': { description: 'Connection not found' },
+          '409': { description: 'Request no longer pending' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+      delete: {
+        tags: ['connections'],
+        summary: 'Remove a connection',
+        description: 'Either the sender or recipient may remove an existing connection.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          '200': {
+            description: 'Connection removed',
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { success: { type: 'boolean' } } },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'Connection not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/connections/status': {
+      get: {
+        tags: ['connections'],
+        summary: 'Get connection status with a user',
+        description:
+          'Returns the connection status between the authenticated user and a target user.',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'query',
+            required: true,
+            description: 'Target user ID',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Connection status',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    status: {
+                      type: 'string',
+                      enum: ['none', 'pending_sent', 'pending_received', 'accepted'],
+                    },
+                    connectionId: { type: 'string', nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Missing userId' },
+          '401': { description: 'Unauthorized' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/connections/count': {
+      get: {
+        tags: ['connections'],
+        summary: 'Get connection count',
+        description:
+          'Returns the number of accepted connections for the given user (defaults to the authenticated user).',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'query',
+            required: false,
+            description: 'User ID (defaults to authenticated user)',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Connection count',
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { count: { type: 'integer' } } },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    // ==================== USERS ====================
+    '/api/users/discover': {
+      get: {
+        tags: ['users'],
+        summary: 'Discover users',
+        description:
+          'Returns paginated list of users (excluding the caller) with connection status attached. Supports search by name, university, or major.',
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 1, default: 1 },
+          },
+          {
+            name: 'search',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'User discovery results',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    users: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/DiscoverUser' },
+                    },
+                    meta: {
+                      type: 'object',
+                      properties: {
+                        total: { type: 'integer' },
+                        page: { type: 'integer' },
+                        limit: { type: 'integer' },
+                        pages: { type: 'integer' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    // ==================== ADMIN ====================
+    '/api/admin/users': {
+      get: {
+        tags: ['admin'],
+        summary: 'List all users (admin)',
+        description: 'Returns paginated user list with search. Requires admin role.',
+        parameters: [
+          { name: 'search', in: 'query', required: false, schema: { type: 'string' } },
+          { name: 'page', in: 'query', required: false, schema: { type: 'integer', minimum: 1 } },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Users fetched',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    users: { type: 'array', items: { $ref: '#/components/schemas/AdminUser' } },
+                    total: { type: 'integer' },
+                    page: { type: 'integer' },
+                    limit: { type: 'integer' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/admin/users/{id}/role': {
+      patch: {
+        tags: ['admin'],
+        summary: 'Change a user role (admin)',
+        description:
+          'Updates the role of a user. Admins can assign STUDENT or MODERATOR. OWNER role cannot be modified.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['role'],
+                properties: {
+                  role: { type: 'string', enum: ['STUDENT', 'MODERATOR', 'ADMIN'] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Role updated',
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { success: { type: 'boolean' } } },
+              },
+            },
+          },
+          '400': { description: 'Invalid role or self-modification attempt' },
+          '401': { description: 'Unauthorized' },
+          '403': { description: 'Forbidden' },
+          '404': { description: 'User not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
     // ==================== USER ====================
+    '/api/user/me': {
+      get: {
+        tags: ['user'],
+        summary: 'Get current user',
+        description:
+          "Returns the authenticated user's id, email, name, image, role, and avatarUrl.",
+        responses: {
+          '200': {
+            description: 'Current user data',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    email: { type: 'string' },
+                    name: { type: 'string', nullable: true },
+                    image: { type: 'string', nullable: true },
+                    role: { type: 'string', enum: ['STUDENT', 'MODERATOR', 'ADMIN', 'OWNER'] },
+                    avatarUrl: { type: 'string', nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '404': { description: 'User not found' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
+    '/api/user/stats': {
+      get: {
+        tags: ['user'],
+        summary: 'Get user statistics',
+        description:
+          'Returns forum post count, study group memberships, and connection count. Defaults to authenticated user; pass userId for public profile views.',
+        parameters: [
+          {
+            name: 'userId',
+            in: 'query',
+            required: false,
+            description: 'Target user ID (defaults to authenticated user)',
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'User stats',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    forumPostCount: { type: 'integer' },
+                    studyGroupCount: { type: 'integer' },
+                    connectionCount: { type: 'integer' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized (when no userId and no session)' },
+          '500': { description: 'Internal server error' },
+        },
+      },
+    },
+
     '/api/user/profile': {
       get: {
         tags: ['user'],
@@ -1562,24 +2275,24 @@ export const swaggerSpec = {
           id: { type: 'string' },
           name: { type: 'string' },
         },
+      },
 
-        StudyMaterial: {
-          type: 'object',
-          properties: {
-            id: { type: 'string' },
-            userId: { type: 'string' },
-            title: { type: 'string' },
-            description: { type: 'string', nullable: true },
-            fileUrl: { type: 'string' },
-            subject: { type: 'string' },
-            fileType: { type: 'string' },
-            downloads: { type: 'integer' },
-            rating: { type: 'number' },
-            reviewCount: { type: 'integer' },
-            createdAt: { type: 'string', format: 'date-time' },
-            updatedAt: { type: 'string', format: 'date-time' },
-            user: { $ref: '#/components/schemas/UserSummary' },
-          },
+      StudyMaterial: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          userId: { type: 'string' },
+          title: { type: 'string' },
+          description: { type: 'string', nullable: true },
+          fileUrl: { type: 'string' },
+          subject: { type: 'string' },
+          fileType: { type: 'string' },
+          downloads: { type: 'integer' },
+          rating: { type: 'number' },
+          reviewCount: { type: 'integer' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+          user: { $ref: '#/components/schemas/UserSummary' },
         },
       },
 
@@ -1668,21 +2381,42 @@ export const swaggerSpec = {
             items: { type: 'string' },
           },
         },
+      },
 
-        FlaggedContent: {
-          type: 'object',
-          properties: {
-            id: { type: 'string' },
-            reporterId: { type: 'string' },
-            contentType: { type: 'string', enum: ['post', 'reply', 'material'] },
-            contentId: { type: 'string' },
-            reason: { type: 'string' },
-            status: { type: 'string', enum: ['pending', 'resolved', 'dismissed'] },
-            resolvedBy: { type: 'string', nullable: true },
-            resolution: { type: 'string', nullable: true },
-            resolvedAt: { type: 'string', format: 'date-time', nullable: true },
-            createdAt: { type: 'string', format: 'date-time' },
-            updatedAt: { type: 'string', format: 'date-time' },
+      FlaggedContent: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          reporterId: { type: 'string' },
+          contentType: { type: 'string', enum: ['post', 'reply', 'material'] },
+          contentId: { type: 'string' },
+          reason: { type: 'string' },
+          status: { type: 'string', enum: ['pending', 'resolved', 'dismissed'] },
+          resolvedBy: { type: 'string', nullable: true },
+          resolution: { type: 'string', nullable: true },
+          resolvedAt: { type: 'string', format: 'date-time', nullable: true },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+        },
+      },
+
+      ModerationLog: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          actorId: { type: 'string' },
+          action: { type: 'string', enum: ['FLAG_CREATED', 'FLAG_RESOLVED', 'CONTENT_DELETED'] },
+          targetId: { type: 'string', nullable: true },
+          targetType: { type: 'string', nullable: true },
+          details: { type: 'string', nullable: true },
+          createdAt: { type: 'string', format: 'date-time' },
+          actor: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              email: { type: 'string' },
+              name: { type: 'string', nullable: true },
+            },
           },
         },
       },
@@ -1828,6 +2562,67 @@ export const swaggerSpec = {
             properties: {
               displayName: { type: 'string', nullable: true },
               major: { type: 'string', nullable: true },
+            },
+          },
+        },
+      },
+
+      Connection: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          senderId: { type: 'string' },
+          recipientId: { type: 'string' },
+          status: { type: 'string', enum: ['PENDING', 'ACCEPTED', 'REJECTED'] },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+          sender: { $ref: '#/components/schemas/UserSummary' },
+          recipient: { $ref: '#/components/schemas/UserSummary' },
+        },
+      },
+
+      DiscoverUser: {
+        type: 'object',
+        description: 'User returned by the discover endpoint, with connection status attached',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string', nullable: true },
+          image: { type: 'string', nullable: true },
+          role: { type: 'string', enum: ['STUDENT', 'MODERATOR', 'ADMIN', 'OWNER'] },
+          profile: {
+            type: 'object',
+            nullable: true,
+            properties: {
+              displayName: { type: 'string', nullable: true },
+              avatarUrl: { type: 'string', nullable: true },
+              bio: { type: 'string', nullable: true },
+              university: { type: 'string', nullable: true },
+              major: { type: 'string', nullable: true },
+            },
+          },
+          connectionStatus: {
+            type: 'string',
+            enum: ['none', 'pending_sent', 'pending_received', 'accepted'],
+          },
+          connectionId: { type: 'string', nullable: true },
+        },
+      },
+
+      AdminUser: {
+        type: 'object',
+        description: 'User record as returned by admin endpoints',
+        properties: {
+          id: { type: 'string' },
+          email: { type: 'string' },
+          name: { type: 'string', nullable: true },
+          role: { type: 'string', enum: ['STUDENT', 'MODERATOR', 'ADMIN', 'OWNER'] },
+          createdAt: { type: 'string', format: 'date-time' },
+          profile: {
+            type: 'object',
+            nullable: true,
+            properties: {
+              displayName: { type: 'string', nullable: true },
+              avatarUrl: { type: 'string', nullable: true },
             },
           },
         },

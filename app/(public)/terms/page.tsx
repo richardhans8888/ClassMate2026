@@ -14,7 +14,7 @@ export default function TermsPage() {
       <PageHeader
         title="Terms of Service"
         description="By using ClassMate, you agree to these terms. Please read them carefully before using the platform."
-        badge="Last updated: February 2026"
+        badge="Last updated: April 2026"
         icon={<ScrollText className="h-5 w-5" />}
       />
 
@@ -31,8 +31,8 @@ export default function TermsPage() {
               </span>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 You agree to use ClassMate for educational purposes only and to maintain academic
-                integrity in all interactions. This includes respectful communication with peers,
-                tutors, and platform staff.
+                integrity in all interactions. This includes respectful communication with peers and
+                platform staff.
               </p>
             </div>
           </ContentSection>

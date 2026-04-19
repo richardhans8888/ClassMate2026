@@ -7,7 +7,38 @@ import { checkRateLimit, generalLimiter } from '@/lib/rate-limit'
 
 const PAGE_SIZE = 20
 
-// GET /api/users/discover?page=1&search=xxx
+type DiscoverFilter = 'discover' | 'connected' | 'pending' | 'all'
+
+async function getFilteredUserIds(
+  sessionId: string,
+  filter: DiscoverFilter
+): Promise<{ in: string[] } | { notIn: string[] } | null> {
+  if (filter === 'all') return null
+
+  const connections = await prisma.connection.findMany({
+    where: {
+      OR: [{ senderId: sessionId }, { recipientId: sessionId }],
+    },
+    select: { senderId: true, recipientId: true, status: true },
+  })
+
+  const connectedIds = connections
+    .filter((c) => c.status === 'ACCEPTED')
+    .map((c) => (c.senderId === sessionId ? c.recipientId : c.senderId))
+
+  const pendingIds = connections
+    .filter((c) => c.status === 'PENDING')
+    .map((c) => (c.senderId === sessionId ? c.recipientId : c.senderId))
+
+  const allConnectedIds = [...connectedIds, ...pendingIds]
+
+  if (filter === 'connected') return { in: connectedIds }
+  if (filter === 'pending') return { in: pendingIds }
+  // discover: users with no connection to current user
+  return { notIn: allConnectedIds }
+}
+
+// GET /api/users/discover?page=1&search=xxx&filter=discover
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession()
@@ -21,9 +52,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
     const search = searchParams.get('search') ?? ''
+    const rawFilter = searchParams.get('filter') ?? 'discover'
+    const filter: DiscoverFilter = ['discover', 'connected', 'pending', 'all'].includes(rawFilter)
+      ? (rawFilter as DiscoverFilter)
+      : 'discover'
+
+    const idFilter = await getFilteredUserIds(session.id, filter)
 
     const where = {
-      id: { not: session.id },
+      id: {
+        not: session.id,
+        ...(idFilter ?? {}),
+      },
       ...(search
         ? {
             OR: [

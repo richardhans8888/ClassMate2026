@@ -3,12 +3,30 @@
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { GraduationCap, MapPin, Search, Users, Loader2, UserPlus, UserCheck } from 'lucide-react'
+import {
+  GraduationCap,
+  MapPin,
+  Search,
+  Users,
+  Loader2,
+  UserPlus,
+  UserCheck,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   ConnectButton,
   type ConnectionStatus,
 } from '@/components/features/connections/ConnectButton'
+
+type DiscoverFilter = 'discover' | 'connected' | 'pending'
+
+const FILTER_TABS: { value: DiscoverFilter; label: string }[] = [
+  { value: 'discover', label: 'Discover' },
+  { value: 'connected', label: 'Connected' },
+  { value: 'pending', label: 'Pending' },
+]
 
 interface DiscoverUser {
   id: string
@@ -37,36 +55,46 @@ export default function DiscoverPage() {
   const [meta, setMeta] = useState<Meta>({ total: 0, page: 1, pages: 1 })
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [filter, setFilter] = useState<DiscoverFilter>('discover')
   const [loading, setLoading] = useState(true)
 
-  const load = useCallback(async (currentPage: number, currentSearch: string) => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams({
-        page: String(currentPage),
-        ...(currentSearch ? { search: currentSearch } : {}),
-      })
-      const res = await fetch(`/api/users/discover?${params}`)
-      const data = await res.json()
-      if (res.ok) {
-        setUsers(data.users as DiscoverUser[])
-        setMeta(data.meta as Meta)
+  const load = useCallback(
+    async (currentPage: number, currentSearch: string, currentFilter: DiscoverFilter) => {
+      setLoading(true)
+      try {
+        const params = new URLSearchParams({
+          page: String(currentPage),
+          filter: currentFilter,
+          ...(currentSearch ? { search: currentSearch } : {}),
+        })
+        const res = await fetch(`/api/users/discover?${params}`)
+        const data = await res.json()
+        if (res.ok) {
+          setUsers(data.users as DiscoverUser[])
+          setMeta(data.meta as Meta)
+        }
+      } catch {
+        // ignore
+      } finally {
+        setLoading(false)
       }
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+    },
+    []
+  )
 
   useEffect(() => {
-    void load(page, search)
-  }, [page, load, search])
+    void load(page, search, filter)
+  }, [page, load, search, filter])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     setPage(1)
-    void load(1, search)
+    void load(1, search, filter)
+  }
+
+  function handleFilterChange(newFilter: DiscoverFilter) {
+    setFilter(newFilter)
+    setPage(1)
   }
 
   function handleStatusChange(
@@ -106,10 +134,43 @@ export default function DiscoverPage() {
           </Button>
         </form>
 
+        {/* Filter tabs */}
+        <div className="flex gap-2">
+          {FILTER_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => handleFilterChange(tab.value)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                filter === tab.value
+                  ? 'bg-primary text-primary-foreground'
+                  : 'border-border text-muted-foreground hover:text-foreground border'
+              }`}
+            >
+              {tab.label}
+              {!loading && filter === tab.value && meta.total > 0 && (
+                <span
+                  className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs ${
+                    filter === tab.value
+                      ? 'bg-primary-foreground/20 text-primary-foreground'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {meta.total}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
         {/* Results count */}
         {!loading && (
           <p className="text-muted-foreground text-sm">
-            {meta.total} {meta.total === 1 ? 'person' : 'people'} found
+            {filter === 'discover' &&
+              `${meta.total} new ${meta.total === 1 ? 'person' : 'people'} to connect with`}
+            {filter === 'connected' &&
+              `${meta.total} ${meta.total === 1 ? 'connection' : 'connections'}`}
+            {filter === 'pending' &&
+              `${meta.total} pending ${meta.total === 1 ? 'request' : 'requests'}`}
           </p>
         )}
 
@@ -288,7 +349,7 @@ export default function DiscoverPage() {
         )}
 
         {/* Pagination */}
-        {meta.pages > 1 && (
+        {!loading && meta.pages >= 1 && (
           <div className="flex items-center justify-center gap-2 pt-4">
             <Button
               variant="outline"
@@ -297,19 +358,19 @@ export default function DiscoverPage() {
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
             >
-              Previous
+              <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-muted-foreground text-sm">
-              Page {meta.page} of {meta.pages}
+              Page {meta.page} of {Math.max(1, meta.pages)}
             </span>
             <Button
               variant="outline"
               size="sm"
               className="border-border rounded-lg"
-              disabled={page === meta.pages}
+              disabled={page >= meta.pages}
               onClick={() => setPage((p) => p + 1)}
             >
-              Next
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         )}
