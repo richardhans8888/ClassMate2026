@@ -4,7 +4,7 @@
  * Populates the database with realistic demo data covering all major features.
  * Safe to re-run: clears existing data before inserting fresh records.
  *
- * Seeded accounts (all use password: Password123!)
+ * Seeded accounts (all use password: password)
  *   owner   → evan@classmate.dev   (OWNER)
  *   moderators → carol@classmate.dev, george@classmate.dev (MODERATOR)
  *   students→ alice, bob, diana, fiona, hannah @classmate.dev (STUDENT)
@@ -19,7 +19,7 @@ import { hashPassword } from 'better-auth/crypto'
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
 const prisma = new PrismaClient({ adapter })
-const SEED_PASSWORD = 'Password123!'
+const SEED_PASSWORD = 'password'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -1570,7 +1570,7 @@ async function main() {
   console.warn(`    8 user connections (6 accepted, 2 pending)`)
   console.warn(`    2 flagged content records`)
   console.warn(`    10 moderation log entries`)
-  console.warn('\n  Login credentials (all accounts use password: Password123!)')
+  console.warn('\n  Login credentials (all accounts use password: password)')
   console.warn('    owner  → evan@classmate.dev')
   console.warn('    tutor  → carol@classmate.dev or george@classmate.dev')
   console.warn('    student→ alice@classmate.dev or bob@classmate.dev')

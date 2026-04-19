@@ -69,6 +69,7 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
 
   const loadThread = useCallback(
     async (silent = false) => {
+      if (!userId || userId === 'undefined') return
       if (!silent) setLoading(true)
       try {
         const res = await fetch(`/api/messages/conversations/${userId}?limit=50`, {
@@ -98,6 +99,7 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
   )
 
   const markRead = useCallback(async () => {
+    if (!userId || userId === 'undefined') return
     try {
       await fetch(`/api/messages/conversations/${userId}/read`, { method: 'POST' })
     } catch {
@@ -137,7 +139,7 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
   }
 
   useEffect(() => {
-    if (!userId) return
+    if (!userId || userId === 'undefined') return
     void loadThread()
     void markRead()
 
@@ -155,6 +157,16 @@ export default function ChatConversationPage({ params }: { params: Promise<{ use
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
     }
   }, [messages])
+
+  if (!userId || userId === 'undefined') {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p className="text-muted-foreground">
+          Invalid conversation. Please select a user to chat with.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-card flex h-full flex-col">

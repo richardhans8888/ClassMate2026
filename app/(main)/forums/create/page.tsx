@@ -3,9 +3,15 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { ModerationAlert } from '@/components/ui/moderation-alert'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+
+interface ModerationBlock {
+  reason: string
+  categories?: string[]
+}
 
 export default function CreateForumPostPage() {
   const router = useRouter()
@@ -14,6 +20,7 @@ export default function CreateForumPostPage() {
   const [category, setCategory] = useState('')
   const [tags, setTags] = useState('')
   const [content, setContent] = useState('')
+  const [moderationBlock, setModerationBlock] = useState<ModerationBlock | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -23,6 +30,7 @@ export default function CreateForumPostPage() {
       return
     }
 
+    setModerationBlock(null)
     setLoading(true)
 
     try {
@@ -45,9 +53,11 @@ export default function CreateForumPostPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        // Handle moderation block
         if (data.moderation?.action === 'block') {
-          toast.error(`Content blocked: ${data.moderation.reason}`)
+          setModerationBlock({
+            reason: data.moderation.reason || '',
+            categories: data.moderation.categories,
+          })
           return
         }
         toast.error(data.error || 'Failed to create post')
@@ -86,6 +96,14 @@ export default function CreateForumPostPage() {
         <h1 className="text-foreground mb-6 text-2xl font-bold">Create New Discussion</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {moderationBlock && (
+            <ModerationAlert
+              reason={moderationBlock.reason}
+              categories={moderationBlock.categories}
+              onDismiss={() => setModerationBlock(null)}
+            />
+          )}
+
           <div>
             <label htmlFor="title" className="text-foreground mb-1 block text-sm font-medium">
               Title

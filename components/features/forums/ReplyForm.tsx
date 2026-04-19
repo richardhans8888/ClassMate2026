@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { ModerationAlert } from '@/components/ui/moderation-alert'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -10,9 +11,15 @@ interface ReplyFormProps {
   onReplyCreated?: () => void
 }
 
+interface ModerationBlock {
+  reason: string
+  categories?: string[]
+}
+
 export function ReplyForm({ postId, onReplyCreated }: ReplyFormProps) {
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
+  const [moderationBlock, setModerationBlock] = useState<ModerationBlock | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -22,6 +29,7 @@ export function ReplyForm({ postId, onReplyCreated }: ReplyFormProps) {
       return
     }
 
+    setModerationBlock(null)
     setLoading(true)
 
     try {
@@ -37,9 +45,11 @@ export function ReplyForm({ postId, onReplyCreated }: ReplyFormProps) {
       const data = await response.json()
 
       if (!response.ok) {
-        // Handle moderation block
         if (data.moderation?.action === 'block') {
-          toast.error(`Content blocked: ${data.moderation.reason}`)
+          setModerationBlock({
+            reason: data.moderation.reason || '',
+            categories: data.moderation.categories,
+          })
           return
         }
         toast.error(data.error || 'Failed to post reply')
@@ -70,6 +80,14 @@ export function ReplyForm({ postId, onReplyCreated }: ReplyFormProps) {
         onSubmit={handleSubmit}
         className="border-border bg-card rounded-xl border p-6 shadow-sm"
       >
+        {moderationBlock && (
+          <ModerationAlert
+            reason={moderationBlock.reason}
+            categories={moderationBlock.categories}
+            onDismiss={() => setModerationBlock(null)}
+          />
+        )}
+
         <textarea
           rows={4}
           value={content}
