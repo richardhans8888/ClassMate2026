@@ -1,14 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
 
 export async function POST() {
-    const response = NextResponse.json({ message: "Logged out" });
+  const response = NextResponse.json({ message: 'Logged out' })
 
-    response.cookies.set("session", "", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        expires: new Date(0),
-        path: "/",
-    });
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    expires: new Date(0),
+    path: '/',
+    sameSite: 'strict' as const,
+  }
 
-    return response;
+  response.cookies.set('session', '', cookieOptions)
+  response.cookies.set('better-auth.session_token', '', cookieOptions)
+
+  return response
 }

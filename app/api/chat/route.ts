@@ -113,8 +113,8 @@ Your goal is to help students understand concepts deeply, not just give answers.
     })
 
     if (!response.ok) {
-      const errorText = await response.text()
-      return NextResponse.json({ error: errorText }, { status: response.status })
+      console.error('[POST /api/chat] Groq API error:', response.status, await response.text())
+      return NextResponse.json({ error: 'AI service error' }, { status: response.status })
     }
 
     if (!response.body) {
@@ -177,7 +177,7 @@ Your goal is to help students understand concepts deeply, not just give answers.
       },
     })
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('[POST /api/chat] Unhandled error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

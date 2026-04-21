@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
-import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
+import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
 
 type EventPayload = {
   title?: unknown
@@ -36,6 +36,9 @@ export async function GET() {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const limited = await checkRateLimit(session.id, generalLimiter)
+    if (limited) return limited
 
     const events = await prisma.event.findMany({
       where: { userId: session.id },

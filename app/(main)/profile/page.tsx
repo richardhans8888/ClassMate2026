@@ -71,13 +71,11 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    fetch('/api/user/me')
-      .then((r) => (r.ok ? r.json() : null))
-      .then(async (meData: MeData | null) => {
-        if (!meData) {
-          setLoading(false)
-          return
-        }
+    async function load() {
+      try {
+        const meRes = await fetch('/api/user/me')
+        const meData: MeData | null = meRes.ok ? await meRes.json() : null
+        if (!meData) return
         setMe(meData)
         const id = meData.id
         const [profileData, countData, statsData, groupsData, postsData] = await Promise.all([
@@ -97,9 +95,13 @@ export default function ProfilePage() {
           setRecentGroups(groupsData.groups.slice(0, 3) as StudyGroup[])
         if (Array.isArray(postsData.posts))
           setRecentPosts(postsData.posts.slice(0, 5) as ForumPost[])
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false))
+      } catch (err) {
+        console.error('[ProfilePage] Failed to load profile data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    void load()
   }, [])
 
   function openEdit() {

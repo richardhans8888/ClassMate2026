@@ -16,7 +16,13 @@ const FAIL_CLOSED: ModerationResult = {
   reason: 'Moderation service unavailable — content blocked for safety',
 }
 
+const MAX_CONTENT_LENGTH = 10_000
+
 export async function moderateContent(content: string): Promise<ModerationResult> {
+  if (!content || typeof content !== 'string') return FAIL_CLOSED
+
+  const trimmedContent = content.slice(0, MAX_CONTENT_LENGTH)
+
   try {
     const apiKey = process.env.GROQ_API_KEY
     if (!apiKey) {
@@ -51,7 +57,7 @@ Categories can include: harassment, hate_speech, spam, off_topic, inappropriate,
           },
           {
             role: 'user',
-            content: `Analyze this content:\n\n${content}`,
+            content: `Analyze this content:\n\n${trimmedContent}`,
           },
         ],
         temperature: 0.3,

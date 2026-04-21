@@ -71,7 +71,6 @@ export async function POST(req: NextRequest) {
     }
   } catch (error: unknown) {
     console.error('Resolve flag error:', error)
-    const message = error instanceof Error ? error.message : 'Failed to resolve flag'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to resolve flag' }, { status: 500 })
   }
 }

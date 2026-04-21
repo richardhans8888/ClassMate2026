@@ -64,8 +64,11 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
 }
 
 const markdownComponents: React.ComponentProps<typeof ReactMarkdown>['components'] = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  code({ className, children, ...props }: any) {
+  code({
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLElement> & { children?: React.ReactNode }) {
     const match = /language-(\w+)/.exec(className ?? '')
     if (match) {
       return <CodeBlock language={match[1] ?? 'code'} code={String(children).replace(/\n$/, '')} />

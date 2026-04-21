@@ -264,7 +264,7 @@ describe('AI Tutor — Failure Handling', () => {
 
     expect(res.status).toBe(500)
     const body = await res.json()
-    expect(body.error).toBe('Network timeout')
+    expect(body.error).toBe('Internal server error')
   })
 
   it('TC-AI-T-19: Groq returns 401 (invalid API key) → route propagates 401', async () => {

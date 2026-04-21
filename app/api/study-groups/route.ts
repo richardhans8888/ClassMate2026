@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
+import { sanitizeText } from '@/lib/sanitize'
 
 // GET /api/study-groups?subject=Math&myGroups=true&excludeMyGroups=true
 export async function GET(req: NextRequest) {
@@ -11,8 +12,8 @@ export async function GET(req: NextRequest) {
   const subject = searchParams.get('subject')
   const myGroups = searchParams.get('myGroups')
   const excludeMyGroups = searchParams.get('excludeMyGroups') === 'true'
-  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '12', 10)))
+  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10) || 1)
+  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '12', 10) || 12))
 
   try {
     let groups
@@ -87,8 +88,13 @@ export async function POST(req: NextRequest) {
   const limited = await checkRateLimit(session.id, writeLimiter)
   if (limited) return limited
 
-  const { name, description, subject, maxMembers, isPrivate } = await req.json()
-  if (!name || !subject)
+  const body = await req.json()
+  const sanitizedName = sanitizeText(body.name ?? '')
+  const sanitizedSubject = sanitizeText(body.subject ?? '')
+  const sanitizedDescription =
+    typeof body.description === 'string' ? sanitizeText(body.description) : null
+
+  if (!sanitizedName || !sanitizedSubject)
     return NextResponse.json({ error: 'name and subject are required' }, { status: 400 })
 
   // Always use the authenticated session user as the owner — never trust client-supplied ownerId
@@ -100,12 +106,12 @@ export async function POST(req: NextRequest) {
     const group = await prisma.$transaction(async (tx) => {
       const newGroup = await tx.studyGroup.create({
         data: {
-          name,
-          description: description ?? null,
-          subject,
+          name: sanitizedName,
+          description: sanitizedDescription ?? null,
+          subject: sanitizedSubject,
           ownerId,
-          maxMembers: maxMembers || 10,
-          isPrivate: isPrivate || false,
+          maxMembers: body.maxMembers || 10,
+          isPrivate: body.isPrivate || false,
           inviteCode,
         },
       })

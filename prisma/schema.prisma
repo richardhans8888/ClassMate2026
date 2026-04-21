@@ -348,6 +348,7 @@ model FlaggedContent {
   resolvedAt  DateTime?
 
   @@index([reporterId])
+  @@index([resolvedBy])
   @@index([contentType, contentId])
   @@index([status])
   @@index([createdAt])

@@ -31,7 +31,13 @@ export async function POST(_request: NextRequest, context: { params: Promise<{ i
       return NextResponse.json({ error: 'Invalid file path' }, { status: 400 })
     }
 
-    const filePath = path.join(process.cwd(), 'public', material.fileUrl)
+    const uploadsBase = path.resolve(process.cwd(), 'public', 'uploads')
+    // path.join keeps absolute fileUrl segments relative to cwd; path.resolve then normalizes ..
+    const filePath = path.resolve(path.join(process.cwd(), 'public', material.fileUrl))
+    if (!filePath.startsWith(uploadsBase + path.sep)) {
+      return NextResponse.json({ error: 'Invalid file path' }, { status: 400 })
+    }
+
     if (!fs.existsSync(filePath)) {
       return NextResponse.json({ error: 'File not found on server' }, { status: 404 })
     }

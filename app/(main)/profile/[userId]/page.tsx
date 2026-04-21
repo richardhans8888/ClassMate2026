@@ -114,8 +114,8 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
           if (Array.isArray(postsData.posts))
             setRecentPosts(postsData.posts.slice(0, 5) as ForumPost[])
         }
-      } catch {
-        // ignore
+      } catch (err) {
+        console.error('[UserProfilePage] Failed to load profile data:', err)
       } finally {
         setLoading(false)
       }
@@ -139,8 +139,8 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
         setConnectionId(data.connection.id as string)
         if (newStatus === 'connected') setConnectionCount((c) => c + 1)
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[UserProfilePage] handleConnect failed:', err)
     } finally {
       setActionLoading(false)
     }
@@ -159,8 +159,8 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
         setConnectionStatus('connected')
         setConnectionCount((c) => c + 1)
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[UserProfilePage] handleAccept failed:', err)
     } finally {
       setActionLoading(false)
     }
@@ -179,8 +179,8 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
         setConnectionStatus('not_connected')
         setConnectionId(null)
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[UserProfilePage] handleReject failed:', err)
     } finally {
       setActionLoading(false)
     }
@@ -196,8 +196,8 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
         setConnectionId(null)
         setConnectionCount((c) => Math.max(0, c - 1))
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[UserProfilePage] handleDisconnect failed:', err)
     } finally {
       setActionLoading(false)
     }

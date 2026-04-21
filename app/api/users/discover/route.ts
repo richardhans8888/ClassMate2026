@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     if (limited) return limited
 
     const { searchParams } = new URL(req.url)
-    const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
+    const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10) || 1)
     const search = searchParams.get('search') ?? ''
     const rawFilter = searchParams.get('filter') ?? 'discover'
     const filter: DiscoverFilter = ['discover', 'connected', 'pending', 'all'].includes(rawFilter)
