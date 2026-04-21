@@ -58,6 +58,7 @@ export default function CreateForumPostPage() {
             reason: data.moderation.reason || '',
             categories: data.moderation.categories,
           })
+          toast.error(data.moderation.reason || 'Content blocked by moderation')
           return
         }
         toast.error(data.error || 'Failed to create post')
