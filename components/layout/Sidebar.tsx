@@ -217,7 +217,7 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
   const pathname = usePathname()
 
   function isActive(href: string) {
-    if (href === '/') return pathname === '/'
+    if (href === '/dashboard') return pathname === '/dashboard'
     return pathname.startsWith(href)
   }
 

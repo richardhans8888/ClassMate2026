@@ -35,7 +35,7 @@ export async function getSession(): Promise<SessionUser | null> {
         }
       }
     } catch {
-      // Not a valid Firebase token or user not in DB; fall through to Better Auth
+      // Firebase verification failed, try Better Auth
     }
   }
 
@@ -60,7 +60,7 @@ export async function getSession(): Promise<SessionUser | null> {
       }
     }
   } catch {
-    // Ignore; return null
+    // Better Auth verification failed
   }
 
   return null

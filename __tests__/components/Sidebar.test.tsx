@@ -108,6 +108,9 @@ jest.mock('@/components/ui/sheet', () => ({
       {children}
     </div>
   ),
+  SheetTitle: ({ children }: React.PropsWithChildren) => (
+    <div data-testid="sheet-title">{children}</div>
+  ),
 }))
 
 // Mock navigation utilities
@@ -176,7 +179,6 @@ describe('Sidebar component', () => {
     expect(() =>
       render(
         <Sidebar
-          userRole="STUDENT"
           collapsed={false}
           onToggleCollapse={jest.fn()}
           mobileOpen={false}
@@ -189,7 +191,6 @@ describe('Sidebar component', () => {
   it('renders desktop sidebar when not mobile', () => {
     const { container } = render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -205,7 +206,6 @@ describe('Sidebar component', () => {
   it('renders mobile sheet when mobileOpen is true', () => {
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={true}
@@ -220,7 +220,6 @@ describe('Sidebar component', () => {
   it('renders navigation items for STUDENT role', () => {
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -239,7 +238,6 @@ describe('Sidebar component', () => {
   it('renders navigation items for MODERATOR role', () => {
     render(
       <Sidebar
-        userRole="MODERATOR"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -265,7 +263,6 @@ describe('Sidebar component', () => {
     })
     render(
       <Sidebar
-        userRole="ADMIN"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -281,7 +278,6 @@ describe('Sidebar component', () => {
     const user = userEvent.setup()
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={onToggleCollapse}
         mobileOpen={false}
@@ -300,7 +296,6 @@ describe('Sidebar component', () => {
   it('applies collapsed width class when collapsed=true', () => {
     const { container } = render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={true}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -315,7 +310,6 @@ describe('Sidebar component', () => {
   it('applies expanded width class when collapsed=false', () => {
     const { container } = render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -330,7 +324,6 @@ describe('Sidebar component', () => {
   it('shows collapsed view with opacity-100 when collapsed=true', () => {
     const { container } = render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={true}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -346,7 +339,6 @@ describe('Sidebar component', () => {
   it('hides expanded view with opacity-0 when collapsed=true', () => {
     const { container } = render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={true}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -362,7 +354,6 @@ describe('Sidebar component', () => {
   it('shows expanded view with opacity-100 when collapsed=false', () => {
     const { container } = render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -378,7 +369,6 @@ describe('Sidebar component', () => {
   it('hides collapsed view with opacity-0 when collapsed=false', () => {
     const { container } = render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -394,7 +384,6 @@ describe('Sidebar component', () => {
   it('mobile sheet always renders with collapsed=false', () => {
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={true} // Desktop is collapsed
         onToggleCollapse={jest.fn()}
         mobileOpen={true}
@@ -414,7 +403,6 @@ describe('Sidebar component', () => {
     const onMobileClose = jest.fn()
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={true}
@@ -432,7 +420,6 @@ describe('Sidebar component', () => {
     mockUsePathname.mockReturnValue('/forums')
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -451,7 +438,6 @@ describe('Sidebar component', () => {
     mockUsePathname.mockReturnValue('/')
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -469,7 +455,6 @@ describe('Sidebar component', () => {
     expect(() =>
       render(
         <Sidebar
-          userRole={null}
           collapsed={false}
           onToggleCollapse={jest.fn()}
           mobileOpen={false}
@@ -482,7 +467,6 @@ describe('Sidebar component', () => {
   it('renders hamburger toggle button in desktop sidebar', () => {
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={false}
@@ -498,7 +482,6 @@ describe('Sidebar component', () => {
     const onToggleCollapse = jest.fn()
     const { container, rerender } = render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={onToggleCollapse}
         mobileOpen={false}
@@ -513,7 +496,6 @@ describe('Sidebar component', () => {
     // Rerender with collapsed=true
     rerender(
       <Sidebar
-        userRole="STUDENT"
         collapsed={true}
         onToggleCollapse={onToggleCollapse}
         mobileOpen={false}
@@ -528,7 +510,6 @@ describe('Sidebar component', () => {
     const onMobileClose = jest.fn()
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={true}
@@ -544,7 +525,6 @@ describe('Sidebar component', () => {
     const onMobileClose = jest.fn()
     render(
       <Sidebar
-        userRole="STUDENT"
         collapsed={false}
         onToggleCollapse={jest.fn()}
         mobileOpen={true}

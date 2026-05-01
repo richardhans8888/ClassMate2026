@@ -168,7 +168,7 @@ export default function Dashboard() {
             initial="hidden"
             animate="show"
           >
-            {featuredCards.map((card) => {
+            {featuredCards.map((card, index) => {
               const BadgeIcon = card.badgeIcon
               return (
                 <motion.div
@@ -183,6 +183,7 @@ export default function Dashboard() {
                     src={card.image}
                     alt={card.label}
                     fill
+                    priority={index === 0}
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                   />

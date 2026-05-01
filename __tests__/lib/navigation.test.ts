@@ -5,7 +5,7 @@ describe('navigation config', () => {
     const { core } = getNavigationByGroup(null)
 
     expect(core.map((item) => item.href)).toEqual([
-      '/',
+      '/dashboard',
       '/forums',
       '/groups',
       '/chat',

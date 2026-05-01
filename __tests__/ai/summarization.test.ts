@@ -308,6 +308,20 @@ describe('AI Summarization — Failure Handling', () => {
 
     expect(res.status).toBe(429)
   })
+
+  it('TC-AI-S-20b: Groq request times out (AbortError) → returns 500', async () => {
+    mockAuth()
+    const abortError = Object.assign(new Error('The operation was aborted'), {
+      name: 'AbortError',
+    })
+    mockFetch.mockRejectedValueOnce(abortError)
+
+    const res = await POST(makeRequest('test thread'))
+    const data = await res.json()
+
+    expect(res.status).toBe(500)
+    expect(data.error).toBeDefined()
+  })
 })
 
 // ─── 6. Abuse / Misuse Tests ─────────────────────────────────────────────────

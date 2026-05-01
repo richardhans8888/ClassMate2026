@@ -13,7 +13,7 @@ export interface NavigationItem {
 }
 
 export const navigationItems: NavigationItem[] = [
-  { href: '/', label: 'Home', group: 'core', icon: 'LayoutDashboard', section: 'Main' },
+  { href: '/dashboard', label: 'Home', group: 'core', icon: 'LayoutDashboard', section: 'Main' },
   { href: '/forums', label: 'Forums', group: 'core', icon: 'MessageSquare', section: 'Main' },
   { href: '/groups', label: 'Study Groups', group: 'core', icon: 'Users', section: 'Main' },
   { href: '/chat', label: 'Chat', group: 'core', icon: 'MessageCircle', section: 'Main' },

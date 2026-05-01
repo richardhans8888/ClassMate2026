@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { User, Menu, BookOpen, LogOut, Calendar as CalendarIcon, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ModeToggle } from 'components/mode-toggle'
+import { ModeToggle } from '@/components/mode-toggle'
 import { authClient } from '@/lib/auth-client'
 import { getNavigationByGroup, type UserRole } from '@/lib/navigation'
 import {
@@ -16,7 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from 'components/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 
 interface HeaderProps {

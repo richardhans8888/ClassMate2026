@@ -274,6 +274,41 @@ describe('AI Tutor — Failure Handling', () => {
 
     expect(res.status).toBe(401)
   })
+
+  it('TC-AI-T-19b: Groq request times out (AbortError) → returns 500', async () => {
+    const abortError = Object.assign(new Error('The operation was aborted'), {
+      name: 'AbortError',
+    })
+    mockFetch.mockRejectedValueOnce(abortError)
+
+    const res = await POST(makeChatRequest([{ role: 'user', content: 'hello' }]))
+
+    expect(res.status).toBe(500)
+    const body = await res.json()
+    expect(body.error).toBeDefined()
+  })
+
+  it('TC-AI-T-19c: Groq SSE stream contains malformed JSON chunk → route does not crash', async () => {
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode('data: {INVALID JSON}\n\n'))
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+        controller.close()
+      },
+    })
+    mockFetch.mockResolvedValueOnce(
+      new Response(stream, {
+        status: 200,
+        headers: { 'Content-Type': 'text/event-stream' },
+      })
+    )
+
+    const res = await POST(makeChatRequest([{ role: 'user', content: 'hello' }]))
+
+    // Route must not throw an unhandled exception — any status is acceptable
+    expect([200, 500]).toContain(res.status)
+  })
 })
 
 // ─── 6. Abuse / Misuse Tests ─────────────────────────────────────────────────
