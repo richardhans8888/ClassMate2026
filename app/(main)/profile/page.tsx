@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -69,6 +70,7 @@ export default function ProfilePage() {
   const [editUniversity, setEditUniversity] = useState('')
   const [editMajor, setEditMajor] = useState('')
   const [saving, setSaving] = useState(false)
+  const [nameError, setNameError] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -110,12 +112,25 @@ export default function ProfilePage() {
     setEditBio(profile.bio ?? '')
     setEditUniversity(profile.university ?? '')
     setEditMajor(profile.major ?? '')
+    setNameError('')
     setEditOpen(true)
   }
 
   async function handleSave() {
     const userId = me?.id
     if (!userId) return
+
+    const trimmedName = editName.trim()
+    if (trimmedName.length > 0 && trimmedName.length < 2) {
+      setNameError('Display name must be at least 2 characters')
+      return
+    }
+    if (trimmedName.length > 50) {
+      setNameError('Display name must be at most 50 characters')
+      return
+    }
+    setNameError('')
+
     setSaving(true)
     try {
       const res = await fetch('/api/user/profile', {
@@ -129,13 +144,19 @@ export default function ProfilePage() {
           major: editMajor || undefined,
         }),
       })
-      const data = await res.json()
-      if (data.profile) {
-        setProfile((prev) => (prev ? { ...prev, ...(data.profile as ProfileData) } : prev))
+      const data = (await res.json()) as { profile?: ProfileData; error?: string }
+      if (!res.ok) {
+        toast.error(data.error ?? 'Failed to save profile')
+        return
       }
+      if (data.profile) {
+        setProfile((prev) => (prev ? { ...prev, ...data.profile } : prev))
+      }
+      toast.success('Profile saved')
       setEditOpen(false)
     } catch (err) {
       console.error(err)
+      toast.error('Failed to save profile')
     } finally {
       setSaving(false)
     }
@@ -360,10 +381,14 @@ export default function ProfilePage() {
               <label className="text-muted-foreground text-xs">Display Name</label>
               <input
                 value={editName}
-                onChange={(e) => setEditName(e.target.value)}
+                onChange={(e) => {
+                  setEditName(e.target.value)
+                  setNameError('')
+                }}
                 placeholder="Your display name"
                 className="border-border bg-muted text-foreground h-10 w-full rounded-lg border px-3 text-sm"
               />
+              {nameError && <p className="text-xs text-red-500">{nameError}</p>}
             </div>
             <div className="space-y-1">
               <label className="text-muted-foreground text-xs">University</label>

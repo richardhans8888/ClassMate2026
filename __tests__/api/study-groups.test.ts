@@ -28,7 +28,7 @@ describe('POST /api/study-groups', () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1' })
     const req = new NextRequest('http://localhost/api/study-groups', {
       method: 'POST',
-      body: JSON.stringify({ subject: 'Math' }), // no name
+      body: JSON.stringify({ subject: 'Math' }),
       headers: { 'Content-Type': 'application/json' },
     })
     const res = await POST(req)
@@ -40,7 +40,33 @@ describe('POST /api/study-groups', () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1' })
     const req = new NextRequest('http://localhost/api/study-groups', {
       method: 'POST',
-      body: JSON.stringify({ name: 'Test Group' }), // no subject
+      body: JSON.stringify({ name: 'Test Group' }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const res = await POST(req)
+
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when name is only 1 character', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1' })
+    const req = new NextRequest('http://localhost/api/study-groups', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'A', subject: 'Math' }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const res = await POST(req)
+
+    expect(res.status).toBe(400)
+    const body = (await res.json()) as { error: string }
+    expect(body.error).toMatch(/at least 2/i)
+  })
+
+  it('returns 400 when name exceeds 100 characters', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1' })
+    const req = new NextRequest('http://localhost/api/study-groups', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'A'.repeat(101), subject: 'Math' }),
       headers: { 'Content-Type': 'application/json' },
     })
     const res = await POST(req)

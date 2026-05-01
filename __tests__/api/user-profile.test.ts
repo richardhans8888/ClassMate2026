@@ -33,7 +33,7 @@ describe('PATCH /api/user/profile', () => {
   it('returns 400 when userId is missing from request body', async () => {
     const req = new NextRequest('http://localhost/api/user/profile', {
       method: 'PATCH',
-      body: JSON.stringify({ display_name: 'Alice' }), // no userId
+      body: JSON.stringify({ display_name: 'Alice' }),
       headers: { 'Content-Type': 'application/json' },
     })
     const res = await PATCH(req)
@@ -51,5 +51,42 @@ describe('PATCH /api/user/profile', () => {
     const res = await PATCH(req)
 
     expect(res.status).toBe(200)
+  })
+
+  it('returns 400 when displayName is only 1 character', async () => {
+    const req = new NextRequest('http://localhost/api/user/profile', {
+      method: 'PATCH',
+      body: JSON.stringify({ userId: 'user-1', displayName: 'A' }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const res = await PATCH(req)
+
+    expect(res.status).toBe(400)
+    const body = (await res.json()) as { error: string }
+    expect(body.error).toMatch(/at least 2/i)
+  })
+
+  it('returns 400 when displayName exceeds 50 characters', async () => {
+    const req = new NextRequest('http://localhost/api/user/profile', {
+      method: 'PATCH',
+      body: JSON.stringify({ userId: 'user-1', displayName: 'A'.repeat(51) }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const res = await PATCH(req)
+
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when bio exceeds 500 characters', async () => {
+    const req = new NextRequest('http://localhost/api/user/profile', {
+      method: 'PATCH',
+      body: JSON.stringify({ userId: 'user-1', bio: 'b'.repeat(501) }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const res = await PATCH(req)
+
+    expect(res.status).toBe(400)
+    const body = (await res.json()) as { error: string }
+    expect(body.error).toMatch(/bio/i)
   })
 })

@@ -19,7 +19,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useState } from 'react'
-import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { getNavigationBySection, type NavigationItem, type SidebarSection } from '@/lib/navigation'
 import { useUserRole } from '@/lib/contexts/user-role-context'
 import { cn } from '@/lib/utils'
@@ -240,6 +240,7 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
       {/* Mobile sidebar — Sheet */}
       <Sheet open={mobileOpen} onOpenChange={(open) => !open && onMobileClose()}>
         <SheetContent side="left" className="bg-card w-64 p-0">
+          <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
           <SidebarContent collapsed={false} isActive={isActive} onNavigate={onMobileClose} />
         </SheetContent>
       </Sheet>

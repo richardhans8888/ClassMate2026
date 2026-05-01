@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from 'components/ui/dropdown-menu'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 
 interface HeaderProps {
   onLogout?: () => void
@@ -165,6 +165,7 @@ export function Header({ onLogout }: HeaderProps) {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="bg-background w-72 p-0">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex h-full flex-col">
                 {/* Brand header */}
                 <div className="border-border flex items-center gap-3 border-b px-5 py-4 pr-12">

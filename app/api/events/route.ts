@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
 import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
+import { getErrorResponse } from '@/lib/errors'
 
 type EventPayload = {
   title?: unknown
@@ -103,6 +104,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ event }, { status: 201 })
   } catch (error: unknown) {
     console.error('Events POST error:', error)
-    return NextResponse.json({ error: 'Failed to create event' }, { status: 500 })
+    const { message, status } = getErrorResponse(error)
+    return NextResponse.json({ error: message }, { status })
   }
 }

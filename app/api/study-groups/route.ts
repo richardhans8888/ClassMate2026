@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import { sanitizeText } from '@/lib/sanitize'
+import { getErrorResponse } from '@/lib/errors'
 
 // GET /api/study-groups?subject=Math&myGroups=true&excludeMyGroups=true
 export async function GET(req: NextRequest) {
@@ -88,14 +89,28 @@ export async function POST(req: NextRequest) {
   const limited = await checkRateLimit(session.id, writeLimiter)
   if (limited) return limited
 
-  const body = await req.json()
-  const sanitizedName = sanitizeText(body.name ?? '')
-  const sanitizedSubject = sanitizeText(body.subject ?? '')
+  const body = (await req.json()) as Record<string, unknown>
+
+  const name = typeof body.name === 'string' ? body.name.trim() : ''
+  const subject = typeof body.subject === 'string' ? body.subject.trim() : ''
+
+  if (name.length < 2)
+    return NextResponse.json({ error: 'Group name must be at least 2 characters' }, { status: 400 })
+  if (name.length > 100)
+    return NextResponse.json(
+      { error: 'Group name must be at most 100 characters' },
+      { status: 400 }
+    )
+  if (!subject)
+    return NextResponse.json({ error: 'name and subject are required' }, { status: 400 })
+
+  const sanitizedName = sanitizeText(name)
+  const sanitizedSubject = sanitizeText(subject)
   const sanitizedDescription =
     typeof body.description === 'string' ? sanitizeText(body.description) : null
 
   if (!sanitizedName || !sanitizedSubject)
-    return NextResponse.json({ error: 'name and subject are required' }, { status: 400 })
+    return NextResponse.json({ error: 'name and subject must contain valid text' }, { status: 400 })
 
   // Always use the authenticated session user as the owner — never trust client-supplied ownerId
   const ownerId = session.id
@@ -110,8 +125,8 @@ export async function POST(req: NextRequest) {
           description: sanitizedDescription ?? null,
           subject: sanitizedSubject,
           ownerId,
-          maxMembers: body.maxMembers || 10,
-          isPrivate: body.isPrivate || false,
+          maxMembers: typeof body.maxMembers === 'number' ? body.maxMembers : 10,
+          isPrivate: body.isPrivate === true,
           inviteCode,
         },
       })
@@ -127,7 +142,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ group })
   } catch (err) {
     console.error('[POST /api/study-groups]', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const { message, status } = getErrorResponse(err)
+    return NextResponse.json({ error: message }, { status })
   }
 }
 
@@ -150,6 +166,7 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[DELETE /api/study-groups]', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const { message, status } = getErrorResponse(err)
+    return NextResponse.json({ error: message }, { status })
   }
 }

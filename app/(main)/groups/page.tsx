@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { PaginationControls } from '@/components/ui/pagination-controls'
 import {
@@ -98,6 +99,7 @@ export default function StudyGroupsPage() {
   const [formSubject, setFormSubject] = useState('Mathematics')
   const [formDesc, setFormDesc] = useState('')
   const [formMax, setFormMax] = useState(12)
+  const [formNameError, setFormNameError] = useState('')
 
   useEffect(() => {
     async function fetchDiscover() {
@@ -168,21 +170,34 @@ export default function StudyGroupsPage() {
   }, [discoverGroups, query, activeSort])
 
   async function handleCreate() {
-    if (!formName.trim()) return
+    const trimmedName = formName.trim()
+    if (trimmedName.length < 2) {
+      setFormNameError('Group name must be at least 2 characters')
+      return
+    }
+    if (trimmedName.length > 100) {
+      setFormNameError('Group name must be at most 100 characters')
+      return
+    }
+    setFormNameError('')
     setCreating(true)
     try {
       const res = await fetch('/api/study-groups', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formName.trim(),
+          name: trimmedName,
           description: formDesc || null,
           subject: formSubject,
           maxMembers: formMax,
           isPrivate: false,
         }),
       })
-      const data = await res.json()
+      const data = (await res.json()) as { group?: ApiGroup; error?: string }
+      if (!res.ok) {
+        toast.error(data.error ?? 'Failed to create group')
+        return
+      }
       if (data.group) {
         const newGroup = mapApiGroup({ ...data.group, _count: { members: 1 } })
         setJoinedGroups((prev) => [newGroup, ...prev])
@@ -194,6 +209,7 @@ export default function StudyGroupsPage() {
       setFormSubject('Mathematics')
     } catch (err) {
       console.error(err)
+      toast.error('Failed to create group')
     } finally {
       setCreating(false)
     }
@@ -317,7 +333,13 @@ export default function StudyGroupsPage() {
         </>
       )}
 
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+      <Dialog
+        open={createOpen}
+        onOpenChange={(open) => {
+          setCreateOpen(open)
+          if (!open) setFormNameError('')
+        }}
+      >
         <DialogContent className="sm:max-w-[520px]">
           <DialogHeader>
             <DialogTitle>Create Group</DialogTitle>
@@ -330,10 +352,14 @@ export default function StudyGroupsPage() {
               <label className="text-xs">Group Name</label>
               <input
                 value={formName}
-                onChange={(e) => setFormName(e.target.value)}
+                onChange={(e) => {
+                  setFormName(e.target.value)
+                  setFormNameError('')
+                }}
                 placeholder="e.g., Linear Algebra Study"
                 className="border-border bg-card text-foreground placeholder:text-muted-foreground h-10 w-full rounded-lg border px-3 text-sm"
               />
+              {formNameError && <p className="text-xs text-red-500">{formNameError}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

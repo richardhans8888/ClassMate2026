@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { uploadFile } from '@/lib/storage'
 import { sanitizeText } from '@/lib/sanitize'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
+import { getErrorResponse } from '@/lib/errors'
 
 const ALLOWED_FILE_TYPES = [
   'pdf',
@@ -161,6 +162,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ material: createdMaterial }, { status: 201 })
   } catch (error) {
     console.error('Materials POST error:', error)
-    return NextResponse.json({ error: 'Failed to create material' }, { status: 500 })
+    const { message, status } = getErrorResponse(error)
+    return NextResponse.json({ error: message }, { status })
   }
 }

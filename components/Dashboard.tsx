@@ -1,194 +1,290 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { ArrowRight, Flame, Play, Bot, Zap, Users } from 'lucide-react'
+import {
+  ArrowRight,
+  Flame,
+  Bot,
+  Zap,
+  Users,
+  BookOpen,
+  MessageSquare,
+  Calendar,
+  FileText,
+  Compass,
+  Sparkles,
+} from 'lucide-react'
 import { motion } from 'framer-motion'
 
-// Mock Data
 const container = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
 }
 
 const item = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 }
+
+const quickActions = [
+  {
+    href: '/forums',
+    icon: MessageSquare,
+    label: 'Forums',
+    description: 'Ask questions & share knowledge',
+    color: 'bg-blue-500/10 text-blue-500',
+    border: 'hover:border-blue-500/40',
+  },
+  {
+    href: '/groups',
+    icon: Users,
+    label: 'Study Groups',
+    description: 'Collaborate with peers',
+    color: 'bg-emerald-500/10 text-emerald-500',
+    border: 'hover:border-emerald-500/40',
+  },
+  {
+    href: '/ai-tutor',
+    icon: Bot,
+    label: 'AI Tutor',
+    description: 'Get instant homework help',
+    color: 'bg-purple-500/10 text-purple-500',
+    border: 'hover:border-purple-500/40',
+  },
+  {
+    href: '/materials',
+    icon: FileText,
+    label: 'Materials',
+    description: 'Upload & share study notes',
+    color: 'bg-amber-500/10 text-amber-500',
+    border: 'hover:border-amber-500/40',
+  },
+  {
+    href: '/schedule',
+    icon: Calendar,
+    label: 'Schedule',
+    description: 'Manage your study sessions',
+    color: 'bg-rose-500/10 text-rose-500',
+    border: 'hover:border-rose-500/40',
+  },
+  {
+    href: '/discover',
+    icon: Compass,
+    label: 'Discover',
+    description: 'Find new connections',
+    color: 'bg-cyan-500/10 text-cyan-500',
+    border: 'hover:border-cyan-500/40',
+  },
+]
+
+const featuredCards = [
+  {
+    href: '/forums',
+    label: 'Forums',
+    title: 'Join the Conversation',
+    subtitle: 'Ask questions, share answers, and grow together',
+    image: '/discussion-image.png',
+    badge: 'Discussion',
+    badgeIcon: MessageSquare,
+  },
+  {
+    href: '/groups',
+    label: 'Study Groups',
+    title: 'Study Together',
+    subtitle: 'Find your people and ace your exams as a team',
+    image: '/study-group-image.png',
+    badge: 'Collaborate',
+    badgeIcon: Users,
+  },
+  {
+    href: '/materials',
+    label: 'Materials',
+    title: 'Shared Resources',
+    subtitle: 'Notes, slides, and past papers — all in one place',
+    image: '/resources-image.png',
+    badge: 'Resources',
+    badgeIcon: BookOpen,
+  },
+]
 
 export default function Dashboard() {
   const router = useRouter()
+
   return (
     <div className="bg-background transition-colors duration-300">
-      {/* Hero Section */}
-      <section className="border-border border-b px-5 pt-12 pb-12 sm:px-6 sm:pt-14 sm:pb-14 md:px-12 md:pt-16 md:pb-14">
+      {/* Hero */}
+      <section className="border-border border-b px-5 pt-10 pb-10 sm:px-8 md:px-12">
         <div className="mx-auto max-w-7xl">
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
           >
-            <h1 className="text-foreground mb-4 text-2xl leading-tight font-bold sm:text-3xl md:text-4xl lg:text-5xl">
-              Your Academic Community Hub
-            </h1>
-            <p className="text-muted-foreground mb-8 max-w-2xl text-base leading-relaxed md:text-lg">
-              Connect with fellow students, join study groups, share materials, and collaborate in
-              forums powered by AI moderation.
-            </p>
-          </motion.div>
-
-          {/* Featured & Trending Header */}
-          <div className="mb-5 flex items-end justify-between md:mb-6">
-            <div className="flex items-center gap-2">
-              <div className="bg-accent rounded-lg p-2">
-                <Flame className="fill-primary text-primary h-5 w-5 animate-pulse md:h-6 md:w-6" />
+            <div>
+              <div className="text-primary mb-2 flex items-center gap-2 text-sm font-semibold tracking-wide uppercase">
+                <Sparkles className="h-4 w-4" />
+                Welcome back
               </div>
-              <h2 className="text-xl font-bold md:text-2xl">Featured & Trending</h2>
+              <h1 className="text-foreground text-3xl leading-tight font-bold sm:text-4xl md:text-5xl">
+                Your Academic
+                <br />
+                <span className="text-primary">Community Hub</span>
+              </h1>
+              <p className="text-muted-foreground mt-3 max-w-xl text-base leading-relaxed md:text-lg">
+                Connect with fellow students, join study groups, share materials, and get AI-powered
+                help — all in one place.
+              </p>
             </div>
             <Link
+              href="/ai-tutor"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
+            >
+              <Bot className="h-4 w-4" />
+              Ask AI Tutor
+            </Link>
+          </motion.div>
+
+          {/* Featured Cards */}
+          <div className="mb-6 flex items-center gap-2">
+            <div className="bg-accent rounded-lg p-2">
+              <Flame className="fill-primary text-primary h-5 w-5 animate-pulse" />
+            </div>
+            <h2 className="text-xl font-bold">Featured & Trending</h2>
+            <Link
               href="/groups"
-              className="group text-primary flex items-center gap-1 text-sm font-medium hover:underline"
+              className="group text-primary ml-auto flex items-center gap-1 text-sm font-medium hover:underline"
             >
               View all groups
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
-          {/* Featured Cards Grid */}
           <motion.div
-            className="mb-8 grid grid-cols-1 gap-5 sm:gap-6 md:mb-12 md:grid-cols-3"
+            className="mb-12 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3"
             variants={container}
             initial="hidden"
             animate="show"
           >
-            {/* Forums Card */}
-            <motion.div
-              variants={item}
-              className="group relative h-64 cursor-pointer overflow-hidden rounded-2xl shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
-              onClick={() => router.push('/forums')}
-              role="button"
-              aria-label="Open Forums"
-            >
-              <div className="bg-primary absolute inset-0" />
+            {featuredCards.map((card) => {
+              const BadgeIcon = card.badgeIcon
+              return (
+                <motion.div
+                  key={card.href}
+                  variants={item}
+                  className="group relative h-64 cursor-pointer overflow-hidden rounded-2xl shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
+                  onClick={() => router.push(card.href)}
+                  role="button"
+                  aria-label={`Go to ${card.label}`}
+                >
+                  <Image
+                    src={card.image}
+                    alt={card.label}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
 
-              {/* Decorative circles */}
-              <div className="absolute top-0 right-0 -mt-10 -mr-10 h-32 w-32 rounded-full bg-white/10 blur-xl" />
-              <div className="absolute bottom-0 left-0 -mb-8 -ml-8 h-24 w-24 rounded-full bg-black/10 blur-lg" />
+                  <div className="absolute top-4 left-4">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/20 px-3 py-1 text-xs font-bold tracking-wider text-white uppercase backdrop-blur-md">
+                      <BadgeIcon className="h-3 w-3" />
+                      {card.badge}
+                    </span>
+                  </div>
 
-              <div className="absolute top-4 left-4">
-                <span className="rounded-full border border-white/10 bg-white/20 px-3 py-1 text-xs font-bold tracking-wider text-white uppercase backdrop-blur-md">
-                  Forums
-                </span>
-              </div>
+                  <div className="absolute right-0 bottom-0 left-0 p-5">
+                    <h3 className="mb-1 text-xl leading-tight font-bold text-white">
+                      {card.title}
+                    </h3>
+                    <p className="flex items-center gap-1 text-sm text-white/80">
+                      <Zap className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      {card.subtitle}
+                    </p>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </div>
+      </section>
 
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="rounded-full border border-white/20 bg-white/10 p-4 backdrop-blur-sm transition-transform group-hover:scale-110">
-                  <Play className="h-8 w-8 fill-white text-white" />
+      {/* Quick Actions */}
+      <section className="px-5 py-10 sm:px-8 md:px-12">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-6">
+            <h2 className="text-foreground text-xl font-bold">Quick Actions</h2>
+            <p className="text-muted-foreground mt-1 text-sm">Jump straight to what you need</p>
+          </div>
+
+          <motion.div
+            className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6"
+            variants={container}
+            initial="hidden"
+            animate="show"
+          >
+            {quickActions.map((action) => {
+              const Icon = action.icon
+              return (
+                <motion.div key={action.href} variants={item}>
+                  <Link
+                    href={action.href}
+                    className={`border-border bg-card group flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all hover:-translate-y-1 hover:shadow-md ${action.border}`}
+                  >
+                    <div
+                      className={`rounded-xl p-3 transition-transform duration-300 group-hover:scale-110 ${action.color}`}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-foreground text-sm font-semibold">{action.label}</p>
+                      <p className="text-muted-foreground mt-0.5 text-xs leading-snug">
+                        {action.description}
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* AI Tutor Banner */}
+      <section className="border-border border-t px-5 py-10 sm:px-8 md:px-12">
+        <div className="mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="relative overflow-hidden rounded-2xl bg-[#1E1D2E] px-8 py-10 shadow-xl md:px-12"
+          >
+            <div className="bg-primary/20 pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-purple-500/10 blur-3xl" />
+
+            <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-4">
+                <div className="bg-primary/20 shrink-0 rounded-2xl p-4">
+                  <Bot className="text-primary h-8 w-8" />
                 </div>
-              </div>
-
-              <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/60 to-transparent p-5">
-                <h3 className="mb-1 text-xl leading-tight font-bold text-white">
-                  Discussion Forums
-                </h3>
-                <div className="flex items-end justify-between">
-                  <p className="flex items-center gap-1 text-sm text-white/80">
-                    <Zap className="fill-semantic-warning text-semantic-warning h-3 w-3" />
-                    Ask questions & share knowledge
+                <div>
+                  <h3 className="text-xl font-bold text-white md:text-2xl">24/7 AI Tutoring</h3>
+                  <p className="text-muted-foreground mt-1 max-w-md text-sm leading-relaxed">
+                    Get instant explanations, homework help, practice quizzes, and concept
+                    breakdowns — powered by Claude AI.
                   </p>
                 </div>
               </div>
-            </motion.div>
-
-            {/* Study Groups Card */}
-            <motion.div
-              variants={item}
-              className="group border-border bg-card hover:border-primary relative cursor-pointer rounded-2xl border p-5 shadow-md transition-all hover:-translate-y-1 hover:shadow-lg"
-              onClick={() => router.push('/groups')}
-              role="button"
-              aria-label="View Study Groups"
-            >
-              <div className="absolute top-5 right-5 flex flex-col items-end gap-1">
-                <div className="border-border bg-muted flex items-center gap-1 rounded-md border px-2 py-1">
-                  <Users className="text-primary h-3 w-3" />
-                  <span className="text-foreground text-xs font-bold">12</span>
-                </div>
-                <span className="text-primary text-[10px] font-medium">Active Now</span>
-              </div>
-
-              <div className="mb-3 flex items-start gap-3">
-                <div className="bg-semantic-success flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white shadow-inner">
-                  <Users className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="text-foreground group-hover:text-primary flex items-center gap-1 text-lg font-bold transition-colors">
-                    Study Groups
-                  </h3>
-                  <p className="text-primary text-sm">Collaborate & Learn</p>
-                </div>
-              </div>
-
-              <div className="mb-3 flex flex-wrap gap-2">
-                <span className="border-border bg-muted text-muted-foreground rounded-md border px-2 py-1 text-[10px]">
-                  Calculus
-                </span>
-                <span className="border-border bg-muted text-muted-foreground rounded-md border px-2 py-1 text-[10px]">
-                  Physics
-                </span>
-                <span className="border-border bg-muted text-muted-foreground rounded-md border px-2 py-1 text-[10px]">
-                  Chemistry
-                </span>
-              </div>
-
-              <p className="text-muted-foreground mb-4 line-clamp-2 text-xs">
-                Join study groups to collaborate with peers, share notes, and prepare for exams
-                together.
-              </p>
-
-              <div className="mt-auto flex items-center justify-between">
-                <span className="text-muted-foreground text-sm font-medium">
-                  5 groups available
-                </span>
-                <button
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium shadow transition-all hover:shadow-md active:scale-95"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    router.push('/groups')
-                  }}
-                >
-                  Browse Groups
-                </button>
-              </div>
-            </motion.div>
-
-            {/* AI Promo Card */}
-            <motion.div
-              variants={item}
-              className="group border-border relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border bg-[#1E1D2E] p-6 text-center shadow-lg transition-all hover:-translate-y-1"
-            >
-              <div className="bg-primary/10 pointer-events-none absolute top-0 right-0 -mt-16 -mr-16 h-32 w-32 rounded-full blur-3xl"></div>
-
-              <div className="animate-bounce-slow bg-primary/20 mb-4 rounded-full p-4 transition-transform duration-500 group-hover:scale-110">
-                <Bot className="text-primary h-8 w-8" />
-              </div>
-
-              <h3 className="mb-2 text-xl font-bold text-white">Try AI Tutoring</h3>
-              <p className="text-muted-foreground mb-6 max-w-xs text-sm">
-                Get instant help with homework, concept explanations, and quiz generation 24/7.
-              </p>
-
               <Link
                 href="/ai-tutor"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 transform rounded-full px-6 py-2.5 font-medium shadow-lg transition-all hover:-translate-y-0.5 hover:scale-105 active:scale-95"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex shrink-0 items-center gap-2 rounded-full px-6 py-3 font-semibold shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
               >
                 Start Free Chat
+                <ArrowRight className="h-4 w-4" />
               </Link>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </section>

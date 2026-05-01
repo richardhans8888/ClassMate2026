@@ -75,4 +75,8 @@ function SheetContent({
   )
 }
 
-export { Sheet, SheetTrigger, SheetContent }
+function SheetTitle({ ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
+  return <SheetPrimitive.Title data-slot="sheet-title" {...props} />
+}
+
+export { Sheet, SheetTrigger, SheetContent, SheetTitle }
