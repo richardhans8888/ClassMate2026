@@ -136,6 +136,10 @@ export function TopNavbar({ onMobileMenuOpen }: TopNavbarProps) {
                     height={36}
                     className="h-full w-full rounded-full object-cover"
                     unoptimized
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                    }}
                   />
                 ) : (
                   <div

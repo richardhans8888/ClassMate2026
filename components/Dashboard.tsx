@@ -229,10 +229,10 @@ export default function Dashboard() {
             {quickActions.map((action) => {
               const Icon = action.icon
               return (
-                <motion.div key={action.href} variants={item}>
+                <motion.div key={action.href} variants={item} className="h-full">
                   <Link
                     href={action.href}
-                    className={`border-border bg-card group flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all hover:-translate-y-1 hover:shadow-md ${action.border}`}
+                    className={`border-border bg-card group flex h-full flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all hover:-translate-y-1 hover:shadow-md ${action.border}`}
                   >
                     <div
                       className={`rounded-xl p-3 transition-transform duration-300 group-hover:scale-110 ${action.color}`}
