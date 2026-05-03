@@ -9,6 +9,7 @@ import {
   deleteForumReply,
   ServiceValidationError,
 } from '@/lib/services/forum.service'
+import { updateReplySchema, deleteWithReasonSchema } from '@/lib/schemas'
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -31,15 +32,13 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Not authorized to edit this reply' }, { status: 403 })
     }
 
-    const body = (await request.json()) as Record<string, unknown>
-    const contentRaw = typeof body.content === 'string' ? body.content : undefined
-
-    if (contentRaw === undefined) {
-      return NextResponse.json({ error: 'content is required' }, { status: 400 })
+    const parsed = updateReplySchema.safeParse(await request.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
     try {
-      const updated = await updateForumReply(id, contentRaw)
+      const updated = await updateForumReply(id, parsed.data.content)
       return NextResponse.json({ reply: updated }, { status: 200 })
     } catch (err) {
       if (err instanceof ServiceValidationError) {
@@ -80,10 +79,11 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
 
     let reason: string | undefined
     try {
-      const body = (await request.json()) as { reason?: string }
-      reason = typeof body.reason === 'string' ? body.reason.trim() || undefined : undefined
+      const bodyRaw = await request.json()
+      const parsed = deleteWithReasonSchema.safeParse(bodyRaw)
+      if (parsed.success) reason = parsed.data.reason
     } catch {
-      // body is optional — ignore parse errors
+      // body is optional
     }
 
     await prisma.flaggedContent.updateMany({

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
+import { createSessionSchema } from '@/lib/schemas'
 
 // GET /api/sessions
 export async function GET() {
@@ -36,8 +37,9 @@ export async function POST(req: NextRequest) {
   const limited = await checkRateLimit(session.id, writeLimiter)
   if (limited) return limited
 
-  const body = await req.json().catch(() => ({}))
-  const { title, subject } = body as { title?: string; subject?: string }
+  const rawBody = await req.json().catch(() => ({}))
+  const bodyParsed = createSessionSchema.safeParse(rawBody)
+  const { title, subject } = bodyParsed.success ? bodyParsed.data : {}
 
   try {
     const chatSession = await prisma.chatSession.create({

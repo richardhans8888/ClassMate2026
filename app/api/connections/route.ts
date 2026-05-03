@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
+import { createConnectionSchema } from '@/lib/schemas'
 
 // POST /api/connections — send a connection request
 export async function POST(req: NextRequest) {
@@ -15,11 +16,11 @@ export async function POST(req: NextRequest) {
     const limited = await checkRateLimit(session.id, writeLimiter)
     if (limited) return limited
 
-    const { recipientId } = await req.json()
-
-    if (!recipientId || typeof recipientId !== 'string') {
-      return NextResponse.json({ error: 'recipientId is required' }, { status: 400 })
+    const parsed = createConnectionSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
+    const { recipientId } = parsed.data
 
     if (session.id === recipientId) {
       return NextResponse.json({ error: 'Cannot connect with yourself' }, { status: 400 })

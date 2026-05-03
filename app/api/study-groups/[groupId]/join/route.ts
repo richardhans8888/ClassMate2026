@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import { getSession } from '@/lib/auth'
+import { joinGroupSchema } from '@/lib/schemas'
 
 // POST /api/study-groups/[groupId]/join
 export async function POST(req: NextRequest, context: { params: Promise<{ groupId: string }> }) {
@@ -10,8 +11,9 @@ export async function POST(req: NextRequest, context: { params: Promise<{ groupI
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { groupId } = await context.params
-  const body = (await req.json().catch(() => ({}))) as { inviteCode?: string }
-  const { inviteCode } = body
+  const rawJoinBody = await req.json().catch(() => ({}))
+  const joinParsed = joinGroupSchema.safeParse(rawJoinBody)
+  const { inviteCode } = joinParsed.success ? joinParsed.data : {}
   const userId = session.id
 
   const limited = await checkRateLimit(userId, writeLimiter)

@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit, getClientIp, moderationLimiter } from '@/lib/rate-limit'
+import { moderateContentSchema } from '@/lib/schemas'
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,11 +16,11 @@ export async function POST(req: NextRequest) {
     const limited = await checkRateLimit(identifier, moderationLimiter)
     if (limited) return limited
 
-    const { content } = await req.json()
-
-    if (!content || typeof content !== 'string') {
-      return NextResponse.json({ error: 'content required' }, { status: 400 })
+    const parsed = moderateContentSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
+    const { content } = parsed.data
 
     // Use Groq to analyze content for moderation
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {

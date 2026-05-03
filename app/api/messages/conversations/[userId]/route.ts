@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeMarkdown } from '@/lib/sanitize'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
+import { sendMessageSchema } from '@/lib/schemas'
 
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
@@ -137,12 +138,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ use
       return NextResponse.json({ error: 'Target user not found' }, { status: 404 })
     }
 
-    const body = (await request.json()) as { content?: string }
-    const content = typeof body.content === 'string' ? body.content : ''
-    const sanitizedContent = sanitizeMarkdown(content).trim()
-
+    const msgParsed = sendMessageSchema.safeParse(await request.json())
+    if (!msgParsed.success) {
+      return NextResponse.json({ error: msgParsed.error.flatten() }, { status: 400 })
+    }
+    const sanitizedContent = sanitizeMarkdown(msgParsed.data.content).trim()
     if (!sanitizedContent) {
-      return NextResponse.json({ error: 'content is required' }, { status: 400 })
+      return NextResponse.json({ error: 'content must contain valid text' }, { status: 400 })
     }
 
     const message = await prisma.chatMessage.create({

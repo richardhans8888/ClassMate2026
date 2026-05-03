@@ -6,6 +6,7 @@ import { getSession } from '@/lib/auth'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import { sanitizeText } from '@/lib/sanitize'
 import { getErrorResponse } from '@/lib/errors'
+import { createStudyGroupSchema } from '@/lib/schemas'
 
 // GET /api/study-groups?subject=Math&myGroups=true&excludeMyGroups=true
 export async function GET(req: NextRequest) {
@@ -89,25 +90,15 @@ export async function POST(req: NextRequest) {
   const limited = await checkRateLimit(session.id, writeLimiter)
   if (limited) return limited
 
-  const body = (await req.json()) as Record<string, unknown>
-
-  const name = typeof body.name === 'string' ? body.name.trim() : ''
-  const subject = typeof body.subject === 'string' ? body.subject.trim() : ''
-
-  if (name.length < 2)
-    return NextResponse.json({ error: 'Group name must be at least 2 characters' }, { status: 400 })
-  if (name.length > 100)
-    return NextResponse.json(
-      { error: 'Group name must be at most 100 characters' },
-      { status: 400 }
-    )
-  if (!subject)
-    return NextResponse.json({ error: 'name and subject are required' }, { status: 400 })
+  const parsed = createStudyGroupSchema.safeParse(await req.json())
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+  }
+  const { name, subject, description } = parsed.data
 
   const sanitizedName = sanitizeText(name)
   const sanitizedSubject = sanitizeText(subject)
-  const sanitizedDescription =
-    typeof body.description === 'string' ? sanitizeText(body.description) : null
+  const sanitizedDescription = description ? sanitizeText(description) : null
 
   if (!sanitizedName || !sanitizedSubject)
     return NextResponse.json({ error: 'name and subject must contain valid text' }, { status: 400 })
@@ -125,8 +116,8 @@ export async function POST(req: NextRequest) {
           description: sanitizedDescription ?? null,
           subject: sanitizedSubject,
           ownerId,
-          maxMembers: typeof body.maxMembers === 'number' ? body.maxMembers : 10,
-          isPrivate: body.isPrivate === true,
+          maxMembers: 10,
+          isPrivate: false,
           inviteCode,
         },
       })

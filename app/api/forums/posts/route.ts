@@ -10,6 +10,7 @@ import {
   ServiceValidationError,
 } from '@/lib/services/forum.service'
 import { flagContent, DuplicateFlagError } from '@/lib/services/moderation.service'
+import { createPostSchema } from '@/lib/schemas'
 
 export async function GET(req: NextRequest) {
   try {
@@ -50,11 +51,11 @@ export async function POST(req: NextRequest) {
     const limited = await checkRateLimit(user.id, writeLimiter)
     if (limited) return limited
 
-    const { title, content, tags } = await req.json()
-
-    if (!title || !content) {
-      return NextResponse.json({ error: 'title and content are required' }, { status: 400 })
+    const parsed = createPostSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
+    const { title, content, tags } = parsed.data
 
     try {
       const result = await createForumPost(user.id, { title, content, category: 'general', tags })

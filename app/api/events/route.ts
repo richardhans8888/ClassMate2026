@@ -5,15 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
 import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
 import { getErrorResponse } from '@/lib/errors'
-
-type EventPayload = {
-  title?: unknown
-  description?: unknown
-  date?: unknown
-  startTime?: unknown
-  endTime?: unknown
-  category?: unknown
-}
+import { createEventSchema } from '@/lib/schemas'
 
 function parseEventDate(rawDate: string): Date | null {
   const parsedDate = new Date(rawDate)
@@ -23,10 +15,8 @@ function parseEventDate(rawDate: string): Date | null {
   return parsedDate
 }
 
-function normalizeOptionalText(value: unknown): string | null {
-  if (typeof value !== 'string') {
-    return null
-  }
+function normalizeOptionalText(value: string | null | undefined): string | null {
+  if (!value) return null
   const cleaned = sanitizeText(value)
   return cleaned || null
 }
@@ -63,11 +53,11 @@ export async function POST(request: NextRequest) {
     const limited = await checkRateLimit(session.id, writeLimiter)
     if (limited) return limited
 
-    const body = (await request.json()) as EventPayload
-
-    if (typeof body.title !== 'string' || typeof body.date !== 'string') {
-      return NextResponse.json({ error: 'title and date are required' }, { status: 400 })
+    const parsed = createEventSchema.safeParse(await request.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
+    const body = parsed.data
 
     const sanitizedTitle = sanitizeText(body.title)
     if (!sanitizedTitle) {

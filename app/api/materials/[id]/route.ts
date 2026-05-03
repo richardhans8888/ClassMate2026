@@ -5,6 +5,7 @@ import { getSession } from '@/lib/auth'
 import { canModerate } from '@/lib/authorize'
 import { sanitizeText } from '@/lib/sanitize'
 import { checkRateLimit, generalLimiter, writeLimiter, getClientIp } from '@/lib/rate-limit'
+import { updateMaterialSchema } from '@/lib/schemas'
 
 const USER_SELECT = {
   select: {
@@ -62,10 +63,11 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       return NextResponse.json({ error: 'Not authorized to edit this material' }, { status: 403 })
     }
 
-    const body = (await request.json()) as Record<string, unknown>
-    const titleRaw = typeof body.title === 'string' ? body.title : undefined
-    const descriptionRaw = typeof body.description === 'string' ? body.description : undefined
-    const subjectRaw = typeof body.subject === 'string' ? body.subject : undefined
+    const matParsed = updateMaterialSchema.safeParse(await request.json())
+    if (!matParsed.success) {
+      return NextResponse.json({ error: matParsed.error.flatten() }, { status: 400 })
+    }
+    const { title: titleRaw, description: descriptionRaw, subject: subjectRaw } = matParsed.data
 
     const data: Record<string, unknown> = {}
     if (titleRaw !== undefined) {
@@ -75,7 +77,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       data.title = sanitized
     }
     if (descriptionRaw !== undefined) {
-      data.description = sanitizeText(descriptionRaw) || null
+      data.description = descriptionRaw ? sanitizeText(descriptionRaw) || null : null
     }
     if (subjectRaw !== undefined) {
       const sanitized = sanitizeText(subjectRaw)

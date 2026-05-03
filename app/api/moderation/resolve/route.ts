@@ -11,6 +11,7 @@ import {
 } from '@/lib/services/moderation.service'
 import { notifyUser } from '@/lib/services/notification.service'
 import { prisma } from '@/lib/prisma'
+import { resolveFlagSchema } from '@/lib/schemas'
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,17 +28,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const body = (await req.json()) as { flagId?: string; action?: string; reason?: string }
-    const { flagId, action, reason } = body
-
-    if (!flagId || !action) {
-      return NextResponse.json({ error: 'flagId and action are required' }, { status: 400 })
+    const parsed = resolveFlagSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
-
-    const trimmedReason = typeof reason === 'string' ? reason.trim() || undefined : undefined
+    const { flagId, action, reason } = parsed.data
 
     try {
-      const updatedFlag = await resolveFlag(flagId, action, session.id, trimmedReason)
+      const updatedFlag = await resolveFlag(flagId, action, session.id, reason)
 
       // Send in-app notification to the content reporter when content is removed
       if (action === 'remove') {

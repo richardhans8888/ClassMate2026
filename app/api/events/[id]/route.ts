@@ -5,40 +5,7 @@ import { canModerate } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
-
-type UpdateEventPayload = {
-  title?: unknown
-  description?: unknown
-  date?: unknown
-  startTime?: unknown
-  endTime?: unknown
-  category?: unknown
-}
-
-function parseDate(rawDate: unknown): Date | null {
-  if (typeof rawDate !== 'string') {
-    return null
-  }
-  const parsedDate = new Date(rawDate)
-  if (Number.isNaN(parsedDate.getTime())) {
-    return null
-  }
-  return parsedDate
-}
-
-function parseOptionalText(rawValue: unknown): string | null | undefined {
-  if (rawValue === undefined) {
-    return undefined
-  }
-  if (rawValue === null) {
-    return null
-  }
-  if (typeof rawValue !== 'string') {
-    return undefined
-  }
-  const cleaned = sanitizeText(rawValue)
-  return cleaned || null
-}
+import { updateEventSchema } from '@/lib/schemas'
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -66,7 +33,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'Not authorized to update this event' }, { status: 403 })
     }
 
-    const body = (await request.json()) as UpdateEventPayload
+    const parsed = updateEventSchema.safeParse(await request.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    }
+    const body = parsed.data
+
     const data: {
       title?: string
       description?: string | null
@@ -77,9 +49,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     } = {}
 
     if (body.title !== undefined) {
-      if (typeof body.title !== 'string') {
-        return NextResponse.json({ error: 'title must be a string' }, { status: 400 })
-      }
       const title = sanitizeText(body.title)
       if (!title) {
         return NextResponse.json({ error: 'title must contain valid text' }, { status: 400 })
@@ -88,32 +57,17 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     if (body.date !== undefined) {
-      const parsedDate = parseDate(body.date)
-      if (!parsedDate) {
+      const parsedDate = new Date(body.date)
+      if (Number.isNaN(parsedDate.getTime())) {
         return NextResponse.json({ error: 'Invalid date' }, { status: 400 })
       }
       data.date = parsedDate
     }
 
-    const description = parseOptionalText(body.description)
-    if (description !== undefined) {
-      data.description = description
-    }
-
-    const category = parseOptionalText(body.category)
-    if (category !== undefined) {
-      data.category = category
-    }
-
-    const startTime = parseOptionalText(body.startTime)
-    if (startTime !== undefined) {
-      data.startTime = startTime
-    }
-
-    const endTime = parseOptionalText(body.endTime)
-    if (endTime !== undefined) {
-      data.endTime = endTime
-    }
+    if (body.description !== undefined) data.description = body.description
+    if (body.category !== undefined) data.category = body.category
+    if (body.startTime !== undefined) data.startTime = body.startTime
+    if (body.endTime !== undefined) data.endTime = body.endTime
 
     const hasStartTimeField = body.startTime !== undefined
     const hasEndTimeField = body.endTime !== undefined

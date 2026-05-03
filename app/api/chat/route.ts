@@ -5,6 +5,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { moderateContent } from '@/lib/moderation'
 import { aiLimiter, checkRateLimit } from '@/lib/rate-limit'
+import { chatRequestSchema } from '@/lib/schemas'
 
 export async function POST(req: NextRequest) {
   const currentSession = await getSession()
@@ -14,18 +15,15 @@ export async function POST(req: NextRequest) {
   if (limited) return limited
 
   try {
-    const { messages, sessionId: providedSessionId } = await req.json()
-
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json({ error: 'messages required' }, { status: 400 })
+    const parsed = chatRequestSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
+    const { messages, sessionId: providedSessionId } = parsed.data
 
     // Moderate the user's message before any DB writes
     const lastMessage = messages[messages.length - 1]
     if (lastMessage?.role === 'user') {
-      if (typeof lastMessage.content !== 'string') {
-        return NextResponse.json({ error: 'Invalid message content' }, { status: 400 })
-      }
       const moderation = await moderateContent(lastMessage.content)
       if (moderation.action === 'block') {
         return NextResponse.json(
@@ -53,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Auto-create session if none provided
-    let activeSessionId: string = providedSessionId
+    let activeSessionId: string = providedSessionId ?? ''
     if (!activeSessionId) {
       const titleText =
         lastMessage?.role === 'user' && typeof lastMessage.content === 'string'

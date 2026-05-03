@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { aiLimiter, checkRateLimit } from '@/lib/rate-limit'
+import { summarizeSchema } from '@/lib/schemas'
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,11 +15,11 @@ export async function POST(req: NextRequest) {
     const limited = await checkRateLimit(user.id, aiLimiter)
     if (limited) return limited
 
-    const { thread } = await req.json()
-
-    if (!thread || typeof thread !== 'string') {
-      return NextResponse.json({ error: 'thread content required' }, { status: 400 })
+    const parsed = summarizeSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
+    const { thread } = parsed.data
 
     // Use Groq to summarize discussion thread
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {

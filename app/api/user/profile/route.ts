@@ -3,11 +3,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, generalLimiter, writeLimiter, getClientIp } from '@/lib/rate-limit'
 import { getErrorResponse } from '@/lib/errors'
-
-const DISPLAY_NAME_MIN = 2
-const DISPLAY_NAME_MAX = 50
-const BIO_MAX = 500
-const FIELD_MAX = 50
+import { updateProfileSchema } from '@/lib/schemas'
 
 // GET /api/user/profile?userId=xxx
 export async function GET(req: NextRequest) {
@@ -51,62 +47,29 @@ export async function PATCH(req: NextRequest) {
   const limited = await checkRateLimit(getClientIp(req), writeLimiter)
   if (limited) return limited
 
-  const { userId, displayName, bio, university, major, avatarUrl } = (await req.json()) as Record<
-    string,
-    unknown
-  >
-  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
-
-  if (typeof displayName === 'string' && displayName.trim().length > 0) {
-    if (displayName.trim().length < DISPLAY_NAME_MIN) {
-      return NextResponse.json(
-        { error: `Display name must be at least ${DISPLAY_NAME_MIN} characters` },
-        { status: 400 }
-      )
-    }
-    if (displayName.length > DISPLAY_NAME_MAX) {
-      return NextResponse.json(
-        { error: `Display name must be at most ${DISPLAY_NAME_MAX} characters` },
-        { status: 400 }
-      )
-    }
+  const parsed = updateProfileSchema.safeParse(await req.json())
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
-  if (typeof bio === 'string' && bio.length > BIO_MAX) {
-    return NextResponse.json(
-      { error: `Bio must be at most ${BIO_MAX} characters` },
-      { status: 400 }
-    )
-  }
-  if (typeof university === 'string' && university.length > FIELD_MAX) {
-    return NextResponse.json(
-      { error: `University must be at most ${FIELD_MAX} characters` },
-      { status: 400 }
-    )
-  }
-  if (typeof major === 'string' && major.length > FIELD_MAX) {
-    return NextResponse.json(
-      { error: `Major must be at most ${FIELD_MAX} characters` },
-      { status: 400 }
-    )
-  }
+  const { userId, displayName, bio, university, major, avatarUrl } = parsed.data
 
   try {
     const profile = await prisma.userProfile.upsert({
-      where: { userId: String(userId) },
+      where: { userId },
       update: {
-        ...(displayName !== undefined && { displayName: String(displayName) }),
-        ...(bio !== undefined && { bio: String(bio) }),
-        ...(university !== undefined && { university: String(university) }),
-        ...(major !== undefined && { major: String(major) }),
-        ...(avatarUrl !== undefined && { avatarUrl: String(avatarUrl) }),
+        ...(displayName !== undefined && { displayName }),
+        ...(bio !== undefined && { bio }),
+        ...(university !== undefined && { university }),
+        ...(major !== undefined && { major }),
+        ...(avatarUrl !== undefined && { avatarUrl }),
       },
       create: {
-        userId: String(userId),
-        displayName: displayName != null ? String(displayName) : null,
-        bio: bio != null ? String(bio) : null,
-        university: university != null ? String(university) : null,
-        major: major != null ? String(major) : null,
-        avatarUrl: avatarUrl != null ? String(avatarUrl) : null,
+        userId,
+        displayName: displayName ?? null,
+        bio: bio ?? null,
+        university: university ?? null,
+        major: major ?? null,
+        avatarUrl: avatarUrl ?? null,
       },
     })
     return NextResponse.json({ profile })

@@ -4,14 +4,7 @@ import { getSession } from '@/lib/auth'
 import { requireAdmin } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
-
-type AssignableRole = 'STUDENT' | 'MODERATOR' | 'ADMIN'
-
-const ASSIGNABLE_ROLES: AssignableRole[] = ['STUDENT', 'MODERATOR', 'ADMIN']
-
-function isAssignableRole(value: unknown): value is AssignableRole {
-  return ASSIGNABLE_ROLES.includes(value as AssignableRole)
-}
+import { updateUserRoleSchema } from '@/lib/schemas'
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -34,12 +27,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: 'Cannot change your own role' }, { status: 400 })
     }
 
-    const body = (await req.json()) as { role?: unknown }
-    const newRole = body.role
-
-    if (!isAssignableRole(newRole)) {
-      return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
+    const roleParsed = updateUserRoleSchema.safeParse(await req.json())
+    if (!roleParsed.success) {
+      return NextResponse.json({ error: roleParsed.error.flatten() }, { status: 400 })
     }
+    const newRole = roleParsed.data.role
 
     const [caller, target] = await Promise.all([
       prisma.user.findUnique({ where: { id: session.id }, select: { role: true } }),

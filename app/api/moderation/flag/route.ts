@@ -9,6 +9,7 @@ import {
   DuplicateFlagError,
   SelfFlagError,
 } from '@/lib/services/moderation.service'
+import { flagContentSchema } from '@/lib/schemas'
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,20 +21,11 @@ export async function POST(req: NextRequest) {
     const limited = await checkRateLimit(session.id, writeLimiter)
     if (limited) return limited
 
-    const body = (await req.json()) as {
-      contentType?: string
-      contentId?: string
-      reason?: string
+    const parsed = flagContentSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
-
-    const { contentType, contentId, reason } = body
-
-    if (!contentType || !contentId || !reason) {
-      return NextResponse.json(
-        { error: 'contentType, contentId, and reason are required' },
-        { status: 400 }
-      )
-    }
+    const { contentType, contentId, reason } = parsed.data
 
     try {
       const flag = await flagContent(session.id, contentType, contentId, reason)
