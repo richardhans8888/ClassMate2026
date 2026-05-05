@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import { updateEventSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -35,7 +36,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const parsed = updateEventSchema.safeParse(await request.json())
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
     }
     const body = parsed.data
 

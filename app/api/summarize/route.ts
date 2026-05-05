@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { aiLimiter, checkRateLimit } from '@/lib/rate-limit'
 import { summarizeSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = summarizeSchema.safeParse(await req.json())
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
     }
     const { thread } = parsed.data
 

@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeText } from '@/lib/sanitize'
 import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
-import { getErrorResponse } from '@/lib/errors'
+import { getErrorResponse, zodErrorToString } from '@/lib/errors'
 import { createEventSchema } from '@/lib/schemas'
 
 function parseEventDate(rawDate: string): Date | null {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     const parsed = createEventSchema.safeParse(await request.json())
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
     }
     const body = parsed.data
 

@@ -12,6 +12,7 @@ import {
 import { notifyUser } from '@/lib/services/notification.service'
 import { prisma } from '@/lib/prisma'
 import { resolveFlagSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = resolveFlagSchema.safeParse(await req.json())
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
     }
     const { flagId, action, reason } = parsed.data
 

@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import { sanitizeText } from '@/lib/sanitize'
-import { getErrorResponse } from '@/lib/errors'
+import { getErrorResponse, zodErrorToString } from '@/lib/errors'
 import { createStudyGroupSchema } from '@/lib/schemas'
 
 // GET /api/study-groups?subject=Math&myGroups=true&excludeMyGroups=true
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
 
   const parsed = createStudyGroupSchema.safeParse(await req.json())
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
   }
   const { name, subject, description } = parsed.data
 

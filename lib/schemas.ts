@@ -23,12 +23,12 @@ export const createReplySchema = z.object({
 })
 
 export const updateReplySchema = z.object({
-  content: z.string().min(1).max(10000),
+  content: z.string({ error: 'content is required' }).min(1, 'content is required').max(10000),
 })
 
 // ── Study Groups ───────────────────────────────────────────────────────────
 export const createStudyGroupSchema = z.object({
-  name: z.string().min(2).max(100),
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   subject: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
 })
@@ -43,11 +43,13 @@ export const joinGroupSchema = z.object({
 
 // ── Connections ────────────────────────────────────────────────────────────
 export const createConnectionSchema = z.object({
-  recipientId: z.string().min(1),
+  recipientId: z.string({ error: 'recipientId is required' }).min(1, 'recipientId is required'),
 })
 
 export const updateConnectionSchema = z.object({
-  status: z.enum(['ACCEPTED', 'REJECTED']),
+  status: z.enum(['ACCEPTED', 'REJECTED'], {
+    message: 'Status must be ACCEPTED or REJECTED',
+  }),
 })
 
 // ── Messages ───────────────────────────────────────────────────────────────
@@ -80,8 +82,13 @@ export const updateEventSchema = z.object({
 // ── User Profile ───────────────────────────────────────────────────────────
 export const updateProfileSchema = z.object({
   userId: z.string().min(1),
-  displayName: z.string().min(2).max(50).optional().nullable(),
-  bio: z.string().max(500).optional().nullable(),
+  displayName: z
+    .string()
+    .min(2, 'Display name must be at least 2 characters')
+    .max(50)
+    .optional()
+    .nullable(),
+  bio: z.string().max(500, 'Bio must be 500 characters or less').optional().nullable(),
   university: z.string().max(100).optional().nullable(),
   major: z.string().max(100).optional().nullable(),
   avatarUrl: z.string().url().optional().nullable(),
@@ -89,8 +96,8 @@ export const updateProfileSchema = z.object({
 
 // ── Chat / AI Tutor ────────────────────────────────────────────────────────
 export const chatMessageSchema = z.object({
-  role: z.enum(['user', 'assistant', 'system']),
-  content: z.string().min(1).max(10000),
+  role: z.string(),
+  content: z.string().max(10000),
 })
 
 export const chatRequestSchema = z.object({
@@ -118,12 +125,15 @@ export const resolveFlagSchema = z.object({
 })
 
 export const moderateContentSchema = z.object({
-  content: z.string().min(1).max(10000),
+  content: z.string({ error: 'content required' }).min(1, 'content required').max(10000),
 })
 
 // ── Summarize ──────────────────────────────────────────────────────────────
 export const summarizeSchema = z.object({
-  thread: z.string().min(1).max(50000),
+  thread: z
+    .string({ error: 'thread content required' })
+    .min(1, 'thread content required')
+    .max(50000),
 })
 
 // ── Materials ──────────────────────────────────────────────────────────────

@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import { updateConnectionSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 // PATCH /api/connections/[id] — accept or reject a connection request
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -19,7 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const { id } = await params
     const parsed = updateConnectionSchema.safeParse(await req.json())
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
     }
     const { status } = parsed.data
 

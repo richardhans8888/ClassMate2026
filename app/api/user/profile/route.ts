@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, generalLimiter, writeLimiter, getClientIp } from '@/lib/rate-limit'
-import { getErrorResponse } from '@/lib/errors'
+import { getErrorResponse, zodErrorToString } from '@/lib/errors'
 import { updateProfileSchema } from '@/lib/schemas'
 
 // GET /api/user/profile?userId=xxx
@@ -49,7 +49,7 @@ export async function PATCH(req: NextRequest) {
 
   const parsed = updateProfileSchema.safeParse(await req.json())
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
   }
   const { userId, displayName, bio, university, major, avatarUrl } = parsed.data
 

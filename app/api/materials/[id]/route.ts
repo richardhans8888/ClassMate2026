@@ -6,6 +6,7 @@ import { canModerate } from '@/lib/authorize'
 import { sanitizeText } from '@/lib/sanitize'
 import { checkRateLimit, generalLimiter, writeLimiter, getClientIp } from '@/lib/rate-limit'
 import { updateMaterialSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 const USER_SELECT = {
   select: {
@@ -65,7 +66,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
 
     const matParsed = updateMaterialSchema.safeParse(await request.json())
     if (!matParsed.success) {
-      return NextResponse.json({ error: matParsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(matParsed.error) }, { status: 400 })
     }
     const { title: titleRaw, description: descriptionRaw, subject: subjectRaw } = matParsed.data
 

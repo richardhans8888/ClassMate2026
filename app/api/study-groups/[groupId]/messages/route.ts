@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { sanitizeMarkdown } from '@/lib/sanitize'
 import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
 import { studyGroupMessageSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
@@ -135,7 +136,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ gro
 
     const msgParsed = studyGroupMessageSchema.safeParse(await request.json())
     if (!msgParsed.success) {
-      return NextResponse.json({ error: msgParsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(msgParsed.error) }, { status: 400 })
     }
     const sanitizedContent = sanitizeMarkdown(msgParsed.data.content).trim()
     if (!sanitizedContent) {

@@ -1,3 +1,11 @@
+import type { ZodError } from 'zod'
+
+export function zodErrorToString(error: ZodError): string {
+  const first = error.issues[0]
+  if (!first) return 'Validation error'
+  return first.message
+}
+
 export class ValidationError extends Error {
   readonly status = 400
   constructor(message: string) {

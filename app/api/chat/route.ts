@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { moderateContent } from '@/lib/moderation'
 import { aiLimiter, checkRateLimit } from '@/lib/rate-limit'
 import { chatRequestSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 export async function POST(req: NextRequest) {
   const currentSession = await getSession()
@@ -17,7 +18,11 @@ export async function POST(req: NextRequest) {
   try {
     const parsed = chatRequestSchema.safeParse(await req.json())
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      const hasContentTypeError = parsed.error.issues.some((i) => i.path.includes('content'))
+      const errorMsg = hasContentTypeError
+        ? 'Invalid message content'
+        : zodErrorToString(parsed.error)
+      return NextResponse.json({ error: errorMsg }, { status: 400 })
     }
     const { messages, sessionId: providedSessionId } = parsed.data
 

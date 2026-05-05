@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/authorize'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, writeLimiter } from '@/lib/rate-limit'
 import { updateUserRoleSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -29,7 +30,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const roleParsed = updateUserRoleSchema.safeParse(await req.json())
     if (!roleParsed.success) {
-      return NextResponse.json({ error: roleParsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(roleParsed.error) }, { status: 400 })
     }
     const newRole = roleParsed.data.role
 

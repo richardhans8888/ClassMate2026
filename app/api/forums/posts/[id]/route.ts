@@ -13,6 +13,7 @@ import {
   ServiceValidationError,
 } from '@/lib/services/forum.service'
 import { updatePostSchema, deleteWithReasonSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -58,7 +59,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     const parsed = updatePostSchema.safeParse(await request.json())
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
     }
     const { title, content, category } = parsed.data
 

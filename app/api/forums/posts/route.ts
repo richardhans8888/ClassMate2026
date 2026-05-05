@@ -11,6 +11,7 @@ import {
 } from '@/lib/services/forum.service'
 import { flagContent, DuplicateFlagError } from '@/lib/services/moderation.service'
 import { createPostSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 export async function GET(req: NextRequest) {
   try {
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = createPostSchema.safeParse(await req.json())
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
     }
     const { title, content, tags } = parsed.data
 

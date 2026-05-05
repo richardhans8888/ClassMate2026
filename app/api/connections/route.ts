@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit, generalLimiter, writeLimiter } from '@/lib/rate-limit'
 import { createConnectionSchema } from '@/lib/schemas'
+import { zodErrorToString } from '@/lib/errors'
 
 // POST /api/connections — send a connection request
 export async function POST(req: NextRequest) {
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = createConnectionSchema.safeParse(await req.json())
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      return NextResponse.json({ error: zodErrorToString(parsed.error) }, { status: 400 })
     }
     const { recipientId } = parsed.data
 
