@@ -92,6 +92,22 @@ describe('GET /api/moderation/logs', () => {
     expect(body.limit).toBe(50)
   })
 
+  it('returns 200 with empty array when no logs exist', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue(adminSession)
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'ADMIN' })
+    ;(prisma.moderationLog.findMany as jest.Mock).mockResolvedValue([])
+    ;(prisma.moderationLog.count as jest.Mock).mockResolvedValue(0)
+
+    const req = new NextRequest('http://localhost/api/moderation/logs')
+    const res = await GET(req)
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.success).toBe(true)
+    expect(body.logs).toHaveLength(0)
+    expect(body.total).toBe(0)
+  })
+
   it('respects pagination params (page and limit)', async () => {
     ;(getSession as jest.Mock).mockResolvedValue(adminSession)
     ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'ADMIN' })

@@ -1,12 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { ChatInterface } from 'components/features/ai-tutor/ChatInterface'
 import { SessionSidebar } from 'components/features/ai-tutor/SessionSidebar'
 import { useChat } from '../../../hooks/useChat'
 
+interface ChatSession {
+  id: string
+}
+
 export default function AITutorPage() {
+  const [latestSessionId, setLatestSessionId] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    fetch('/api/sessions')
+      .then((r) => (r.ok ? (r.json() as Promise<{ sessions: ChatSession[] }>) : null))
+      .then((data) => {
+        if (data?.sessions?.[0]) {
+          setLatestSessionId(data.sessions[0].id)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   const {
     messages,
     isLoading,
@@ -16,7 +33,7 @@ export default function AITutorPage() {
     sendMessage,
     switchSession,
     newChat,
-  } = useChat()
+  } = useChat({ sessionId: latestSessionId })
 
   const [showMobileSessions, setShowMobileSessions] = useState(false)
 

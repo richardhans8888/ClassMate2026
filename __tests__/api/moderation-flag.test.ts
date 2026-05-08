@@ -46,6 +46,52 @@ describe('POST /api/moderation/flag', () => {
     expect(res.status).toBe(201)
   })
 
+  it('returns 400 when user tries to flag their own content', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1', email: 'user@test.com' })
+    ;(prisma.forumPost.findUnique as jest.Mock).mockResolvedValue({ userId: 'user-1' })
+
+    const req = new NextRequest('http://localhost/api/moderation/flag', {
+      method: 'POST',
+      body: JSON.stringify({ contentType: 'post', contentId: 'post-1', reason: 'spam' }),
+    })
+
+    const res = await flagPOST(req)
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body.error).toMatch(/own content/i)
+  })
+
+  it('returns 409 when content is already flagged by the same user', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1', email: 'user@test.com' })
+    ;(prisma.forumPost.findUnique as jest.Mock).mockResolvedValue({ userId: 'author-1' })
+    ;(prisma.flaggedContent.findFirst as jest.Mock).mockResolvedValue({ id: 'existing-flag' })
+
+    const req = new NextRequest('http://localhost/api/moderation/flag', {
+      method: 'POST',
+      body: JSON.stringify({ contentType: 'post', contentId: 'post-1', reason: 'spam' }),
+    })
+
+    const res = await flagPOST(req)
+    expect(res.status).toBe(409)
+    const body = await res.json()
+    expect(body.error).toMatch(/already flagged/i)
+  })
+
+  it('returns 404 when contentId does not exist', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user-1', email: 'user@test.com' })
+    ;(prisma.forumPost.findUnique as jest.Mock).mockResolvedValue(null)
+
+    const req = new NextRequest('http://localhost/api/moderation/flag', {
+      method: 'POST',
+      body: JSON.stringify({ contentType: 'post', contentId: 'nonexistent-id', reason: 'spam' }),
+    })
+
+    const res = await flagPOST(req)
+    expect(res.status).toBe(404)
+    const body = await res.json()
+    expect(body.error).toMatch(/not found/i)
+  })
+
   it('does not write to moderationLog when a student flags content', async () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'student-1', email: 'student@test.com' })
     ;(prisma.forumPost.findUnique as jest.Mock).mockResolvedValue({ userId: 'author-1' })

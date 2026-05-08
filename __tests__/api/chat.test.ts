@@ -209,6 +209,83 @@ describe('POST /api/chat', () => {
     expect(mockFetch).not.toHaveBeenCalled()
   })
 
+  it('passes full conversation history to Groq', async () => {
+    mockGetSession.mockResolvedValueOnce(AUTHED_USER)
+    ;(prisma.chatSession.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: 'session-1',
+      userId: 'user-1',
+    })
+    ;(prisma.chatMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-id' })
+    ;(prisma.chatSession.update as jest.Mock).mockResolvedValue({})
+    mockFetch.mockResolvedValueOnce(makeGroqStream())
+
+    const history = [
+      { role: 'user', content: 'What is recursion?' },
+      { role: 'assistant', content: 'Recursion is when a function calls itself.' },
+      { role: 'user', content: 'Can you give an example?' },
+    ]
+
+    const req = new NextRequest('http://localhost/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages: history, sessionId: 'session-1' }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    await POST(req)
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    const [, fetchOptions] = mockFetch.mock.calls[0] as [string, RequestInit]
+    const body = JSON.parse(fetchOptions.body as string) as {
+      messages: Array<{ role: string; content: string }>
+    }
+    const userMessages = body.messages.filter((m) => m.role !== 'system')
+    expect(userMessages).toHaveLength(3)
+  })
+
+  it('returns 500 when Groq API returns an error', async () => {
+    mockGetSession.mockResolvedValueOnce(AUTHED_USER)
+    ;(prisma.chatSession.create as jest.Mock).mockResolvedValueOnce({ id: 'session-x' })
+    ;(prisma.chatMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-id' })
+    mockFetch.mockResolvedValueOnce(new Response('Groq error', { status: 500 }))
+
+    const req = new NextRequest('http://localhost/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages: [{ role: 'user', content: 'Hello' }] }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const res = await POST(req)
+    expect(res.status).toBe(500)
+    const body = (await res.json()) as { error: string }
+    expect(body.error).toBeDefined()
+  })
+
+  it('does not write user message to DB when moderation blocks content', async () => {
+    mockGetSession.mockResolvedValueOnce(AUTHED_USER)
+    const { moderateContent } = jest.requireMock('@/lib/moderation') as {
+      moderateContent: jest.Mock
+    }
+    moderateContent.mockResolvedValueOnce({
+      safe: false,
+      toxicity_score: 95,
+      spam_score: 5,
+      categories: ['harassment'],
+      action: 'block',
+      reason: 'Content contains harassment',
+    })
+
+    const req = new NextRequest('http://localhost/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages: [{ role: 'user', content: 'Hateful message' }] }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    expect(prisma.chatMessage.create).not.toHaveBeenCalled()
+    expect(prisma.chatSession.create).not.toHaveBeenCalled()
+  })
+
   it('returns 400 when message content is not a string', async () => {
     mockGetSession.mockResolvedValueOnce(AUTHED_USER)
 

@@ -174,6 +174,41 @@ describe('POST /api/moderation', () => {
     expect(data.error).toBeDefined()
   })
 
+  it('should handle very long content without crashing', async () => {
+    ;(getSession as jest.Mock).mockResolvedValue({ id: 'user123', email: 'test@example.com' })
+    ;(global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                safe: true,
+                toxicity_score: 5,
+                spam_score: 5,
+                categories: [],
+                action: 'approve',
+                reason: 'Content is safe',
+              }),
+            },
+          },
+        ],
+      }),
+    })
+
+    const longContent = 'A'.repeat(6000)
+    const req = new NextRequest('http://localhost:3000/api/moderation', {
+      method: 'POST',
+      body: JSON.stringify({ content: longContent }),
+    })
+
+    const response = await POST(req)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.action).toBe('approve')
+  })
+
   it('should handle malformed JSON from AI gracefully', async () => {
     ;(getSession as jest.Mock).mockResolvedValue({ id: 'user123', email: 'test@example.com' })
     ;(global.fetch as jest.Mock).mockResolvedValue({
