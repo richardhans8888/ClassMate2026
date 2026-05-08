@@ -101,7 +101,7 @@ export function GroupActions({
 
   if (isCurrentUserOwner) {
     return (
-      <div className="border-border border-t px-6 py-4">
+      <div className="border-border border-t px-4 py-3 sm:px-6 sm:py-4">
         <button
           onClick={() => setDeleteOpen(true)}
           disabled={loading}
@@ -142,7 +142,7 @@ export function GroupActions({
 
   if (isCurrentUserMember) {
     return (
-      <div className="border-border border-t px-6 py-4">
+      <div className="border-border border-t px-4 py-3 sm:px-6 sm:py-4">
         <button
           onClick={handleLeave}
           disabled={loading}
@@ -157,7 +157,7 @@ export function GroupActions({
 
   if (isFull) {
     return (
-      <div className="border-border border-t px-6 py-4">
+      <div className="border-border border-t px-4 py-3 sm:px-6 sm:py-4">
         <button
           disabled
           className="border-border text-muted-foreground h-10 w-full cursor-not-allowed rounded-lg border bg-transparent text-sm"
@@ -169,7 +169,7 @@ export function GroupActions({
   }
 
   return (
-    <div className="border-border border-t px-6 py-4">
+    <div className="border-border border-t px-4 py-3 sm:px-6 sm:py-4">
       <button
         onClick={handleJoin}
         disabled={loading}

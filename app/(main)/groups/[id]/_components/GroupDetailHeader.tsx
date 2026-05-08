@@ -18,7 +18,7 @@ export function GroupDetailHeader({
   onBack,
 }: GroupDetailHeaderProps) {
   return (
-    <div className="border-border bg-card border-b p-6">
+    <div className="border-border bg-card border-b p-4 md:p-6">
       <button
         onClick={onBack}
         className="text-muted-foreground hover:text-foreground mb-4 flex items-center gap-2 text-sm transition-colors"
@@ -34,7 +34,7 @@ export function GroupDetailHeader({
           </span>
         </div>
 
-        <h1 className="text-foreground text-2xl font-bold">{name}</h1>
+        <h1 className="text-foreground text-xl font-bold md:text-2xl">{name}</h1>
 
         {description && <p className="text-muted-foreground text-sm">{description}</p>}
 

@@ -177,6 +177,7 @@ export default function UploadMaterialPage() {
               ref={fileInputRef}
               type="file"
               className="hidden"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md,.zip"
               onChange={handleFileChange}
               disabled={loading}
             />

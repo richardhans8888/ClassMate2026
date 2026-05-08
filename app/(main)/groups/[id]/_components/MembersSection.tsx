@@ -50,7 +50,7 @@ function MemberAvatar({ image, name }: { image: string | null; name: string | nu
 
 export function MembersSection({ members, ownerId }: MembersSectionProps) {
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-6">
       <h2 className="text-foreground mb-4 text-lg font-semibold">
         Members{' '}
         <span className="text-muted-foreground text-sm font-normal">({members.length})</span>
